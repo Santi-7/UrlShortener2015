@@ -68,7 +68,7 @@ public class UrlShortenerController {
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 				}
 				//Needed permission
-				if(!l.getPermission().equals("All")) {
+				if(!l.getUsers().equals("All")) {
 					// Obtain jwt
 					final Claims claims = (Claims) request.getAttribute("claims");
 					try {
@@ -76,7 +76,7 @@ public class UrlShortenerController {
 						String username = claims.getSubject(); 
 						// Obtain role
 						String role = claims.get("role", String.class);
-						if((!l.getPermission().equals("Premium") && !role.equals("Premium")) ||
+						if((!l.getUsers().equals("Premium") && !role.equals("Premium")) ||
 						  (!l.getPermission().equals("Normal") && !role.equals("Normal"))) {
 							response.sendRedirect("incorrectToken.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
