@@ -67,6 +67,26 @@ public class UrlShortenerController {
 					response.sendRedirect("incorrectToken.html");
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 				}
+				//Needed permission
+				if(!l.getPermission().equals("All")) {
+					// Obtain jwt
+					final Claims claims = (Claims) request.getAttribute("claims");
+					try {
+						// Obtain username
+						String username = claims.getSubject(); 
+						// Obtain role
+						String role = claims.get("role", String.class);
+						if((!l.getPermission().equals("Premium") && !role.equals("Premium")) ||
+						  (!l.getPermission().equals("Normal") && !role.equals("Normal"))) {
+							response.sendRedirect("incorrectToken.html");
+							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+						}
+					}
+					catch (NullPointerException e) {
+						response.sendRedirect("incorrectToken.html");
+						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+					}
+				}
 			}
 			// Url is not safe or token matches
 			return createSuccessfulRedirectToResponse(l);
@@ -108,6 +128,8 @@ public class UrlShortenerController {
 		}
 		Client client = ClientBuilder.newClient();
 		boolean safe = !(users.equals("select") && time.equals("select"));
+		if(users.equals("select")) { users = "All"; }
+		if(time.equals("select")) { time = "Forever"; }
 		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
