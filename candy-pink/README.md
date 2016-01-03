@@ -74,4 +74,10 @@ David Nicuesa Aranda | 47
 Santiago Gil Begué   | 47
 Iñigo Gascón Royo    | 11
 
+## Acknowledgment
 
+We thank Bangladesh Green Team [1] and Niels Dommerholt [2] due to we have used their code to do our JWTokenFiler.java[3]
+
+[1]-(https://github.com/teruyi/UrlShortener2015/blob/master/bangladesh-green/src/main/java/urlshortener/bangladeshgreen/auth/WebTokenFilter.java)
+[2]-(https://github.com/nielsutrecht/jwt-angular-spring/tree/master/src/main/java/com/nibado/example/jwtangspr)
+[3]-(https://github.com/albert17/UrlShortener2015/blob/master/candy-pink/src/main/java/urlshortener2015/candypink/auth/JWTokenFilter.java)
