@@ -61,11 +61,16 @@ public class JWTokenFilter extends GenericFilterBean {
 			log.info("Authentication not required");
 			chain.doFilter(req, res); 
 		}
+		else if(permission.equals("Not") && jwtoken!=null) {
+			//Error
+			log.info("Authenticated yet");
+			forbidden(response);
+		}
 		else {
 			// No authenticated
 			if (jwtoken == null) {
 				log.info("No authenticate");
-				// Error
+				forbidden(response);
 			}
 			// Authenticated
 			else {
@@ -81,6 +86,7 @@ public class JWTokenFilter extends GenericFilterBean {
 					if(permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
 					   permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
 						log.info("Not PErmission");
+						forbidden(response);
 						//Error
 					}
 					// Has permission
@@ -93,17 +99,23 @@ public class JWTokenFilter extends GenericFilterBean {
                 catch(ExpiredJwtException expiredException){
                     // Token Expired
 					log.info("Expired");
+					forbidden(response);
                 }
                 catch (final SignatureException  | NullPointerException  |MalformedJwtException e) {
                     // Format incorrect
 					e.printStackTrace();
 					log.info("Format incorrect");
+					forbidden(response);
                 }
 			}
 		}
 	}
 	}
 
+	private void forbidden(HttpServletResponse response) throws IOException{
+		response.setStatus(403);
+		response.sendRedirect("403.html");	
+	}
 	private String requiredPermission(String uri, String method) {
 		log.info("URI PEDIDA: " + uri);
 		log.info("METHOD: " + method);
