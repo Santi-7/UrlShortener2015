@@ -23,11 +23,12 @@ apply plugin: 'eclipse-wtp'
 apply plugin: 'spring-boot'
 apply plugin: 'io.spring.dependency-management'
 
+/*
 //STOMP Websockets
 jar {
     baseName = 'gs-messaging-stomp-websocket'
     version =  '0.1.0'
-}
+}*/
 
 mainClassName = 'urlshortener2015.candypink.Application'
 
@@ -92,9 +93,9 @@ dependencies {
     compile "wsdl4j:wsdl4j:1.6.1"
     compile 'org.springframework.plugin:spring-plugin-core:1.1.0.RELEASE'
 //  compile files(genJaxb.classesDir).builtBy(genJaxb)
-    // Websockets
+    /*// Websockets
     compile("org.springframework.boot:spring-boot-starter-websocket")
-    compile("org.springframework:spring-messaging")
+    compile("org.springframework:spring-messaging")*/
 
     jaxb 	"com.sun.xml.bind:jaxb-xjc:2.2.4-1"
 

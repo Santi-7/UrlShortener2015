@@ -1,4 +1,4 @@
-package urlshortener2015.candypink.web;
+/**package urlshortener2015.candypink.web;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -14,4 +14,4 @@ public class WebSocketController {
         return ("Hello, " + message + "!");
     }
 
-}
+}*/

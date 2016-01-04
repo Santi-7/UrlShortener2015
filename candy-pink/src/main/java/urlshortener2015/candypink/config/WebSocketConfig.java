@@ -1,4 +1,4 @@
-package urlshortener2015.candypink.config;
+/*package urlshortener2015.candypink.config;
 
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
@@ -21,4 +21,4 @@ public class WebSocketConfig extends AbstractWebSocketMessageBrokerConfigurer {
 		registry.addEndpoint("/hello").withSockJS();
 	}
 
-}
+}*/
