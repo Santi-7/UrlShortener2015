@@ -45,11 +45,7 @@ public class JWTokenFilter extends GenericFilterBean {
 	// Obtain servlets
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
-	String pruebita = AuthUtils.createToken("pepe", "tonto", "pene", new Date(System.currentTimeMillis() + 15*60*1000));	
 	String jwtoken = null;
-	Jwts.parser().setSigningKey("pene")
-                            .parseClaimsJws(pruebita).getBody();
-	log.info("NO PETA===D");
 	Cookie[] cookies = request.getCookies();
 	if (cookies != null) {
 	for (int i = 0; i < cookies.length; i++) {
@@ -58,26 +54,31 @@ public class JWTokenFilter extends GenericFilterBean {
 		}	
 	}
 		log.info("KEY: " + key);
-		log.info("AuthHeader: " + jwtoken);
+		log.info("JWT: " + jwtoken);
 		String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 		// All users
 		if(permission == null) {
 			log.info("Authentication not required");
 			chain.doFilter(req, res); 
 		}
+		else if(permission.equals("Not") && jwtoken!=null) {
+			//Error
+			log.info("Authenticated yet");
+			forbidden(response);
+		}
 		else {
 			// No authenticated
 			if (jwtoken == null) {
 				log.info("No authenticate");
-				// Error
+				forbidden(response);
 			}
 			// Authenticated
 			else {
 				log.info("Authenticated-Go parse!");
                 try {
                     //Parse claims from JWT
-                    final Claims claims = Jwts.parser().setSigningKey(key)
-                            .parseClaimsJws(jwtoken).getBody();
+                    final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+					log.info("NAMEUSER: " + claims.getSubject());					
 					String role = claims.get("role", String.class);
 					log.info("Role: " + role);
 					log.info("Parsed");
@@ -85,35 +86,42 @@ public class JWTokenFilter extends GenericFilterBean {
 					if(permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
 					   permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
 						log.info("Not PErmission");
+						forbidden(response);
 						//Error
 					}
 					// Has permission
 					else {
 						log.info("Yes Permission");
 						request.setAttribute("claims",claims);	
-                        chain.doFilter(req, res);
+                        			chain.doFilter(req, res);
 					}
                 }
                 catch(ExpiredJwtException expiredException){
                     // Token Expired
 					log.info("Expired");
+					forbidden(response);
                 }
                 catch (final SignatureException  | NullPointerException  |MalformedJwtException e) {
                     // Format incorrect
-					//e.printStackTrace();
+					e.printStackTrace();
 					log.info("Format incorrect");
+					forbidden(response);
                 }
 			}
 		}
 	}
 	}
 
+	private void forbidden(HttpServletResponse response) throws IOException{
+		response.setStatus(403);
+		response.sendRedirect("403.html");	
+	}
 	private String requiredPermission(String uri, String method) {
 		log.info("URI PEDIDA: " + uri);
 		log.info("METHOD: " + method);
 		for(int i = 0; i < uris.length; i++) {
 			if(uri.contains(uris[i].getUri())) {
-				log.info("PREMIO: " + uris[i].getUri());
+				//log.info("PREMIO: " + uris[i].getUri());
 				log.info("PERMIO: " + uris[i].getPermission(method));	
 				return uris[i].getPermission(method);
 			}

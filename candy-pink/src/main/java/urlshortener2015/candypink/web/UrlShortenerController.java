@@ -50,46 +50,65 @@ public class UrlShortenerController {
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
 
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader).*}", method = RequestMethod.GET)
+	/**
+	 * Redirect to the related URL associated to the ShortUrl with hash id
+	 * If URL is spam or, it is redirected to errorSpam.html
+	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
+	 * @param id - hash of the shortUrl
+	 * @param token - optional, token of the shorturl if it is safe
+	 */
+	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|error).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
 					    throws IOException {
 		logger.info("Requested redirection with hash " + id);
 		ShortURL l = shortURLRepository.findByKey(id);
-		logger.info("Client token " + token + " - Real token: " + l.getToken());
+		// ShortUrl exists in our BBDD
 		if (l != null) {
-			// URL is safe, we must check token
-			logger.info("Is URL safe?: " + l.getSafe());
-			if (l.getSafe() == true) {
-				// Token doesn't match
-				if (!token.equals(l.getToken())) {
-					response.sendRedirect("incorrectToken.html");
-					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-				}
-				/*/Needed permission
-				if(!l.getUsers().equals("All")) {
-					// Obtain jwt
-					final Claims claims = (Claims) request.getAttribute("claims");
-					try {
-						// Obtain username
-						String username = claims.getSubject(); 
-						// Obtain role
-						String role = claims.get("role", String.class);
-						if((!l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
-						  (!l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+			// URL is not spam
+			if (l.getSpam() == false) {
+				// URL is safe, we must check token
+				logger.info("Is URL safe?: " + l.getSafe());
+				if (l.getSafe() == true) {
+					logger.info("Client token " + token + " - Real token: " + l.getToken());
+					// Token doesn't match
+					if (!l.getToken().equals(token)) {
+						response.sendRedirect("incorrectToken.html");
+						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+					}
+					//Needed permission
+					if(!l.getUsers().equals("All")) {
+						// Obtain jwt
+						final Claims claims = (Claims) request.getAttribute("claims");
+						try {
+							// Obtain username
+							String username = claims.getSubject(); 
+							// Obtain role
+							String role = claims.get("role", String.class);
+							if((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
+							 (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+								response.sendRedirect("incorrectToken.html");
+								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+							}
+						}
+						catch (NullPointerException e) {
 							response.sendRedirect("incorrectToken.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 						}
 					}
-					catch (NullPointerException e) {
-						response.sendRedirect("incorrectToken.html");
-						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-					}
-				}*/
+				}
+				// URL is not safe or token matches
+				return createSuccessfulRedirectToResponse(l);
 			}
-			// Url is not safe or token matches
-			return createSuccessfulRedirectToResponse(l);
+			// URL is spam
+			else {
+				response.sendRedirect("errorSpam.html");
+				// Target is returned in order to permit the client to navigate there
+				// if he decides, although it is spam
+				return new ResponseEntity<>(l.getTarget(), HttpStatus.OK);
+			}
+		// ShortUrl does not exist in our BBDD
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -116,41 +135,37 @@ public class UrlShortenerController {
 		logger.info("Requested new short for uri " + url);
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
-		/*// Obtain jwt
+		// Obtain jwt
 		final Claims claims = (Claims) request.getAttribute("claims");
 		// Obtain username
 		String username = claims.getSubject(); 
 		// Obtain role
 		String role = claims.get("role", String.class);
 		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
+			logger.info("No more today");
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-		}*/
-		Client client = ClientBuilder.newClient();
+		}
 		boolean safe = !(users.equals("select") && time.equals("select"));
 		if(users.equals("select")) { users = "All"; }
 		if(time.equals("select")) { time = "Forever"; }
 		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
-			if (su.getSafe() == false) {// Url requested is not safe
-				HttpHeaders h = new HttpHeaders();
-				h.setLocation(su.getUri());
-				logger.info("Requesting to Checker service");
-				GetCheckerRequest requestToWs = new GetCheckerRequest();
-				requestToWs.setUrl(url);
-				Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
-						+ "8080" + "/ws", requestToWs);
-				GetCheckerResponse checkerResponse = (GetCheckerResponse) response;
-				String resultCode = checkerResponse.getResultCode();
-				logger.info("respuesta recibida por el Web Service: "+resultCode);
-				if(resultCode.equals("ok")){
-					return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
-				}else{
-					return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-				}
+			HttpHeaders h = new HttpHeaders();
+			h.setLocation(su.getUri());
+			logger.info("Requesting to Checker service");
+			GetCheckerRequest requestToWs = new GetCheckerRequest();
+			requestToWs.setUrl(url);
+			Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
+					+ "8080" + "/ws", requestToWs);
+			GetCheckerResponse checkerResponse = (GetCheckerResponse) response;
+			String resultCode = checkerResponse.getResultCode();
+				logger.info("respuesta recibida por el Web Service: " + resultCode);
+			if (resultCode.equals("ok")) {
+				return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
 			} else {
-				return null;
+				return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 			}
 		} else {
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
@@ -159,9 +174,11 @@ public class UrlShortenerController {
 
 	protected ShortURL createAndSaveIfValid(String url, boolean safe, String users,
 			String sponsor,	String brand, String owner, String ip) {
-		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
+			UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
+		// It is a valid URL
 		if (urlValidator.isValid(url)) {
+			// Hash
 			String id = Hashing.murmur3_32()
 					.hashString(url, StandardCharsets.UTF_8).toString();
 			String token = null;
@@ -179,14 +196,15 @@ public class UrlShortenerController {
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null,null,null, null, ip, null, null);
+							safe, null, null, null, null, ip, null, null);
 			}
 			catch (IOException e) {}
 			if (su != null) {
-					return shortURLRepository.save(su);
+				return shortURLRepository.save(su);
 			} else {
 				return null;
 			}
+		// It is not a valid URL
 		} else {
 			return null;
 		}
@@ -202,7 +220,7 @@ public class UrlShortenerController {
 	}
 
 
-/*
+	/*
 	* This method checks an URI against the Google Safe Browsing API,
 	* then it updates the database if needed.
 	* According to Google's API, by making a GET request the URI sent
@@ -222,7 +240,6 @@ public class UrlShortenerController {
 		targetWithQueryParams = targetWithQueryParams.queryParam("url",URLEncoder.encode(url.getTarget()));
 
 		Response response = targetWithQueryParams.request(MediaType.TEXT_PLAIN_TYPE).get();
-		ShortURL res;
 		if (response.getStatus()==204) { 		// Uri is safe
 			logger.info("La uri no es malware | no deseada");
 			return false;
