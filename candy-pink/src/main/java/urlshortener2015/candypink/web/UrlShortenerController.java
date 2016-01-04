@@ -88,12 +88,12 @@ public class UrlShortenerController {
 							String role = claims.get("role", String.class);
 							if((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
 							 (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
-								response.sendRedirect("incorrectToken.html");
+								response.sendRedirect("403.html");
 								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 							}
 						}
 						catch (NullPointerException e) {
-							response.sendRedirect("incorrectToken.html");
+							response.sendRedirect("403.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 						}
 					}
@@ -143,13 +143,14 @@ public class UrlShortenerController {
 		String role = claims.get("role", String.class);
 		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
 			logger.info("No more today");
+			response.sendRedirect("noMore.html");
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 		}
 		boolean safe = !(users.equals("select") && time.equals("select"));
 		if(users.equals("select")) { users = "All"; }
 		if(time.equals("select")) { time = "Forever"; }
-		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
+		ShortURL su = createAndSaveIfValid(url, username, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
@@ -172,7 +173,7 @@ public class UrlShortenerController {
 		}
 	}
 
-	protected ShortURL createAndSaveIfValid(String url, boolean safe, String users,
+	protected ShortURL createAndSaveIfValid(String url, String username, boolean safe, String users,
 			String sponsor,	String brand, String owner, String ip) {
 			UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
@@ -196,7 +197,7 @@ public class UrlShortenerController {
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null, null, null, null, ip, null, null);
+							safe, null, null, null, null, ip, null, username);
 			}
 			catch (IOException e) {}
 			if (su != null) {
@@ -218,7 +219,6 @@ public class UrlShortenerController {
 			marshaller.afterPropertiesSet();
 		} catch (Exception e) {}
 	}
-
 
 	/*
 	* This method checks an URI against the Google Safe Browsing API,
