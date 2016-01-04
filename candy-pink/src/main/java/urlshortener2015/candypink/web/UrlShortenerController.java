@@ -67,7 +67,7 @@ public class UrlShortenerController {
 		logger.info("Client token " + token + " - Real token: " + l.getToken());
 		if (l != null) {
 			// URL is neither spam nor unreachable
-			if (l.getSpam() == false && l.getReachable() == false) {
+			if (l.getSpam() == false && l.getReachable() == true) {
 				// URL is safe, we must check token
 				logger.info("Is URL safe?: " + l.getSafe());
 				if (l.getSafe() == true) {
@@ -191,7 +191,7 @@ public class UrlShortenerController {
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null,null,null, null, ip, null, null);
+							safe, true, null, false, null, ip, null, null);
 			}
 			catch (IOException e) {}
 			if (su != null) {
