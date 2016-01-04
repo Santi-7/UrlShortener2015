@@ -118,9 +118,7 @@ public class FileUploadController {
 		Client client = ClientBuilder.newClient();
 		boolean safe = false;
 		if(users!=null && time!=null){ safe = !(users.equals("select") && time.equals("select"));}
-		ShortURL su = createAndSaveIfValid(url, safe, sponsor, brand, UUID
-
-			.randomUUID().toString(), extractIP(request));
+		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID.randomUUID().toString(), extractIP(request));
 		if (su != null) {
 			if (su.getSafe() == false) {// Url requested is not safe
 				HttpHeaders h = new HttpHeaders();
