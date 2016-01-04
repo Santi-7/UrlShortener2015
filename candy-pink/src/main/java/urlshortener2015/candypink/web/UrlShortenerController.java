@@ -67,7 +67,7 @@ public class UrlShortenerController {
 		logger.info("Client token " + token + " - Real token: " + l.getToken());
 		if (l != null) {
 			// URL is neither spam nor unreachable
-			if (l.getSpam() == false && l.getReachable() == true) {
+			if (l.getSpam() == false && l.getReachable() == false) {
 				// URL is safe, we must check token
 				logger.info("Is URL safe?: " + l.getSafe());
 				if (l.getSafe() == true) {
