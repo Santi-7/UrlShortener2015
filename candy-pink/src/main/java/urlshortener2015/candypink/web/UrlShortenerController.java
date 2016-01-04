@@ -116,7 +116,7 @@ public class UrlShortenerController {
 		logger.info("Requested new short for uri " + url);
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
-		/*// Obtain jwt
+		// Obtain jwt
 		final Claims claims = (Claims) request.getAttribute("claims");
 		// Obtain username
 		String username = claims.getSubject(); 
@@ -125,7 +125,7 @@ public class UrlShortenerController {
 		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-		}*/
+		}
 		Client client = ClientBuilder.newClient();
 		boolean safe = !(users.equals("select") && time.equals("select"));
 		if(users.equals("select")) { users = "All"; }

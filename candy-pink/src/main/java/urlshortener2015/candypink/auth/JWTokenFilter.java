@@ -3,7 +3,7 @@ package urlshortener2015.candypink.auth;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.web.filter.GenericFilterBean;
-
+import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import javax.servlet.FilterChain;
@@ -17,6 +17,7 @@ import javax.servlet.http.Cookie;
 import io.jsonwebtoken.*;
 
 import urlshortener2015.candypink.auth.support.AuthURI;
+import urlshortener2015.candypink.auth.support.AuthUtils;
 
 /**
  *  We thank Bangladesh Green Team [1] and Niels Dommerholt [2] due to we have used their code to do our JWTokenFiler.java
@@ -44,7 +45,11 @@ public class JWTokenFilter extends GenericFilterBean {
 	// Obtain servlets
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
+	String pruebita = AuthUtils.createToken("pepe", "tonto", "pene", new Date(System.currentTimeMillis() + 15*60*1000));	
 	String jwtoken = null;
+	Jwts.parser().setSigningKey("pene")
+                            .parseClaimsJws(pruebita).getBody();
+	log.info("NO PETA===D");
 	Cookie[] cookies = request.getCookies();
 	for (int i = 0; i < cookies.length; i++) {
 		if(cookies[i].getName().equals("Authorization")) {
@@ -92,7 +97,7 @@ public class JWTokenFilter extends GenericFilterBean {
                     // Token Expired
 					log.info("Expired");
                 }
-                catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
+                catch (final SignatureException  | NullPointerException  |MalformedJwtException e) {
                     // Format incorrect
 					e.printStackTrace();
 					log.info("Format incorrect");
