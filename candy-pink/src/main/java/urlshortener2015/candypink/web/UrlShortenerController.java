@@ -158,9 +158,9 @@ public class UrlShortenerController {
 			logger.info("Requesting to Checker service");
 			GetCheckerRequest requestToWs = new GetCheckerRequest();
 			requestToWs.setUrl(url);
-			Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
+			Object responseR = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
 					+ "8080" + "/ws", requestToWs);
-			GetCheckerResponse checkerResponse = (GetCheckerResponse) response;
+			GetCheckerResponse checkerResponse = (GetCheckerResponse) responseR;
 			String resultCode = checkerResponse.getResultCode();
 				logger.info("respuesta recibida por el Web Service: " + resultCode);
 			if (resultCode.equals("ok")) {
