@@ -79,20 +79,17 @@ public class FileUploadController {
 		csvStatusInfo inf = null;
         if (!file.isEmpty()) {
 			try{
-				/*File f = new File ("temp.txt");
-				f.createNewFile();
-				file.transferTo(f);*/
 				copyFile(file);
 				File f = new File("temp");
 				boolean ok = true;
 				inf = new csvStatusInfo();
 				Scanner sc = new Scanner(f);
-				sc.useDelimiter(",");
+				sc.useDelimiter(",|\\s");
 				while(sc.hasNext() && ok){
 					String url = sc.next();
+					logger.info(url);
 					ResponseEntity<ShortURL> res = shortener(url, null, null, null, null, request);
-					logger.info("****PUES HASTA AQUI SI LLEGA****");
-					if(res!=null && (res.getStatusCode()).toString()=="BAD_REQUEST"){ 
+					if(res!=null && ((res.getStatusCode()).toString()).equals("400")){  
 						ok=false;
 						inf.setFailed(url);
 					}
@@ -119,10 +116,9 @@ public class FileUploadController {
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
 		Client client = ClientBuilder.newClient();
-		//TODO: TIRA NULL POINTER POR AQUI
-		boolean safe = !(users.equals("select") && time.equals("select"));
-		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
-			.randomUUID().toString(), extractIP(request));
+		boolean safe = false;
+		if(users!=null && time!=null){ safe = !(users.equals("select") && time.equals("select"));}
+		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID.randomUUID().toString(), extractIP(request));
 		if (su != null) {
 			if (su.getSafe() == false) {// Url requested is not safe
 				HttpHeaders h = new HttpHeaders();
@@ -208,28 +204,15 @@ public class FileUploadController {
 			BufferedOutputStream stream =
 					new BufferedOutputStream(new FileOutputStream(new File("temp")));
 			stream.write(bytes);
-			stream.close();
-		
-		
-	}	
-    
-    //Original
-    /*@RequestMapping(method=RequestMethod.POST)
-    public @ResponseBody String handleFileUpload(@RequestParam("name") String name,
-            @RequestParam("file") MultipartFile file){
-        if (!file.isEmpty()) {
-            try {
-                byte[] bytes = file.getBytes();
-                BufferedOutputStream stream =
-                        new BufferedOutputStream(new FileOutputStream(new File(name)));
-                stream.write(bytes);
-                stream.close();
-                return "You successfully uploaded " + name + "!";
-            } catch (Exception e) {
-                return "You failed to upload " + name + " => " + e.getMessage();
-            }
-        } else {
-            return "You failed to upload " + name + " because the file was empty.";
-        }
-    }*/
+			stream.close();	
+	}
+	
+	@PostConstruct
+	private void initWsComs(){
+		marshaller = new Jaxb2Marshaller();
+		marshaller.setPackagesToScan(ClassUtils.getPackageName(GetCheckerRequest.class));
+		try {
+			marshaller.afterPropertiesSet();
+		} catch (Exception e) {}
+	}
 }
