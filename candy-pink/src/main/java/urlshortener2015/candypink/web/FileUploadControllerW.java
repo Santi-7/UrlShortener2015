@@ -63,7 +63,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
 @RestController
 @RequestMapping("/upload")
-public class FileUploadController {
+public class FileUploadControllerW {
 	
 	@Resource
 	protected LinkedBlockingQueue<MultipartFile> csvQueue;
