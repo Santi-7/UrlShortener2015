@@ -52,7 +52,7 @@ public class UrlShortenerController {
 
 	/**
 	 * Redirect to the related URL associated to the ShortUrl with hash id
-	 * If URL is either spam or unreachable, it is redirected to error.html
+	 * If URL is spam or, it is redirected to errorSpam.html
 	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
@@ -64,15 +64,16 @@ public class UrlShortenerController {
 					    throws IOException {
 		logger.info("Requested redirection with hash " + id);
 		ShortURL l = shortURLRepository.findByKey(id);
-		logger.info("Client token " + token + " - Real token: " + l.getToken());
+		// ShortUrl exists in our BBDD
 		if (l != null) {
-			// URL is neither spam nor unreachable
-			if (l.getSpam() == false && l.getReachable() == false) {
+			// URL is not spam
+			if (l.getSpam() == false) {
 				// URL is safe, we must check token
 				logger.info("Is URL safe?: " + l.getSafe());
 				if (l.getSafe() == true) {
+					logger.info("Client token " + token + " - Real token: " + l.getToken());
 					// Token doesn't match
-					if (!token.equals(l.getToken())) {
+					if (!l.getToken().equals(token)) {
 						response.sendRedirect("incorrectToken.html");
 						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 					}
@@ -100,11 +101,14 @@ public class UrlShortenerController {
 				// URL is not safe or token matches
 				return createSuccessfulRedirectToResponse(l);
 			}
-			// URL is either spam or unreachable
+			// URL is spam
 			else {
-				response.sendRedirect("error.html");
-				return new ResponseEntity<>(HttpStatus.OK);
+				response.sendRedirect("errorSpam.html");
+				// Target is returned in order to permit the client to navigate there
+				// if he decides, although it is spam
+				return new ResponseEntity<>(l.getTarget(), HttpStatus.OK);
 			}
+		// ShortUrl does not exist in our BBDD
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
