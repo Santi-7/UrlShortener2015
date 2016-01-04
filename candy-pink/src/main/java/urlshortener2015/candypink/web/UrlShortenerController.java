@@ -131,7 +131,8 @@ public class UrlShortenerController {
 			@RequestParam(value = "time", required = false) String time,
 			@RequestParam(value = "sponsor", required = false) String sponsor,
 			@RequestParam(value = "brand", required = false) String brand,
-			HttpServletRequest request, HttpServletResponse response) {
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
 		logger.info("Requested new short for uri " + url);
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
