@@ -45,7 +45,8 @@ public class JWTokenFilter extends GenericFilterBean {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
         final String authHeader = request.getHeader("Authorization");
-	
+		log.info("KEY: " + key);
+		log.info("AuthHeader: " + authHeader);
 		String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 		// All users
 		if(permission == null) {

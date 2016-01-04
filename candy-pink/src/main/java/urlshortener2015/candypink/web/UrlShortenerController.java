@@ -77,7 +77,7 @@ public class UrlShortenerController {
 						// Obtain role
 						String role = claims.get("role", String.class);
 						if((!l.getUsers().equals("Premium") && !role.equals("Premium")) ||
-						  (!l.getPermission().equals("Normal") && !role.equals("Normal"))) {
+						  (!l.getUsers().equals("Normal") && !role.equals("Normal"))) {
 							response.sendRedirect("incorrectToken.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 						}

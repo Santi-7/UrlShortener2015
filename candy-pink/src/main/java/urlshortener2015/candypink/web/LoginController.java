@@ -2,11 +2,12 @@ package urlshortener2015.candypink.web;
 
 
 import java.util.Date;
-
+import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -62,9 +63,13 @@ public class LoginController {
 				if(encoder.matches(password, user.getPassword())) {
 					String token = AuthUtils.createToken(key, user.getUsername(), user.getAuthority(), 
 							     new Date(System.currentTimeMillis() + 15*60*1000));
-					response.addHeader("Authorization", token);					
+					logger.info("Tu JWT: " + token);
+					logger.info("JWT: " + token.length());
+					//response.addHeader("Authorization", token);					
 					// Put token in response
-					return new ResponseEntity<>(user, HttpStatus.CREATED);
+					HttpHeaders h = new HttpHeaders();
+					h.set("Authorization", token);
+					return new ResponseEntity<>(user, h, HttpStatus.CREATED);
 				}
 				// The password is incorrect
 				else {
