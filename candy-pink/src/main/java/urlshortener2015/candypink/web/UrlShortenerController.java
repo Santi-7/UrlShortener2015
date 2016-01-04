@@ -141,31 +141,26 @@ public class UrlShortenerController {
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 		}*/
-		Client client = ClientBuilder.newClient();
 		boolean safe = !(users.equals("select") && time.equals("select"));
 		if(users.equals("select")) { users = "All"; }
 		if(time.equals("select")) { time = "Forever"; }
 		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
-			if (su.getSafe() == false) {// Url requested is not safe
-				HttpHeaders h = new HttpHeaders();
-				h.setLocation(su.getUri());
-				logger.info("Requesting to Checker service");
-				GetCheckerRequest requestToWs = new GetCheckerRequest();
-				requestToWs.setUrl(url);
-				Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
-						+ "8080" + "/ws", requestToWs);
-				GetCheckerResponse checkerResponse = (GetCheckerResponse) response;
-				String resultCode = checkerResponse.getResultCode();
-				logger.info("respuesta recibida por el Web Service: "+resultCode);
-				if(resultCode.equals("ok")){
-					return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
-				}else{
-					return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-				}
+			HttpHeaders h = new HttpHeaders();
+			h.setLocation(su.getUri());
+			logger.info("Requesting to Checker service");
+			GetCheckerRequest requestToWs = new GetCheckerRequest();
+			requestToWs.setUrl(url);
+			Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
+					+ "8080" + "/ws", requestToWs);
+			GetCheckerResponse checkerResponse = (GetCheckerResponse) response;
+			String resultCode = checkerResponse.getResultCode();
+				logger.info("respuesta recibida por el Web Service: " + resultCode);
+			if (resultCode.equals("ok")) {
+				return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
 			} else {
-				return null;
+				return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 			}
 		} else {
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
