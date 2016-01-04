@@ -45,6 +45,7 @@ public class JWTokenFilter extends GenericFilterBean {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
 	String jwtoken = null;
+	if (cookies != null) {
 	Cookie[] cookies = request.getCookies();
 	for (int i = 0; i < cookies.length; i++) {
 		if(cookies[i].getName().equals("Authorization")) {
@@ -99,6 +100,7 @@ public class JWTokenFilter extends GenericFilterBean {
                 }
 			}
 		}
+	}
 	}
 
 	private String requiredPermission(String uri, String method) {
