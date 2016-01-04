@@ -94,7 +94,7 @@ public class JWTokenFilter extends GenericFilterBean {
                 }
                 catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
                     // Format incorrect
-					e.printStackTrace();
+					//e.printStackTrace();
 					log.info("Format incorrect");
                 }
 			}
