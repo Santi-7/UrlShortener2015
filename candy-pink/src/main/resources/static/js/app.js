@@ -20,7 +20,22 @@ $(document).ready(
                     },
                     error : function() {
                         $("#result").html(
-                                "<div class='alert alert-danger lead'>An error has ocurred</div>");
+                                "<div class='alert alert-danger lead'>An error has ocurred</div>"
+                                + "<div class=\"col-sm-offset-4 col-sm-4 text-center\">"
+                                	/* Error in JSON */
+                                	+ "<a href=\"signUpPage.html\">"
+						+ "<span class=\"input-group-btn\"><button class=\"btn btn-lg btn-primary\">"
+							+ JSON
+						+ "</button></span>"
+					+ "</a>"
+					/* Error in HTML */
+					+ "<a href=\"signUpPage.html\">"
+						+ "<span class=\"input-group-btn\"><button class=\"btn btn-lg btn-primary\">"
+							+ HTML
+						+ "</button></span>"
+					+ "</a>"
+				+ "</div>"
+			);
                     }
                 });
             });

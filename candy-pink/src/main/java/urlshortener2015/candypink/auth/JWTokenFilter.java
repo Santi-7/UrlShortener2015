@@ -51,6 +51,7 @@ public class JWTokenFilter extends GenericFilterBean {
                             .parseClaimsJws(pruebita).getBody();
 	log.info("NO PETA===D");
 	Cookie[] cookies = request.getCookies();
+	if (cookies != null) {
 	for (int i = 0; i < cookies.length; i++) {
 		if(cookies[i].getName().equals("Authorization")) {
 			jwtoken = cookies[i].getValue();
@@ -99,11 +100,12 @@ public class JWTokenFilter extends GenericFilterBean {
                 }
                 catch (final SignatureException  | NullPointerException  |MalformedJwtException e) {
                     // Format incorrect
-					e.printStackTrace();
+					//e.printStackTrace();
 					log.info("Format incorrect");
                 }
 			}
 		}
+	}
 	}
 
 	private String requiredPermission(String uri, String method) {
