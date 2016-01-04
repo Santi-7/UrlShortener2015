@@ -18,6 +18,11 @@ import io.jsonwebtoken.*;
 
 import urlshortener2015.candypink.auth.support.AuthURI;
 
+/**
+ *  We thank Bangladesh Green Team [1] and Niels Dommerholt [2] due to we have used their code to do our JWTokenFiler.java
+ * [1]-(https://github.com/teruyi/UrlShortener2015/blob/master/bangladesh-green/src/main/java/urlshortener/bangladeshgreen/auth/WebTokenFilter.java)
+ * [2]-(https://github.com/nielsutrecht/jwt-angular-spring/tree/master/src/main/java/com/nibado/example/jwtangspr)
+ */
 @Configurable
 public class JWTokenFilter extends GenericFilterBean {
    
@@ -40,7 +45,8 @@ public class JWTokenFilter extends GenericFilterBean {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
         final String authHeader = request.getHeader("Authorization");
-	
+		log.info("KEY: " + key);
+		log.info("AuthHeader: " + authHeader);
 		String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 		// All users
 		if(permission == null) {
@@ -88,8 +94,12 @@ public class JWTokenFilter extends GenericFilterBean {
 	}
 
 	private String requiredPermission(String uri, String method) {
+		log.info("URI PEDIDA: " + uri);
+		log.info("METHOD: " + method);
 		for(int i = 0; i < uris.length; i++) {
 			if(uri.contains(uris[i].getUri())) {
+				log.info("PREMIO: " + uris[i].getUri());
+				log.info("PERMIO: " + uris[i].getPermission(method));	
 				return uris[i].getPermission(method);
 			}
 		}

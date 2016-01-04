@@ -14,8 +14,8 @@ public class AuthUtils {
 	private static final Logger logger = LoggerFactory.getLogger(AuthUtils.class);
 
 	private static final String newLine = System.getProperty("line.separator");
-	private static final String URIS = "/admin;GET-Admin;POST-Admin;PUT-Admin;DELETE-Admin" + newLine
-					 + "/link;POST-Normal"+ newLine;
+	private static final String URIS = "/admin:GET-Admin,POST-Admin,PUT-Admin,DELETE-Admin:end:"+ newLine
+					 + "/link:POST-Normal:end:"+ newLine;
 
 	public static String createToken(String username, String role, String key, Date expiration) {
 		return Jwts.builder().setSubject(username)
@@ -26,12 +26,12 @@ public class AuthUtils {
 	public static AuthURI[] buildAuthURIs() {
 		ArrayList<AuthURI> authList = new ArrayList<AuthURI>();
 		Scanner scan = new Scanner(URIS);
-		scan.useDelimiter(";|,|-");
-		while(scan.hasNext()) {
+		scan.useDelimiter(":|,|-");
+		while(scan.hasNextLine()) {
 			String uri = scan.next();
 			logger.info("URI: " + uri);
 			HashMap<String, String> methods = new HashMap<String, String>();
-			while(scan.hasNext()) {
+			while(!scan.hasNext("end")) {
 				String method = scan.next();
 				logger.info("METHOD: " + method);
 				String permission = scan.next();
@@ -39,9 +39,11 @@ public class AuthUtils {
 				methods.put(method, permission);		
 			}
 			authList.add(new AuthURI(uri, methods));
+			scan.nextLine();
 		}
 		AuthURI[] auth = new AuthURI[authList.size()];
 		auth = authList.toArray(auth);
+		logger.info("TAM: " + auth.length);
 		return auth;
 	}
 }

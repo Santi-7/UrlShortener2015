@@ -20,7 +20,6 @@ import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
 import io.jsonwebtoken.*;
-
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -51,7 +50,7 @@ public class UrlShortenerController {
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
 
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
@@ -67,6 +66,26 @@ public class UrlShortenerController {
 				if (!token.equals(l.getToken())) {
 					response.sendRedirect("incorrectToken.html");
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+				}
+				//Needed permission
+				if(!l.getUsers().equals("All")) {
+					// Obtain jwt
+					final Claims claims = (Claims) request.getAttribute("claims");
+					try {
+						// Obtain username
+						String username = claims.getSubject(); 
+						// Obtain role
+						String role = claims.get("role", String.class);
+						if((!l.getUsers().equals("Premium") && !role.equals("Premium")) ||
+						  (!l.getUsers().equals("Normal") && !role.equals("Normal"))) {
+							response.sendRedirect("incorrectToken.html");
+							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+						}
+					}
+					catch (NullPointerException e) {
+						response.sendRedirect("incorrectToken.html");
+						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+					}
 				}
 			}
 			// Url is not safe or token matches
@@ -109,6 +128,8 @@ public class UrlShortenerController {
 		}
 		Client client = ClientBuilder.newClient();
 		boolean safe = !(users.equals("select") && time.equals("select"));
+		if(users.equals("select")) { users = "All"; }
+		if(time.equals("select")) { time = "Forever"; }
 		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {

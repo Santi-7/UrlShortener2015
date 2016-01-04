@@ -2,11 +2,12 @@ package urlshortener2015.candypink.web;
 
 
 import java.util.Date;
-
+import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -21,7 +22,7 @@ import urlshortener2015.candypink.repository.UserRepositoryImpl;
 import urlshortener2015.candypink.auth.support.AuthUtils;
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpSession;
+import javax.servlet.http.HttpServletResponse;
 
 @RestController
 @RequestMapping("/login")
@@ -45,12 +46,12 @@ public class LoginController {
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView login(@RequestParam(value = "error", required = false) String error, HttpServletRequest request) {
 		ModelAndView model = new ModelAndView();
-		model.setViewName("loginPage.html");
+		model.setViewName("loginPage");
 		return model;
 	}
 
 	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<User> login(@RequestParam("username") String id, @RequestParam("password") String password, 						  HttpServletRequest request) { 
+	public ResponseEntity<User> login(@RequestParam("user") String id, @RequestParam("password") String password, 						  HttpServletRequest request, HttpServletResponse response) { 
 		logger.info("Requested login with username " + id);
 		//Verify the fields aren´t empty
 		if (verifyFields(id, password)) {
@@ -62,8 +63,13 @@ public class LoginController {
 				if(encoder.matches(password, user.getPassword())) {
 					String token = AuthUtils.createToken(key, user.getUsername(), user.getAuthority(), 
 							     new Date(System.currentTimeMillis() + 15*60*1000));
+					logger.info("Tu JWT: " + token);
+					logger.info("JWT: " + token.length());
+					//response.addHeader("Authorization", token);					
 					// Put token in response
-					return new ResponseEntity<>(user, HttpStatus.CREATED);
+					HttpHeaders h = new HttpHeaders();
+					h.set("Authorization", token);
+					return new ResponseEntity<>(user, h, HttpStatus.CREATED);
 				}
 				// The password is incorrect
 				else {

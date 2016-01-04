@@ -11,7 +11,7 @@ import urlshortener2015.candypink.repository.UserRepository;
 import urlshortener2015.candypink.repository.UserRepositoryImpl;
 
 @RestController
-@RequestMapping("/manageUsers")
+@RequestMapping("/admin/manageUsers")
 public class ManageUsersController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ManageUsersController.class);
