@@ -59,37 +59,45 @@ public class UrlShortenerController {
 		ShortURL l = shortURLRepository.findByKey(id);
 		logger.info("Client token " + token + " - Real token: " + l.getToken());
 		if (l != null) {
-			// URL is safe, we must check token
-			logger.info("Is URL safe?: " + l.getSafe());
-			if (l.getSafe() == true) {
-				// Token doesn't match
-				if (!token.equals(l.getToken())) {
-					response.sendRedirect("incorrectToken.html");
-					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-				}
-				/*/Needed permission
-				if(!l.getUsers().equals("All")) {
-					// Obtain jwt
-					final Claims claims = (Claims) request.getAttribute("claims");
-					try {
-						// Obtain username
-						String username = claims.getSubject(); 
-						// Obtain role
-						String role = claims.get("role", String.class);
-						if((!l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
-						  (!l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
-							response.sendRedirect("incorrectToken.html");
-							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-						}
-					}
-					catch (NullPointerException e) {
+			// URL is neither spam nor unreachable
+			if (l.getSpam() == false && l.getReachable() == false) {
+				// URL is safe, we must check token
+				logger.info("Is URL safe?: " + l.getSafe());
+				if (l.getSafe() == true) {
+					// Token doesn't match
+					if (!token.equals(l.getToken())) {
 						response.sendRedirect("incorrectToken.html");
 						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 					}
-				}*/
+					/*/Needed permission
+					if(!l.getUsers().equals("All")) {
+						// Obtain jwt
+						final Claims claims = (Claims) request.getAttribute("claims");
+						try {
+							// Obtain username
+							String username = claims.getSubject(); 
+							// Obtain role
+							String role = claims.get("role", String.class);
+							if((!l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
+							 (!l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+								response.sendRedirect("incorrectToken.html");
+								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+							}
+						}
+						catch (NullPointerException e) {
+							response.sendRedirect("incorrectToken.html");
+							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+						}
+					}*/
+				}
+				// Url is not safe or token matches
+				return createSuccessfulRedirectToResponse(l);
 			}
-			// Url is not safe or token matches
-			return createSuccessfulRedirectToResponse(l);
+			// URI is either spam or unreachable
+			else {
+				response.sendRedirect("error.html");
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
