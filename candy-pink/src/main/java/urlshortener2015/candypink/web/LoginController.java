@@ -61,11 +61,10 @@ public class LoginController {
 				BCryptPasswordEncoder encoder=new BCryptPasswordEncoder();
 				// The password is correct
 				if(encoder.matches(password, user.getPassword())) {
-					logger.info("Login KEY: " + key);
-					String token = AuthUtils.createToken(key, user.getUsername(), user.getAuthority(), 
-							     new Date(System.currentTimeMillis() + 15*60*1000));
-					logger.info("Tu JWT: " + token);
-					logger.info("JWT: " + token.length());
+					logger.info("KEY: " + key);
+					String token = AuthUtils.createToken(user.getUsername(), user.getAuthority(), 
+							     key, new Date(System.currentTimeMillis() + 15*60*1000));
+					logger.info("JWT: " + token);
 					response.addCookie(new Cookie("Authorization", token));					
 					// Put token in response
 					return new ResponseEntity<>(user, HttpStatus.CREATED);

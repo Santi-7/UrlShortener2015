@@ -123,6 +123,7 @@ public class UrlShortenerController {
 		// Obtain role
 		String role = claims.get("role", String.class);
 		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
+			logger.info("No more today");
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 		}
@@ -133,11 +134,12 @@ public class UrlShortenerController {
 		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
+			logger.info("Not secure")
 			if (su.getSafe() == false) {// Url requested is not safe
 				HttpHeaders h = new HttpHeaders();
 				h.setLocation(su.getUri());
 				logger.info("Requesting to Checker service");
-				GetCheckerRequest requestToWs = new GetCheckerRequest();
+				/*GetCheckerRequest requestToWs = new GetCheckerRequest();
 				requestToWs.setUrl(url);
 				Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
 						+ "8080" + "/ws", requestToWs);
@@ -148,7 +150,8 @@ public class UrlShortenerController {
 					return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
 				}else{
 					return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-				}
+				}*/
+				return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
 			} else {
 				return null;
 			}
