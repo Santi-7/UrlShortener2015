@@ -191,7 +191,7 @@ public class UrlShortenerController {
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, true, null, false, null, ip, null, null);
+							safe, null, null, null, null, ip, null, null);
 			}
 			catch (IOException e) {}
 			if (su != null) {
