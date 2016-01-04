@@ -171,7 +171,9 @@ public class UrlShortenerController {
 			String sponsor,	String brand, String owner, String ip) {
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
+		// It is a valid URL
 		if (urlValidator.isValid(url)) {
+			// Hash
 			String id = Hashing.murmur3_32()
 					.hashString(url, StandardCharsets.UTF_8).toString();
 			String token = null;
@@ -193,10 +195,11 @@ public class UrlShortenerController {
 			}
 			catch (IOException e) {}
 			if (su != null) {
-					return shortURLRepository.save(su);
+				return shortURLRepository.save(su);
 			} else {
 				return null;
 			}
+		// It is not a valid URL
 		} else {
 			return null;
 		}
@@ -212,7 +215,7 @@ public class UrlShortenerController {
 	}
 
 
-/*
+	/*
 	* This method checks an URI against the Google Safe Browsing API,
 	* then it updates the database if needed.
 	* According to Google's API, by making a GET request the URI sent
@@ -232,7 +235,6 @@ public class UrlShortenerController {
 		targetWithQueryParams = targetWithQueryParams.queryParam("url",URLEncoder.encode(url.getTarget()));
 
 		Response response = targetWithQueryParams.request(MediaType.TEXT_PLAIN_TYPE).get();
-		ShortURL res;
 		if (response.getStatus()==204) { 		// Uri is safe
 			logger.info("La uri no es malware | no deseada");
 			return false;
