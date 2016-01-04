@@ -15,7 +15,8 @@ public class AuthUtils {
 
 	private static final String newLine = System.getProperty("line.separator");
 	private static final String URIS = "/admin:GET-Admin,POST-Admin,PUT-Admin,DELETE-Admin:end:"+ newLine
-					 + "/link:POST-Normal:end:"+ newLine;
+					 + "/link:POST-Normal:end:"+ newLine
+					 + "/profile:GET-Normal,POST-Normal,PUT-Normal,DELETE-Normal:end:"+ newLine;
 
 	public static String createToken(String username, String role, String key, Date expiration) {
 		return Jwts.builder().setSubject(username)
