@@ -42,8 +42,8 @@ public class ProfileController {
 		//String role = claims.get("role", String.class);
 		logger.info("Requested profile from user " + username);
 		ModelAndView model = new ModelAndView();
-    		model.addObject("Uris", shortURLRepository.findByUserlast24h(username));
-		model.setViewName("profilePage.html");
+    		model.addObject("uris", shortURLRepository.findByUserlast24h(username));
+		model.setViewName("profilePage");
 		return model;
   	}
 }
