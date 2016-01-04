@@ -45,8 +45,8 @@ public class JWTokenFilter extends GenericFilterBean {
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
 	String jwtoken = null;
-	if (cookies != null) {
 	Cookie[] cookies = request.getCookies();
+	if (cookies != null) {
 	for (int i = 0; i < cookies.length; i++) {
 		if(cookies[i].getName().equals("Authorization")) {
 			jwtoken = cookies[i].getValue();
