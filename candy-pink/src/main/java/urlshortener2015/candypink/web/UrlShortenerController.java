@@ -77,7 +77,7 @@ public class UrlShortenerController {
 						response.sendRedirect("incorrectToken.html");
 						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 					}
-					/*/Needed permission
+					//Needed permission
 					if(!l.getUsers().equals("All")) {
 						// Obtain jwt
 						final Claims claims = (Claims) request.getAttribute("claims");
@@ -86,8 +86,8 @@ public class UrlShortenerController {
 							String username = claims.getSubject(); 
 							// Obtain role
 							String role = claims.get("role", String.class);
-							if((!l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
-							 (!l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+							if((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
+							 (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
 								response.sendRedirect("incorrectToken.html");
 								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 							}
@@ -96,7 +96,7 @@ public class UrlShortenerController {
 							response.sendRedirect("incorrectToken.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 						}
-					}*/
+					}
 				}
 				// URL is not safe or token matches
 				return createSuccessfulRedirectToResponse(l);
@@ -135,16 +135,17 @@ public class UrlShortenerController {
 		logger.info("Requested new short for uri " + url);
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
-		/*// Obtain jwt
+		// Obtain jwt
 		final Claims claims = (Claims) request.getAttribute("claims");
 		// Obtain username
 		String username = claims.getSubject(); 
 		// Obtain role
 		String role = claims.get("role", String.class);
 		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
+			logger.info("No more today");
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-		}*/
+		}
 		boolean safe = !(users.equals("select") && time.equals("select"));
 		if(users.equals("select")) { users = "All"; }
 		if(time.equals("select")) { time = "Forever"; }
@@ -173,7 +174,7 @@ public class UrlShortenerController {
 
 	protected ShortURL createAndSaveIfValid(String url, boolean safe, String users,
 			String sponsor,	String brand, String owner, String ip) {
-		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
+			UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
 		// It is a valid URL
 		if (urlValidator.isValid(url)) {
