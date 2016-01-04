@@ -43,7 +43,7 @@ public class ProfileController {
 		logger.info("Requested profile from user " + username);
 		ModelAndView model = new ModelAndView();
     		model.addObject("Uris", shortURLRepository.findByUserlast24h(username));
-		model.setViewName("profilePage.html");
+		model.setViewName("profilePage");
 		return model;
   	}
 }
