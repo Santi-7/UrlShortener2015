@@ -50,7 +50,14 @@ public class UrlShortenerController {
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
 
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader).*}", method = RequestMethod.GET)
+	/**
+	 * Redirect to the related URL associated to the ShortUrl with hash id
+	 * If URL is either spam or unreachable, it is redirected to error.html
+	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
+	 * @param id - hash of the shortUrl
+	 * @param token - optional, token of the shorturl if it is safe
+	 */
+	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|error).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
@@ -90,10 +97,10 @@ public class UrlShortenerController {
 						}
 					}*/
 				}
-				// Url is not safe or token matches
+				// URL is not safe or token matches
 				return createSuccessfulRedirectToResponse(l);
 			}
-			// URI is either spam or unreachable
+			// URL is either spam or unreachable
 			else {
 				response.sendRedirect("error.html");
 				return new ResponseEntity<>(HttpStatus.OK);
