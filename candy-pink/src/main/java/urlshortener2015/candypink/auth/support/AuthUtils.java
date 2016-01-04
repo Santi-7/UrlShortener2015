@@ -14,8 +14,8 @@ public class AuthUtils {
 	private static final Logger logger = LoggerFactory.getLogger(AuthUtils.class);
 
 	private static final String newLine = System.getProperty("line.separator");
-	private static final String URIS = "/admin:GET-Admin,POST-Admin,PUT-Admin,DELETE-Admin:end:"+ newLine;
-					 /*+ "/link:POST-Normal:end:"+ newLine;*/
+	private static final String URIS = "/admin:GET-Admin,POST-Admin,PUT-Admin,DELETE-Admin:end:"+ newLine
+					 + "/link:POST-Normal:end:"+ newLine;
 
 	public static String createToken(String username, String role, String key, Date expiration) {
 		return Jwts.builder().setSubject(username)
@@ -23,6 +23,10 @@ public class AuthUtils {
             	.signWith(SignatureAlgorithm.HS256, key).compact();
 	 }
 
+	//public static Claim decodeToken(String key, String token) {
+	//	 return Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+	//}
+	
 	public static AuthURI[] buildAuthURIs() {
 		ArrayList<AuthURI> authList = new ArrayList<AuthURI>();
 		Scanner scan = new Scanner(URIS);

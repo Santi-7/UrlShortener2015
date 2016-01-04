@@ -67,7 +67,7 @@ public class UrlShortenerController {
 					response.sendRedirect("incorrectToken.html");
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 				}
-				//Needed permission
+				/*/Needed permission
 				if(!l.getUsers().equals("All")) {
 					// Obtain jwt
 					final Claims claims = (Claims) request.getAttribute("claims");
@@ -86,7 +86,7 @@ public class UrlShortenerController {
 						response.sendRedirect("incorrectToken.html");
 						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 					}
-				}
+				}*/
 			}
 			// Url is not safe or token matches
 			return createSuccessfulRedirectToResponse(l);
