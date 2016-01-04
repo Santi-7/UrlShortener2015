@@ -27,11 +27,11 @@ public class Application extends SpringBootServletInitializer {
 		return application.sources(Application.class);
 	}
 	
-	/**@Bean
+	@Bean
 	public FilterRegistrationBean jwtFilter() {
 		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
 		JWTokenFilter authenticationFilter = new JWTokenFilter(key, AuthUtils.buildAuthURIs());
 		registrationBean.setFilter(authenticationFilter);
 		return registrationBean;
-	}*/
+	}
 }
