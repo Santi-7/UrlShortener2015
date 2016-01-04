@@ -46,6 +46,7 @@ public class JWTokenFilter extends GenericFilterBean {
         final HttpServletResponse response  = (HttpServletResponse) res;
 	String jwtoken = null;
 	Cookie[] cookies = request.getCookies();
+	if (cookies != null) {
 	for (int i = 0; i < cookies.length; i++) {
 		if(cookies[i].getName().equals("Authorization")) {
 			jwtoken = cookies[i].getValue();
@@ -94,11 +95,12 @@ public class JWTokenFilter extends GenericFilterBean {
                 }
                 catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
                     // Format incorrect
-					e.printStackTrace();
+					//e.printStackTrace();
 					log.info("Format incorrect");
                 }
 			}
 		}
+	}
 	}
 
 	private String requiredPermission(String uri, String method) {
