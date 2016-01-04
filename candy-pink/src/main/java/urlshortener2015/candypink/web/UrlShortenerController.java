@@ -52,7 +52,7 @@ public class UrlShortenerController {
 
 	/**
 	 * Redirect to the related URL associated to the ShortUrl with hash id
-	 * If URL is spam or, it is redirected to error.html
+	 * If URL is spam or, it is redirected to errorSpam.html
 	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
@@ -103,7 +103,7 @@ public class UrlShortenerController {
 			}
 			// URL is spam
 			else {
-				response.sendRedirect("error.html");
+				response.sendRedirect("errorSpam.html");
 				// Target is returned in order to permit the client to navigate there
 				// if he decides, although it is spam
 				return new ResponseEntity<>(l.getTarget(), HttpStatus.OK);
