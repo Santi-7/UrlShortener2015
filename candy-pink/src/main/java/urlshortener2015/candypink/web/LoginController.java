@@ -20,7 +20,7 @@ import urlshortener2015.candypink.domain.User;
 import urlshortener2015.candypink.repository.UserRepository;
 import urlshortener2015.candypink.repository.UserRepositoryImpl;
 import urlshortener2015.candypink.auth.support.AuthUtils;
-
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -61,15 +61,14 @@ public class LoginController {
 				BCryptPasswordEncoder encoder=new BCryptPasswordEncoder();
 				// The password is correct
 				if(encoder.matches(password, user.getPassword())) {
+					logger.info("Login KEY: " + key);
 					String token = AuthUtils.createToken(key, user.getUsername(), user.getAuthority(), 
 							     new Date(System.currentTimeMillis() + 15*60*1000));
 					logger.info("Tu JWT: " + token);
 					logger.info("JWT: " + token.length());
-					//response.addHeader("Authorization", token);					
+					response.addCookie(new Cookie("Authorization", token));					
 					// Put token in response
-					HttpHeaders h = new HttpHeaders();
-					h.set("Authorization", token);
-					return new ResponseEntity<>(user, h, HttpStatus.CREATED);
+					return new ResponseEntity<>(user, HttpStatus.CREATED);
 				}
 				// The password is incorrect
 				else {

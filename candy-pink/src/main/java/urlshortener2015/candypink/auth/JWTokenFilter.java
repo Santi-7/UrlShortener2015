@@ -13,7 +13,7 @@ import javax.servlet.ServletResponse;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-
+import javax.servlet.http.Cookie;
 import io.jsonwebtoken.*;
 
 import urlshortener2015.candypink.auth.support.AuthURI;
@@ -44,9 +44,15 @@ public class JWTokenFilter extends GenericFilterBean {
 	// Obtain servlets
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
-        final String authHeader = request.getHeader("Authorization");
+	String jwtoken = null;
+	Cookie[] cookies = request.getCookies();
+	for (int i = 0; i < cookies.length; i++) {
+		if(cookies[i].getName().equals("Authorization")) {
+			jwtoken = cookies[i].getValue();
+		}	
+	}
 		log.info("KEY: " + key);
-		log.info("AuthHeader: " + authHeader);
+		log.info("AuthHeader: " + jwtoken);
 		String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 		// All users
 		if(permission == null) {
@@ -55,22 +61,23 @@ public class JWTokenFilter extends GenericFilterBean {
 		}
 		else {
 			// No authenticated
-			if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+			if (jwtoken == null) {
 				log.info("No authenticate");
 				// Error
 			}
 			// Authenticated
 			else {
-                String token = authHeader.substring(7);
+				log.info("Authenticated-Go parse!");
                 try {
                     //Parse claims from JWT
                     final Claims claims = Jwts.parser().setSigningKey(key)
-                            .parseClaimsJws(token).getBody();
+                            .parseClaimsJws(jwtoken).getBody();
 					String role = claims.get("role", String.class);
+					log.info("Role: " + role);
 					log.info("Parsed");
 					// Has not permission
-					if(permission.equals("Admin") && !role.equals("Admin") ||
-					   permission.equals("Premium") && role.equals("Normal")) {
+					if(permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
+					   permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
 						log.info("Not PErmission");
 						//Error
 					}
@@ -87,6 +94,7 @@ public class JWTokenFilter extends GenericFilterBean {
                 }
                 catch (final SignatureException  | NullPointerException  |MalformedJwtException ex) {
                     // Format incorrect
+					e.printStackTrace();
 					log.info("Format incorrect");
                 }
 			}
