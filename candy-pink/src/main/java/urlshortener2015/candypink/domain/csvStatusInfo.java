@@ -16,15 +16,14 @@ public class csvStatusInfo {
 	}
 	
 	public void setFailed(String s){
-		failed = "An error ocurred while shorting URL "+ s + "\n"
-				+ "no URL was shorted";
+		failed = "An error ocurred while shortening URL "+ s + ". No URL was shortened.";
 	}
 	
 	public String getStatus(){
 		if(failed.equals("")){
 			String stat="";
 			for(int n=0;n<status.size();n++){
-				stat = stat + status.get(n) + ";";
+				stat = stat + status.get(n) + "; ";
 			}
 			return stat;
 		}
