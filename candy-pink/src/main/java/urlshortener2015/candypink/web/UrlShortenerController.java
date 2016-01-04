@@ -64,13 +64,14 @@ public class UrlShortenerController {
 					    throws IOException {
 		logger.info("Requested redirection with hash " + id);
 		ShortURL l = shortURLRepository.findByKey(id);
-		logger.info("Client token " + token + " - Real token: " + l.getToken());
+		// ShortUrl exists in our BBDD
 		if (l != null) {
 			// URL is not spam
 			if (l.getSpam() == false) {
 				// URL is safe, we must check token
 				logger.info("Is URL safe?: " + l.getSafe());
 				if (l.getSafe() == true) {
+					logger.info("Client token " + token + " - Real token: " + l.getToken());
 					// Token doesn't match
 					if (!token.equals(l.getToken())) {
 						response.sendRedirect("incorrectToken.html");
@@ -107,6 +108,7 @@ public class UrlShortenerController {
 				// if he decides, although it is spam
 				return new ResponseEntity<>(l.getTarget(), HttpStatus.OK);
 			}
+		// ShortUrl does not exist in our BBDD
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
