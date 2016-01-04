@@ -1,5 +1,6 @@
 package checker.infrastructure;
 
+import java.net.UnknownHostException;
 import java.util.Map;
 
 /**

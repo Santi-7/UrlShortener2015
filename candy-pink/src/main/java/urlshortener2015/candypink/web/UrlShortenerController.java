@@ -19,6 +19,7 @@ import checker.web.ws.schema.GetCheckerResponse;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
+import io.jsonwebtoken.*;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -35,6 +36,7 @@ import java.sql.Date;
 import java.util.Random;
 import java.util.UUID;
 
+
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
@@ -48,7 +50,7 @@ public class UrlShortenerController {
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
 
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
@@ -64,6 +66,26 @@ public class UrlShortenerController {
 				if (!token.equals(l.getToken())) {
 					response.sendRedirect("incorrectToken.html");
 					return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+				}
+				//Needed permission
+				if(!l.getUsers().equals("All")) {
+					// Obtain jwt
+					final Claims claims = (Claims) request.getAttribute("claims");
+					try {
+						// Obtain username
+						String username = claims.getSubject(); 
+						// Obtain role
+						String role = claims.get("role", String.class);
+						if((!l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
+						  (!l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+							response.sendRedirect("incorrectToken.html");
+							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+						}
+					}
+					catch (NullPointerException e) {
+						response.sendRedirect("incorrectToken.html");
+						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+					}
 				}
 			}
 			// Url is not safe or token matches
@@ -94,9 +116,21 @@ public class UrlShortenerController {
 		logger.info("Requested new short for uri " + url);
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
+		/*// Obtain jwt
+		final Claims claims = (Claims) request.getAttribute("claims");
+		// Obtain username
+		String username = claims.getSubject(); 
+		// Obtain role
+		String role = claims.get("role", String.class);
+		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
+			// Can't redirect more today
+			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
+		}*/
 		Client client = ClientBuilder.newClient();
 		boolean safe = !(users.equals("select") && time.equals("select"));
-		ShortURL su = createAndSaveIfValid(url, safe, sponsor, brand, UUID
+		if(users.equals("select")) { users = "All"; }
+		if(time.equals("select")) { time = "Forever"; }
+		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
 			if (su.getSafe() == false) {// Url requested is not safe
@@ -123,8 +157,8 @@ public class UrlShortenerController {
 		}
 	}
 
-	protected ShortURL createAndSaveIfValid(String url, boolean safe, String sponsor,
-			String brand, String owner, String ip) {
+	protected ShortURL createAndSaveIfValid(String url, boolean safe, String users,
+			String sponsor,	String brand, String owner, String ip) {
 		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
 		if (urlValidator.isValid(url)) {
@@ -142,8 +176,8 @@ public class UrlShortenerController {
 				su = new ShortURL(id, url,
 					linkTo(
 						methodOn(UrlShortenerController.class).redirectTo(
-							id, token, null, null)).toUri(), token, sponsor,
-							new Date(System.currentTimeMillis()),
+							id, token, null, null)).toUri(), token, users,
+							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
 							safe, null,null,null, null, ip, null, null);
 			}

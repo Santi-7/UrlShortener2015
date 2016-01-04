@@ -3,11 +3,13 @@ package checker.infrastructure;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
+import javax.ws.rs.ProcessingException;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,22 +46,23 @@ public class AdapterToExternImpl implements AdapterToExtern {
 
         //Request to check if URI is malware
         Response response = targetWithQueryParams.request(MediaType.TEXT_PLAIN_TYPE).get();
-        Boolean safe = false,reach = true;
+        Boolean spam = false,reach = false;
         if(response.getStatus()==204){//Uri is safe
-            safe = true;
+            spam = false;
 
         }else if(response.getStatus()==200){//Uri is unsafe
-            safe = false;
+            spam = true;
         }
 
         //Request to check if URI is reachable
-        target = checkerClient.target(url);
-        response = target.request(MediaType.TEXT_PLAIN_TYPE).get();
-        if(response.getStatus() != 200){
-            reach = false;
-        }
-
-        results.put("Safe", safe);
+        try {
+            target = checkerClient.target(url);
+            response = target.request(MediaType.TEXT_PLAIN_TYPE).get();
+            if(response.getStatus() == 200){
+                reach = true;
+            }
+        }catch(ProcessingException e){}
+        results.put("Spam", spam);
         results.put("Reachable", reach);
         return results;
     }

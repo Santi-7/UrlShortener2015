@@ -39,7 +39,7 @@ public class SignUpController {
 	public ModelAndView register() {
 		logger.info("Registry view requested");
 		ModelAndView model = new ModelAndView();
-		model.setViewName("signUpPage.html");
+		model.setViewName("signUpPage");
 		return model;
 	}
 	/**
