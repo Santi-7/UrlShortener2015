@@ -47,7 +47,7 @@
 
 * 03/12/2015 11:00-14:30. Alberto Álvarez and Santiago Gil work together in order to progress and improve the project.
 
-* 05/12/2015 11:00-20:00. All members of the group work together in order to progress and improve the project.
+* 04/12/2015 11:00-20:00. All members of the group work together in order to progress and improve the project.
 
 ## Acknowledgment
 
