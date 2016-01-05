@@ -57,7 +57,7 @@ public class UrlShortenerController {
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
 	 */
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|error).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
@@ -88,12 +88,12 @@ public class UrlShortenerController {
 							String role = claims.get("role", String.class);
 							if((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
 							 (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
-								response.sendRedirect("incorrectToken.html");
+								response.sendRedirect("403.html");
 								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 							}
 						}
 						catch (NullPointerException e) {
-							response.sendRedirect("incorrectToken.html");
+							response.sendRedirect("403.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 						}
 					}
@@ -131,7 +131,8 @@ public class UrlShortenerController {
 			@RequestParam(value = "time", required = false) String time,
 			@RequestParam(value = "sponsor", required = false) String sponsor,
 			@RequestParam(value = "brand", required = false) String brand,
-			HttpServletRequest request) {
+			HttpServletRequest request, HttpServletResponse response)
+			throws IOException {
 		logger.info("Requested new short for uri " + url);
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
@@ -143,13 +144,14 @@ public class UrlShortenerController {
 		String role = claims.get("role", String.class);
 		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
 			logger.info("No more today");
+			response.sendRedirect("noMore.html");
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 		}
 		boolean safe = !(users.equals("select") && time.equals("select"));
 		if(users.equals("select")) { users = "All"; }
 		if(time.equals("select")) { time = "Forever"; }
-		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID
+		ShortURL su = createAndSaveIfValid(url, username, safe, users, sponsor, brand, UUID
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
@@ -157,9 +159,9 @@ public class UrlShortenerController {
 			logger.info("Requesting to Checker service");
 			GetCheckerRequest requestToWs = new GetCheckerRequest();
 			requestToWs.setUrl(url);
-			Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
+			Object responseR = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
 					+ "8080" + "/ws", requestToWs);
-			GetCheckerResponse checkerResponse = (GetCheckerResponse) response;
+			GetCheckerResponse checkerResponse = (GetCheckerResponse) responseR;
 			String resultCode = checkerResponse.getResultCode();
 				logger.info("respuesta recibida por el Web Service: " + resultCode);
 			if (resultCode.equals("ok")) {
@@ -172,7 +174,7 @@ public class UrlShortenerController {
 		}
 	}
 
-	protected ShortURL createAndSaveIfValid(String url, boolean safe, String users,
+	protected ShortURL createAndSaveIfValid(String url, String username, boolean safe, String users,
 			String sponsor,	String brand, String owner, String ip) {
 			UrlValidator urlValidator = new UrlValidator(new String[] { "http",
 				"https" });
@@ -196,7 +198,7 @@ public class UrlShortenerController {
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null, null, null, null, ip, null, null);
+							safe, null, null, null, null, ip, null, username);
 			}
 			catch (IOException e) {}
 			if (su != null) {
@@ -218,7 +220,6 @@ public class UrlShortenerController {
 			marshaller.afterPropertiesSet();
 		} catch (Exception e) {}
 	}
-
 
 	/*
 	* This method checks an URI against the Google Safe Browsing API,
