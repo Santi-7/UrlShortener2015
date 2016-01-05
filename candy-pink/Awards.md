@@ -23,9 +23,12 @@ The leader of the group (Alberto Álvarez) has to adjust the score of the other 
 * David Nicuesa works in big web service. 10 points
 * Iñigo Gacón works in csv files. 10 points
 * Santiago Gil works in URIS rule's. 5 points
+* Iñigo Gascón works with CSV files. 5 points
+* David Nicuesa fight vs BWS problems. 5 points
+* Santiago Gil show user´s uris and create error JSON/HTML. 10 points
 
 User name            | Points
 ---------------------|-------
-David Nicuesa Aranda | 67
-Santiago Gil Begué   | 62
-Iñigo Gascón Royo    | 21
+David Nicuesa Aranda | 72
+Santiago Gil Begué   | 72
+Iñigo Gascón Royo    | 26
