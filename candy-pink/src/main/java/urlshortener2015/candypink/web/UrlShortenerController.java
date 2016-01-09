@@ -68,7 +68,7 @@ public class UrlShortenerController {
 		// ShortUrl exists in our BBDD
 		if (l != null) {
 			// URL is not spam and is reachable
-			if (l.getSpam() == false && l.getReachable() == true || always == true) {
+			if (l.getSpam() == false && l.getReachable() == true) {
 				// URL is safe, we must check token
 				logger.info("Is URL safe?: " + l.getSafe());
 				if (l.getSafe() == true) {
@@ -108,9 +108,9 @@ public class UrlShortenerController {
         				 + "<h1><span>Url is not reachable from</span>" + l.getReachableDate() + "</h1>"
         				 + "</header>";
         			HttpHeaders responseHeaders = new HttpHeaders();
-    				responseHeaders.setContentType(MediaType.TEXT_HTML);
+    				responseHeaders.setContentType("text/html;charset=UTF-8");
     				response.sendRedirect("notReachable.html");
-				return new ResponseEntity<String>(conten, responseHeaders, HttpStatus.NOT_FOUND);
+				return new ResponseEntity<String>(content, responseHeaders, HttpStatus.NOT_FOUND);
 			}
 			// URL is spam
 			else {
