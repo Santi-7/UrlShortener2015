@@ -52,12 +52,13 @@ public class UrlShortenerController {
 
 	/**
 	 * Redirect to the related URL associated to the ShortUrl with hash id
-	 * If URL is spam or, it is redirected to errorSpam.html
+	 * If URL is spam, it is redirected to errorSpam.html
+	 * If URL is not reachable, it is redirected to notReachable.html
 	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
 	 */
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|notReachable).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
@@ -66,8 +67,8 @@ public class UrlShortenerController {
 		ShortURL l = shortURLRepository.findByKey(id);
 		// ShortUrl exists in our BBDD
 		if (l != null) {
-			// URL is not spam
-			if (l.getSpam() == false) {
+			// URL is not spam and is reachable
+			if (l.getSpam() == false && l.getReachable() == true) {
 				// URL is safe, we must check token
 				logger.info("Is URL safe?: " + l.getSafe());
 				if (l.getSafe() == true) {
@@ -100,6 +101,16 @@ public class UrlShortenerController {
 				}
 				// URL is not safe or token matches
 				return createSuccessfulRedirectToResponse(l);
+			}
+			// URL is not reachable
+			else if (l.getReachable() == false) {
+				String content = "<header>"
+        				 + "<h1><span>Url is not reachable from </span> " + l.getReachableDate() + "</h1>"
+        				 + "</header>";
+        			HttpHeaders responseHeaders = new HttpHeaders();
+    				responseHeaders.setContentType(org.springframework.http.MediaType.TEXT_HTML);
+    				//response.sendRedirect("notReachable.html");
+				return new ResponseEntity<String>(content, responseHeaders, HttpStatus.NOT_FOUND);
 			}
 			// URL is spam
 			else {
@@ -155,7 +166,7 @@ public class UrlShortenerController {
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
-			h.setLocation(su.getUri());
+			/*h.setLocation(su.getUri());
 			logger.info("Requesting to Checker service");
 			GetCheckerRequest requestToWs = new GetCheckerRequest();
 			requestToWs.setUrl(url);
@@ -164,11 +175,11 @@ public class UrlShortenerController {
 			GetCheckerResponse checkerResponse = (GetCheckerResponse) responseR;
 			String resultCode = checkerResponse.getResultCode();
 				logger.info("respuesta recibida por el Web Service: " + resultCode);
-			if (resultCode.equals("ok")) {
+			if (resultCode.equals("ok")) {*/
 				return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
-			} else {
+			/*} else {
 				return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-			}
+			}*/
 		} else {
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 		}
