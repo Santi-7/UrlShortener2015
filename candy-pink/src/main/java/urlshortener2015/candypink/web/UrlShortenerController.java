@@ -199,9 +199,9 @@ public class UrlShortenerController {
 			ShortURL su = null;
 			try {
 				su = new ShortURL(id, url,
-					linkTo(
-						methodOn(UrlShortenerController.class).redirectTo(
-							id, token, null, null)).toUri(), token, users,
+					//linkTo(
+					//	methodOn(UrlShortenerController.class).redirectTo(
+					/*		id, token, null, null)).toUri(),*/null, token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
 							safe, null, null, false, new Date(System.currentTimeMillis()), ip, null, username);
