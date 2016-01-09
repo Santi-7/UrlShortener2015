@@ -17,7 +17,6 @@ import org.springframework.ws.client.core.WebServiceTemplate;
 import checker.web.ws.schema.GetCheckerRequest;
 import checker.web.ws.schema.GetCheckerResponse;
 import urlshortener2015.candypink.domain.ShortURL;
-import urlshortener2015.candypink.exceptions.ResourceNotFoundException;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
 import io.jsonwebtoken.*;
@@ -56,16 +55,14 @@ public class UrlShortenerController {
 	 * If URL is spam, it is redirected to errorSpam.html
 	 * If URL is not reachable, it is redirected to notReachable.html
 	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
-	 * If always = true, it makes all process altought URL is spam or not reachable
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
 	 */
 	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|notReachable).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
-					    HttpServletRequest request, HttpServletResponse response,
-					    @RequestParam(value = "always", required = false) boolean always)
-					    throws IOException,  ResourceNotFoundException {
+					    HttpServletRequest request, HttpServletResponse response
+					    throws IOException {
 		logger.info("Requested redirection with hash " + id);
 		ShortURL l = shortURLRepository.findByKey(id);
 		// ShortUrl exists in our BBDD
@@ -107,7 +104,13 @@ public class UrlShortenerController {
 			}
 			// URL is not reachable
 			else if (l.getReachable() == false) {
-				throw new ResourceNotFoundException(l.getReachableDate());
+				String content = "<header>"
+        				 + "<h1><span>Url is not reachable from</span>" + l.getReachableDate() + "</h1>"
+        				 + "</header>";
+        			HttpHeaders responseHeaders = new HttpHeaders();
+    				responseHeaders.setContentType(MediaType.TEXT_HTML);
+    				response.sendRedirect("notReachable.html");
+				return new ResponseEntity<String>(conten, responseHeaders, HttpStatus.NOT_FOUND);
 			}
 			// URL is spam
 			else {
@@ -203,7 +206,7 @@ public class UrlShortenerController {
 				su = new ShortURL(id, url,
 					linkTo(
 						methodOn(UrlShortenerController.class).redirectTo(
-							id, token, null, null, true)).toUri(), token, users,
+							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
 							safe, null, null, false, new Date(System.currentTimeMillis()), ip, null, username);
