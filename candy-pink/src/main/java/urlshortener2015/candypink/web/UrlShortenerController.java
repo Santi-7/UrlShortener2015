@@ -107,7 +107,7 @@ public class UrlShortenerController {
 				response.sendRedirect("notReachable.html");
 				// Date from uri is not reachable is returned
 				// + 404
-				return new ResponseEntity<>(l.getReachableDate(), NOT_FOUND);
+				return new ResponseEntity<>(l.getReachableDate(), HttpStatus.NOT_FOUND);
 			}
 			// URL is spam
 			else {
