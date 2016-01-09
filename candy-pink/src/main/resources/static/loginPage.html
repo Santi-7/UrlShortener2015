@@ -14,7 +14,7 @@
 <script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <body>
-	<!-- Facebook JavaScript -->
+	<!-- Facebook Inicialization -->
 	<div id="fb-root"></div>
 	<script>(function(d, s, id) {
 	  var js, fjs = d.getElementsByTagName(s)[0];
@@ -71,6 +71,48 @@
 		</script>
 		<!-- Facebook log in -->
 			<center><div class="fb-login-button" data-max-rows="1" data-size="xlarge" data-show-faces="false" data-auto-logout-link="true"></div></center>
+		<script>
+			function Login()
+			    {
+
+				FB.login(function(response) {
+				   if (response.authResponse) 
+				   {
+					getUserInfo(); // Get User Information.
+			 
+				    } else
+				    {
+				     console.log('Authorization failed.');
+				    }
+				 },{scope: 'email'});
+			 
+			    }
+		    function getUserInfo() {
+       			FB.api('/me', function(response) {
+				//response.name       - User Full name
+				//response.link       - User Facebook URL
+				//response.username   - User name
+				//response.id         - id
+				//response.email      - User email
+ 
+        });
+   }
+
+FB.Event.subscribe('auth.authResponseChange', function(response) 
+{
+     if (response.status === 'connected') 
+     {
+        //SUCCESS
+     }   
+     else if (response.status === 'not_authorized') 
+    {
+        //FAILED
+    } else
+    {
+        //UNKNOWN ERROR. Logged Out
+    }
+});
+		</script>
 	</div>
 </body>
 </html>

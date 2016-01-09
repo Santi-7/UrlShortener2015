@@ -64,7 +64,9 @@ public class JWTokenFilter extends GenericFilterBean {
 		else if(permission.equals("Not")) {
 			//Error
 			log.info("Requires not authenticate");
-			if(jwtoken != null) {
+			 final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+					log.info("NAMEUSER: " + claims.getSubject());
+			if(jwtoken != null || claims.getExpiration().getTime() != 0) {
 				log.info("Authenticated yet");
 				forbidden(response);
 			}		
@@ -91,7 +93,8 @@ public class JWTokenFilter extends GenericFilterBean {
 					log.info("Parsed");
 					// Has not permission
 					if(permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
-					   permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
+					   permission.equals("Premium") && role.equals("ROLE_NORMAL") ||
+					   claims.getExpiration().getTime() == 0) {
 						log.info("Not PErmission");
 						forbidden(response);
 						//Error
