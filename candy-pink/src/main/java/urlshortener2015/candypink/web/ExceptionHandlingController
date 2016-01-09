@@ -7,14 +7,14 @@ import org.springframework.web.bind.annotation.*;
 @Controller
 public class ExceptionHandlingController {
 
-  @ExceptionHandler(ResourceNotFoundException.class)
-  public ModelAndView handleError(HttpServletResponse res, ResourceNotFoundException exception) {
-    ModelAndView mav = new ModelAndView();
-    mav.addObject("exception", exception);
-    mav.addObject("date", exception.getDate());
-    // Redirection to notReachable
+	@ExceptionHandler(ResourceNotFoundException.class)
+	public ModelAndView handleError(HttpServletResponse res, ResourceNotFoundException exception) {
+		ModelAndView mav = new ModelAndView();
+		mav.addObject("exception", exception);
+		mav.addObject("date", exception.getDate());
+		// Redirection to notReachable
 		mav.setViewName("notReachable");
 		response.setStatus(HttpStatus.NOT_FOUND.value());
-    return mav;
-  }
+		return mav;
+	}
 }
