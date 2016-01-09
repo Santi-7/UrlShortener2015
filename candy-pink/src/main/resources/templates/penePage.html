@@ -4,8 +4,7 @@
 <script>
   window.fbAsyncInit = function() {
     FB.init({
-      appId      : '113455642165175', // Set YOUR APP ID
-      channelUrl : 'http://hayageek.com/examples/oauth/facebook/oauth-javascript/channel.html', // Channel File
+      appId      : '788155934645484', // Set YOUR APP ID
       status     : true, // check login status
       cookie     : true, // enable cookies to allow the server to access the session
       xfbml      : true  // parse XFBML
@@ -40,12 +39,14 @@
         FB.login(function(response) {
            if (response.authResponse) 
            {
+		var uid = response.authResponse.userID;
+                var accessToken = response.authResponse.accessToken;
                 getUserInfo();
             } else 
             {
              console.log('User cancelled login or did not fully authorize.');
             }
-         },{scope: 'email,user_photos,user_videos'});
+         },{scope: 'email,user_photos,user_videos,public_profile'});
  
     }
  
