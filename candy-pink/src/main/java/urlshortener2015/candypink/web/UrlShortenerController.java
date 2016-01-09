@@ -17,6 +17,7 @@ import org.springframework.ws.client.core.WebServiceTemplate;
 import checker.web.ws.schema.GetCheckerRequest;
 import checker.web.ws.schema.GetCheckerResponse;
 import urlshortener2015.candypink.domain.ShortURL;
+import urlshortener2015.candypink.exceptions.ResourceNotFoundException;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
 import io.jsonwebtoken.*;
