@@ -108,7 +108,7 @@ public class UrlShortenerController {
         				 + "<h1><span>Url is not reachable from</span>" + l.getReachableDate() + "</h1>"
         				 + "</header>";
         			HttpHeaders responseHeaders = new HttpHeaders();
-    				responseHeaders.setContentType((MediaType) MediaType.TEXT_HTML);
+    				//responseHeaders.setContentType((MediaType) MediaType.TEXT_HTML);
     				response.sendRedirect("notReachable.html");
 				return new ResponseEntity<String>(content, responseHeaders, HttpStatus.NOT_FOUND);
 			}
