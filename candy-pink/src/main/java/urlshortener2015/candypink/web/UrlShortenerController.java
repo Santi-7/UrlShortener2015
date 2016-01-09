@@ -62,7 +62,7 @@ public class UrlShortenerController {
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
-					    throws IOException {
+					    throws IOException,  ResourceNotFoundException {
 		logger.info("Requested redirection with hash " + id);
 		ShortURL l = shortURLRepository.findByKey(id);
 		// ShortUrl exists in our BBDD
@@ -104,10 +104,7 @@ public class UrlShortenerController {
 			}
 			// URL is not reachable
 			else if (l.getReachable() == false) {
-				response.sendRedirect("notReachable.html");
-				// Date from uri is not reachable is returned
-				// + 404
-				return new ResponseEntity<>(l.getReachableDate(), HttpStatus.NOT_FOUND);
+				throw new ResourceNotFoundException(l.getReachableDate());
 			}
 			// URL is spam
 			else {
