@@ -1,0 +1,11 @@
+import java.sql.Date;
+
+public class ResourceNotFoundException extends RuntimeException {
+
+    private Date htmlBody;
+    
+    public ResourceNotFoundException(Date htmlBody){
+        //super(...)
+        this.htmlBody = htmlBody;
+    }
+}
