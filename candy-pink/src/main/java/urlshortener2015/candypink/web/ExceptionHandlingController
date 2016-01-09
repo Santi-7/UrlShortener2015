@@ -1,6 +1,6 @@
 import java.sql.Date;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.web.bind.annotation.*;
 
@@ -8,13 +8,13 @@ import org.springframework.web.bind.annotation.*;
 public class ExceptionHandlingController {
 
   @ExceptionHandler(ResourceNotFoundException.class)
-  public ModelAndView handleError(HttpServletRequest req, Exception exception, Date date) {
-    logger.error("Request: " + req.getRequestURL() + " raised " + exception);
+  public ModelAndView handleError(HttpServletResponse res, ResourceNotFoundException exception) {
     ModelAndView mav = new ModelAndView();
     mav.addObject("exception", exception);
-    mav.addObject("url", req.getRequestURL());
-    mav.addObject("date", date);
-    mav.setViewName("error");
+    mav.addObject("date", exception.getDate());
+    // Redirection to notReachable
+		mav.setViewName("notReachable");
+		response.setStatus(HttpStatus.NOT_FOUND.value());
     return mav;
   }
 }
