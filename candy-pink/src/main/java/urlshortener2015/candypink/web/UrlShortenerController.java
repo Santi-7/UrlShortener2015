@@ -161,7 +161,7 @@ public class UrlShortenerController {
 			.randomUUID().toString(), extractIP(request));
 		if (su != null) {
 			HttpHeaders h = new HttpHeaders();
-			h.setLocation(su.getUri());
+			/*h.setLocation(su.getUri());
 			logger.info("Requesting to Checker service");
 			GetCheckerRequest requestToWs = new GetCheckerRequest();
 			requestToWs.setUrl(url);
@@ -170,11 +170,11 @@ public class UrlShortenerController {
 			GetCheckerResponse checkerResponse = (GetCheckerResponse) responseR;
 			String resultCode = checkerResponse.getResultCode();
 				logger.info("respuesta recibida por el Web Service: " + resultCode);
-			if (resultCode.equals("ok")) {
+			if (resultCode.equals("ok")) {*/
 				return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
-			} else {
+			/*} else {
 				return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-			}
+			}*/
 		} else {
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
 		}
@@ -204,7 +204,7 @@ public class UrlShortenerController {
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null, null, null, null, ip, null, username);
+							safe, null, null, false, "21/05/2015", ip, null, username);
 			}
 			catch (IOException e) {}
 			if (su != null) {
