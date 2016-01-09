@@ -52,7 +52,8 @@ public class UrlShortenerController {
 
 	/**
 	 * Redirect to the related URL associated to the ShortUrl with hash id
-	 * If URL is spam or, it is redirected to errorSpam.html
+	 * If URL is spam, it is redirected to errorSpam.html
+	 * If URL is not reachable, it is redirected to notReachable.html
 	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
@@ -66,8 +67,8 @@ public class UrlShortenerController {
 		ShortURL l = shortURLRepository.findByKey(id);
 		// ShortUrl exists in our BBDD
 		if (l != null) {
-			// URL is not spam
-			if (l.getSpam() == false) {
+			// URL is not spam and is reachable
+			if (l.getSpam() == false && l.getReachable() == true) {
 				// URL is safe, we must check token
 				logger.info("Is URL safe?: " + l.getSafe());
 				if (l.getSafe() == true) {
@@ -100,6 +101,13 @@ public class UrlShortenerController {
 				}
 				// URL is not safe or token matches
 				return createSuccessfulRedirectToResponse(l);
+			}
+			// URL is not reachable
+			else if (l.getReachable() == false) {
+				response.sendRedirect("notReachable.html");
+				// Date from uri is not reachable is returned
+				// + 404
+				return new ResponseEntity<>(l.getReachableDate(), NOT_FOUND);
 			}
 			// URL is spam
 			else {
