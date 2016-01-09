@@ -61,13 +61,15 @@ public class JWTokenFilter extends GenericFilterBean {
 			log.info("Authentication not required");
 			chain.doFilter(req, res); 
 		}
-		else if(permission.equals("Not") && jwtoken!=null) {
+		else if(permission.equals("Not")) {
 			//Error
+			log.info("Requires not authenticate");
 			if(jwtoken != null) {
 				log.info("Authenticated yet");
 				forbidden(response);
 			}		
 			else {
+				log.info("Correct, no authenticated");
 				chain.doFilter(req, res); 
 			}
 		}
