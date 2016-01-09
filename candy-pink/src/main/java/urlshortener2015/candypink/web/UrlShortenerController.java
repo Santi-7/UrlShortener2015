@@ -109,7 +109,7 @@ public class UrlShortenerController {
         				 + "</header>";
         			HttpHeaders responseHeaders = new HttpHeaders();
     				responseHeaders.setContentType(org.springframework.http.MediaType.TEXT_HTML);
-    				response.sendRedirect("notReachable.html");
+    				//response.sendRedirect("notReachable.html");
 				return new ResponseEntity<String>(content, responseHeaders, HttpStatus.NOT_FOUND);
 			}
 			// URL is spam
