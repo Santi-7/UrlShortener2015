@@ -65,8 +65,10 @@ public class JWTokenFilter extends GenericFilterBean {
 			//Error
 			log.info("Requires not authenticate");
 			 try {
-			 	final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
-					log.info("NAMEUSER: " + claims.getSubject());
+				if(jwtoken != null) {
+			 		final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+						log.info("NAMEUSER: " + claims.getSubject());
+				}
 			 }
 			catch(ExpiredJwtException expiredException) {
                     		// Token Expired
