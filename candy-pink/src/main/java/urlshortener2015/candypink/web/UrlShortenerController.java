@@ -63,7 +63,7 @@ public class UrlShortenerController {
 	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|notReachable).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
-					    HttpServletRequest request, HttpServletResponse response
+					    HttpServletRequest request, HttpServletResponse response,
 					    @RequestParam(value = "always", required = false) boolean always)
 					    throws IOException,  ResourceNotFoundException {
 		logger.info("Requested redirection with hash " + id);
