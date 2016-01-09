@@ -61,7 +61,7 @@ public class UrlShortenerController {
 	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|notReachable).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
-					    HttpServletRequest request, HttpServletResponse response
+					    HttpServletRequest request, HttpServletResponse response)
 					    throws IOException {
 		logger.info("Requested redirection with hash " + id);
 		ShortURL l = shortURLRepository.findByKey(id);
