@@ -1,17 +1,15 @@
 package urlshortener2015.candypink.exceptions;
 
-import java.sql.Date;
-
 public class ResourceNotFoundException extends RuntimeException {
 
     private Date htmlBody;
     
-    public ResourceNotFoundException(Date htmlBody){
+    public ResourceNotFoundException(String htmlBody){
         //super(...)
         this.htmlBody = htmlBody;
     }
     
-    public Date getDate() {
+    public String getDate() {
         return htmlBody;
     }
 }
