@@ -1,4 +1,4 @@
-import java.sql.Date;
+package urlshortener2015.candypink.web;
 
 import javax.servlet.http.HttpServletResponse;
 
@@ -14,7 +14,7 @@ public class ExceptionHandlingController {
 		mav.addObject("date", exception.getDate());
 		// Redirection to notReachable
 		mav.setViewName("notReachable");
-		response.setStatus(HttpStatus.NOT_FOUND.value());
+		res.setStatus(HttpStatus.NOT_FOUND.value());
 		return mav;
 	}
 }
