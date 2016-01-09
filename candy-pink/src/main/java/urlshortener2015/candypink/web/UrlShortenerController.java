@@ -234,7 +234,7 @@ public class UrlShortenerController {
         logger.info("Users who can redirect: " + users);
         logger.info("Time to be safe: " + time);
         // Obtain jwt
-        final Claims claims = (Claims) request.getAttribute("claims");
+       /* final Claims claims = (Claims) request.getAttribute("claims");
         // Obtain username
         String username = claims.getSubject();
         // Obtain role
@@ -244,7 +244,8 @@ public class UrlShortenerController {
             response.sendRedirect("noMore.html");
             // Can't redirect more today
             return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-        }
+        }*/
+        String username = "user";
         boolean safe = !(users.equals("select") && time.equals("select"));
         if (users.equals("select")) {
             users = "All";
@@ -271,6 +272,7 @@ public class UrlShortenerController {
                 return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
             }
         } else {
+            logger.info("La uri es null");
             return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -282,6 +284,7 @@ public class UrlShortenerController {
         // It is a valid URL
         if (urlValidator.isValid(url)) {
             // Hash
+            logger.info("La url es valida");
             String id = Hashing.murmur3_32()
                     .hashString(url, StandardCharsets.UTF_8).toString();
             String token = null;
@@ -300,15 +303,19 @@ public class UrlShortenerController {
                         sponsor, new Date(System.currentTimeMillis()),
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
                         safe, null, null, null, null, ip, null, username);
+                logger.info("Se ha creado la uri");
             } catch (IOException e) {
+                logger.info("Ha surgido una ioexception en create and safeifvalid");
             }
             if (su != null) {
+                logger.info("Se va a guardar en la bd");
                 return shortURLRepository.save(su);
             } else {
                 return null;
             }
             // It is not a valid URL
         } else {
+            logger.info("No es una url valida");
             return null;
         }
     }
@@ -408,6 +415,7 @@ public class UrlShortenerController {
                     }
                 }
                 // URL is not safe or token matches
+                logger.info("Devuelve OK");
                 return OK;
             }
             // URL is spam

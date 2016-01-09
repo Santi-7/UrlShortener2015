@@ -43,13 +43,9 @@ public class QueueConsumerBean {
             Map<String,Boolean> map = adapter.checkUrl(url);
             ShortURL shortURL = shortURLRepository.findByTarget(url).get(0);
             if(shortURL.getReachable() || map.get("Reachable")){
-                shortURL.setReachableDate(new Date().toString());
+                shortURLRepository.markReachable(shortURL,map.get("Reachable"));
             }
-            shortURL.setReachable(map.get("Reachable"));
-            shortURL.setSpam(map.get("Spam"));
-            shortURL.setSpamDate(new Date().toString());
-
-            shortURLRepository.update(shortURL);
+            shortURLRepository.markSpam(shortURL,map.get("Spam"));
             LOG.info("La url es spam: " + map.get("Spam"));
             LOG.info("La url es alcanzable: " + map.get("Reachable"));
          } catch (InterruptedException e) {}
