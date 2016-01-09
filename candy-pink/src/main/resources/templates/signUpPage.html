@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>URL Shortener</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.3.5/css/bootstrap.min.css" />
+<link type="text/css" rel="stylesheet" href="css/bgStyle.css" media="all" />
+<link type="text/css" rel="stylesheet" href="css/form.css" media="all" />
+<script type="text/javascript" src="webjars/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src="webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="js/app.js"></script>
+<script type="text/javascript" src="js/redirect.js"></script>
+</head>
+<body>
+  <!-- Imagen de cabecera del sitio web -->
+	<center><img src="images/CandyLogoTrans.png" height="103" alt="CandyShort logo"/></center>
+	<!-- Menú con los botones descritos a continuación -->
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div>
+				<ul class="nav navbar-nav">
+				  <!-- Home -->
+					<li><a href="index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<!-- Enlace a registro -->
+					<li><a href="signUpPage.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+					<!-- Enlace a identificarse -->
+					<li><a href="loginPage.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div class="container">
+		<header>
+			<h1><span>Sign Up</span> Join us </h1>
+    		</header>   	 
+		<div class="form">
+			<form id="contactform" action="signUp" method="POST">
+				<p class="contact"><label for="username">Create a username</label></p> 
+				<input id="username" name="username" placeholder="Choose a username" required="" type="text"></input>
+	
+				<p class="contact"><label for="password">Create a password</label></p> 
+				<input type="password" id="password" name="password" required=""></input>
+
+				<p class="contact"><label for="repassword">Confirm your password</label></p> 
+				<input type="password" id="repassword" name="repassword" required=""></input>
+	
+				<p class="contact"><label for="email">Enter your email</label></p> 
+				<input id="email" name="email" placeholder="example@domain.com" required="" type="email"></input>
+  
+				<select class="select-style role" name="authority">
+					<option value="select">I want to be..</option>
+					<option value="Normal">A normal user</option>
+					<option value="Premium">A premium user</option>
+				</select><br/><br/>
+ 
+				<input class="buttom" name="submit" id="submit" value="Sign me up!" type="submit"></input>	 
+			</form>   
+		</div>
+	</div>
+</body>
+</html>

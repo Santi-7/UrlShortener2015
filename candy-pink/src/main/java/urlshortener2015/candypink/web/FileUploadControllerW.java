@@ -65,7 +65,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RequestMapping("/upload")
 public class FileUploadControllerW {
 	
-	@Resource
+	/*@Resource
 	protected LinkedBlockingQueue<MultipartFile> csvQueue;
 	
 	@Autowired
@@ -97,5 +97,5 @@ public class FileUploadControllerW {
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+    }*/
 }
