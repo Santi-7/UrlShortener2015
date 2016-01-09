@@ -197,7 +197,7 @@ public class UrlShortenerController {
 			}
 			// ShortUrl
 			ShortURL su = null;
-			try {
+			//try {
 				su = new ShortURL(id, url,
 					//linkTo(
 					//	methodOn(UrlShortenerController.class).redirectTo(
@@ -205,8 +205,8 @@ public class UrlShortenerController {
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
 							safe, null, null, false, new Date(System.currentTimeMillis()), ip, null, username);
-			}
-			catch (IOException e) {}
+			//}
+			//catch (IOException e) {}
 			if (su != null) {
 				return shortURLRepository.save(su);
 			} else {
