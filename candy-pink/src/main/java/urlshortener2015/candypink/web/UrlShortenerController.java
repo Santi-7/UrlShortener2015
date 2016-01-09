@@ -36,7 +36,6 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.Random;
 import java.util.UUID;
-import java.util.Date;
 
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
@@ -205,7 +204,7 @@ public class UrlShortenerController {
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null, null, false, new Date(1000), ip, null, username);
+							safe, null, null, false, "2000-20-20", ip, null, username);
 			}
 			catch (IOException e) {}
 			if (su != null) {
