@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.ClassUtils;
@@ -26,7 +27,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
@@ -108,7 +108,7 @@ public class UrlShortenerController {
         				 + "<h1><span>Url is not reachable from</span>" + l.getReachableDate() + "</h1>"
         				 + "</header>";
         			HttpHeaders responseHeaders = new HttpHeaders();
-    				//responseHeaders.setContentType((MediaType) MediaType.TEXT_HTML);
+    				responseHeaders.setContentType(MediaType.TEXT_HTML);
     				response.sendRedirect("notReachable.html");
 				return new ResponseEntity<String>(content, responseHeaders, HttpStatus.NOT_FOUND);
 			}
