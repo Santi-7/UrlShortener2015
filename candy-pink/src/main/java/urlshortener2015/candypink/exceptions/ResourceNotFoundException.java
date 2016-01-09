@@ -2,7 +2,7 @@ package urlshortener2015.candypink.exceptions;
 
 public class ResourceNotFoundException extends RuntimeException {
 
-    private Date htmlBody;
+    private String htmlBody;
     
     public ResourceNotFoundException(String htmlBody){
         //super(...)
