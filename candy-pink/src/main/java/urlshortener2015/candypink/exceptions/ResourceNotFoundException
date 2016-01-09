@@ -8,4 +8,8 @@ public class ResourceNotFoundException extends RuntimeException {
         //super(...)
         this.htmlBody = htmlBody;
     }
+    
+    public Date getDate() {
+        return htmlBody;
+    }
 }
