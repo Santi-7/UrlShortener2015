@@ -8,7 +8,7 @@ import org.springframework.web.servlet.ModelAndView;
 
 import urlshortener2015.candypink.exceptions.ResourceNotFoundException;
 
-@Controller
+@RestController
 public class ExceptionHandlingController {
 
 	@ExceptionHandler(ResourceNotFoundException.class)
