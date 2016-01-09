@@ -57,7 +57,7 @@ public class UrlShortenerController {
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
 	 */
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|login|pene|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
