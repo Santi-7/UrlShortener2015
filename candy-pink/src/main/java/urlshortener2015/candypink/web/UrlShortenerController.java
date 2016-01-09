@@ -105,7 +105,7 @@ public class UrlShortenerController {
 			// URL is not reachable
 			else if (l.getReachable() == false) {
 				String content = "<header>"
-        				 + "<h1><span>Url is not reachable from</span>" + l.getReachableDate() + "</h1>"
+        				 + "<h1><span>Url is not reachable from </span> " + l.getReachableDate() + "</h1>"
         				 + "</header>";
         			HttpHeaders responseHeaders = new HttpHeaders();
     				responseHeaders.setContentType(org.springframework.http.MediaType.TEXT_HTML);
