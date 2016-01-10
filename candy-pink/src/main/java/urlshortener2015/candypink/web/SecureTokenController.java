@@ -23,7 +23,7 @@ import urlshortener2015.candypink.auth.support.AuthUtils;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.util.Base64Utils;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
@@ -42,15 +42,24 @@ public class SecureTokenController {
 	@Autowired
         protected ShortURLRepository shortURLRepository;
 
-	@RequestMapping(method = RequestMethod.POST)
-	public ResponseEntity<String> login(@RequestParam("uri") String uri, @RequestParam("token") String token, 						  HttpServletRequest request, HttpServletResponse response) { 
+	@RequestMapping(method = RequestMethod.GET)
+	public ResponseEntity<String> login(@RequestParam("uri") String uri, @RequestParam("token") String token, 						  HttpServletRequest request, HttpServletResponse response) {
+		logger.info("Petición de token de seguridad"); 
+		logger.info("Uri: " + uri);
+		logger.info("Token: " + token);
 		ShortURL l = shortURLRepository.findByKey(uri);
 		if(l != null && l.getToken().equals(token)) {
-			String scureToken = createToken(10);
-			BCryptPasswordEncoder encoder=new BCryptPasswordEncoder();
-			String crypt = encoder.encode(scureToken);
-			if(secureTokenRepository.save(new SecureToken(crypt))!=null) {
-				return new ResponseEntity<>(scureToken, HttpStatus.OK);			
+			logger.info("Existe y esta bien el token");
+			String scureToken = createToken(10).concat(token);
+			try{
+				String crypt = Base64Utils.encodeToString(scureToken.getBytes("UTF-8"));
+				if(secureTokenRepository.save(new SecureToken(crypt))!=null) {
+					logger.info("Token guardado");
+					return new ResponseEntity<>(scureToken, HttpStatus.OK);			
+				}
+			}
+			catch(Exception e){
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);				
 			}
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);			

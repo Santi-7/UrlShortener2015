@@ -25,12 +25,14 @@ import org.springframework.stereotype.Repository;
 
 import urlshortener2015.candypink.domain.SecureToken;
 
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 @Repository
 public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 
 	private static final Logger log = LoggerFactory
 			.getLogger(SecureTokenRepositoryImpl.class);
+
 
 	private static final RowMapper<SecureToken> rowMapper = new RowMapper<SecureToken>() {
 		@Override
@@ -50,17 +52,24 @@ public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 	}
 
 
-	@Override
-	public SecureToken findByToken(String token) {
+	private List<SecureToken> list() {
 		try {
-			return jdbc.queryForObject("SELECT token" 
-			                            +" FROM SECURETOKEN"
-			                            +"WHERE token=?",
-         					    rowMapper, token);
+			return jdbc.query("SELECT * FROM SECURETOKEN", rowMapper);		
 		} catch (Exception e) {
-			log.debug("When select for token " + token, e);
+			log.debug("When select for token ", e);
 			return null;
 		}
+	}
+	
+	@Override
+	public SecureToken findByToken(String token) {
+		BCryptPasswordEncoder encoder=new BCryptPasswordEncoder();
+		for(SecureToken s : list()) {
+			if(encoder.matches(token,s.getToken())) {
+				return s;
+			}
+		}
+		return null;
 	}
 
 	@Override

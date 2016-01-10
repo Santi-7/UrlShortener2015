@@ -30,6 +30,12 @@ import java.sql.Date;
 import java.util.Random;
 import java.util.UUID;
 
+import urlshortener2015.candypink.repository.SecureTokenRepository;
+import urlshortener2015.candypink.repository.SecureTokenRepositoryImpl;
+import urlshortener2015.candypink.domain.SecureToken;
+
+import org.springframework.util.Base64Utils;
+
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
@@ -54,6 +60,9 @@ public class UrlShortenerController {
     @Autowired
     protected ShortURLRepository shortURLRepository;
 
+    @Autowired
+    protected SecureTokenRepository secureTokenRepository;
+
 
     /**
      * Redirect to the related URL associated to the ShortUrl with hash id
@@ -69,7 +78,7 @@ public class UrlShortenerController {
                                             @RequestParam(value = "token", required = false) String token,
                                             HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        logger.info("Requested redirection with hash " + id);
+        logger.info("Requested redirectionJSON with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
         String code = validateURI(l, token, request);
         if (code.equals(IS_SPAM)) {
@@ -95,7 +104,7 @@ public class UrlShortenerController {
                                                 @RequestParam(value = "token", required = false) String token,
                                                 HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        logger.info("Requested redirection with hash " + id);
+        logger.info("Requested redirectionAnything with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
         String code = validateURI(l, token, request);
         if (code.equals(IS_SPAM)) {
@@ -134,7 +143,7 @@ public class UrlShortenerController {
                                                 @RequestParam(value = "token", required = false) String token,
                                                 HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        logger.info("Requested redirection with hash " + id);
+        logger.info("Requested redirectionHTML with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
         String code = validateURI(l, token, request);
         if (code.equals(IS_SPAM)) {
@@ -175,9 +184,10 @@ public class UrlShortenerController {
 	@RequestMapping(value = "/{id:(?!link|index|login|pene|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
+					    @RequestParam(value = "token", required = false) String secureToken,
 					    HttpServletRequest request, HttpServletResponse response)
 					    throws IOException {
-		logger.info("Requested redirection with hash " + id);
+		logger.info("Requested redirectionNormal with hash " + id);
 		ShortURL l = shortURLRepository.findByKey(id);
 		// ShortUrl exists in our BBDD
 		if (l != null) {
@@ -192,7 +202,8 @@ public class UrlShortenerController {
 						response.sendRedirect("incorrectToken.html");
 						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 					}
-					/*//Needed permission
+					logger.info("Permisos?");
+					//Needed permission
 					if(!l.getUsers().equals("All")) {
 						// Obtain jwt
 						final Claims claims = (Claims) request.getAttribute("claims");
@@ -200,19 +211,35 @@ public class UrlShortenerController {
 							// Obtain username
 							String username = claims.getSubject(); 
 							// Obtain role
+							logger.info("Comprobando permisos");
 							String role = claims.get("role", String.class);
 							if((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
 							 (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
 								response.sendRedirect("403.html");
 								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 							}
+							//has permission(verifyToken)
+							else {
+								if(verifyToken(secureToken, token)) {
+									return createSuccessfulRedirectToResponse(l);
+								}
+								else {
+									response.sendRedirect("403.html");
+									return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+								}
+							}	
 						}
 						catch (NullPointerException e) {
 							response.sendRedirect("403.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 						}
-					}*/
-					else {return new ResponseEntity<>(HttpStatus.FORBIDDEN);}
+					}
+					else {
+						logger.info("Verificando el token: " + secureToken);
+						if(verifyToken(secureToken, token)) {
+							return createSuccessfulRedirectToResponse(l);
+						}
+					}
 				}
 				// URL is not safe or token matches
 				return createSuccessfulRedirectToResponse(l);
@@ -229,6 +256,26 @@ public class UrlShortenerController {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
+
+    private boolean verifyToken(String secureToken, String token) {
+	SecureToken st = secureTokenRepository.findByToken(secureToken);
+	if(st.getToken() != null) {
+		logger.info("El token existe");
+		try {
+			String crypt = new String(Base64Utils.decodeFromString(st.getToken()), "UTF-8");
+			logger.info("Obtenido: " + crypt);
+			String salt = crypt.substring(crypt.length()-token.length());
+			logger.info("Salt:" + salt + "-" + "Token: " + token);
+			if(salt.equals(token)) {
+				return true;
+			}
+		}
+		catch(Exception e) {
+			return false;		
+		}
+	}
+	return false;	
+    }
 
     protected ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
         HttpHeaders h = new HttpHeaders();
