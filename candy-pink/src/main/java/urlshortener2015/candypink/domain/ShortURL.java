@@ -15,6 +15,7 @@ public class ShortURL {
 	private String owner;
 	private Integer mode;
 	private Boolean safe;
+	private Integer timeToBeSafe;
 	private Boolean spam;
 	private Date spamDate;
 	private Boolean reachable;
@@ -29,7 +30,7 @@ public class ShortURL {
 
 	public ShortURL(String hash, String target, URI uri, String token,
 					String users, String sponsor, Date created, String owner,
-					Integer mode, Boolean safe, Boolean spam, Date spamDate,
+					Integer mode, Boolean safe,Integer timeToBeSafe, Boolean spam, Date spamDate,
 					Boolean reachable, Date reachableDate, String ip, String country,
 					String username, Integer timesVerified, Integer mediumResponseTime,
 					Integer shutdownTime, Integer serviceTime) {
@@ -43,6 +44,7 @@ public class ShortURL {
 		this.owner = owner;
 		this.mode = mode;
 		this.safe = safe;
+		this.timeToBeSafe = timeToBeSafe;
 		this.spam = spam;
 		this.spamDate = spamDate;
 		this.reachable = reachable;
@@ -177,6 +179,14 @@ public class ShortURL {
 
 	public void setIP(String ip) {
 		this.ip = ip;
+	}
+
+	public Integer getTimeToBeSafe() {
+		return timeToBeSafe;
+	}
+
+	public void setTimeToBeSafe(Integer timeToBeSafe) {
+		this.timeToBeSafe = timeToBeSafe;
 	}
 
 	public String getCountry() {

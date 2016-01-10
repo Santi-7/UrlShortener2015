@@ -18,6 +18,7 @@ import urlshortener2015.candypink.domain.FishyURL;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
+import io.jsonwebtoken.*;
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -252,7 +253,7 @@ public class UrlShortenerController {
                                         id, token, null, null)).toUri(), token, users,
                         sponsor, new Date(System.currentTimeMillis()),
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-                        safe, null, null, null, null, ip, null, username,
+                        safe,0, null, null, null, null, ip, null, username,
                         0,0,0,0);
                 logger.info("Se ha creado la uri");
             } catch (IOException e) {
@@ -391,7 +392,7 @@ public class UrlShortenerController {
             }
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.setContentType(org.springframework.http.MediaType.TEXT_HTML);
-            return new ResponseEntity<String>(content, responseHeaders, HttpStatus.OK);
+            return new ResponseEntity<String>(content, responseHeaders, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
