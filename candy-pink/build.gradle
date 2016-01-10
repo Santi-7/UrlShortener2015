@@ -95,8 +95,9 @@ dependencies {
     // Websockets
     compile("org.springframework.boot:spring-boot-starter-websocket")
     compile("org.springframework:spring-messaging")
-    // Spring social
-    compile("org.springframework.social:spring-social-facebook")
+    // Mail 
+    compile "javax.mail:mail:1.4"
+    compile 'org.springframework:spring-context-support:3.2.0.RELEASE'
 
     jaxb 	"com.sun.xml.bind:jaxb-xjc:2.2.4-1"
 
