@@ -24,10 +24,7 @@ public class ApplicationConfig {
 		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
 		JWTokenFilter authenticationFilter = new JWTokenFilter(key, AuthUtils.buildAuthURIs());
 		registrationBean.setFilter(authenticationFilter);
-		ArrayList<String> uris = new ArrayList<String>();
-		uris.add("/login");
-		uris.add("/link");
-		registrationBean.setUrlPatterns(uris);
+		registrationBean.setUrlPatterns(AuthUtils.filterList());
 		return registrationBean;
 	}
 }
