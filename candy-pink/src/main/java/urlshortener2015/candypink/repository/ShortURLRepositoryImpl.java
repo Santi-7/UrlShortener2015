@@ -29,9 +29,11 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 					null, rs.getString("token"), rs.getString("permission"),
 					rs.getString("sponsor"), rs.getDate("created"),
 					rs.getString("owner"), rs.getInt("mode"), rs.getBoolean("safe"), 
-					rs.getBoolean("spam"), rs.getString("spamDate"),
+					rs.getBoolean("spam"), rs.getDate("spamDate"),
 					rs.getBoolean("reachable"), rs.getDate("reachableDate"), rs.getString("ip"),
-					rs.getString("country"), rs.getString("username"));
+					rs.getString("country"), rs.getString("username"), new Integer(rs.getInt("timesVerified")),
+					new Integer(rs.getInt("mediumResponseTime")), new Integer(rs.getInt("shutdownTime")),
+					new Integer(rs.getInt("serviceTime")));
 		}
 	};
 
@@ -59,11 +61,12 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	@Override
 	public ShortURL save(ShortURL su) {
 		try {
-			jdbc.update("INSERT INTO shorturl VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?)",
+			jdbc.update("INSERT INTO shorturl VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 					su.getHash(), su.getToken(), su.getUsers(), su.getTarget(), su.getSponsor(),
 					su.getOwner(), su.getMode(), su.getSafe(), su.getSpam(), su.getSpamDate(),
 					su.getReachable(), su.getReachableDate(), su.getIP(), su.getCountry(),
-					su.getUsername());
+					su.getUsername(), su.getTimesVerified(), su.getMediumResponseTime(), su.getShutdownTime(),
+					su.getServiceTime());
 		} catch (DuplicateKeyException e) {
 			log.debug("When insert for key " + su.getHash(), e);
 			return su;
@@ -104,7 +107,7 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	@Override
 	public ShortURL markReachable(ShortURL url, boolean reachable) {
 		try {
-			jdbc.update("UPDATE shorturl SET reachable=?, spamDate=CURRENT_TIMESTAMP WHERE hash=?", reachable,
+			jdbc.update("UPDATE shorturl SET reachable=?, reachableDate=CURRENT_TIMESTAMP WHERE hash=?", reachable,
 					url.getHash());
 			return url;
 		} catch (Exception e) {
@@ -118,10 +121,13 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	public void update(ShortURL su) {
 		try {
 			jdbc.update(
-					"update shorturl set target=?, sponsor=?, created=?, owner=?, mode=?, safe=?, spam=?," 						+" spamDate=?, reachable=?, reachableDate=?, ip=?, country=?, username=? where hash=?",
+					"update shorturl set target=?, sponsor=?, created=?, owner=?, mode=?, safe=?, spam=?,"
+							+" spamDate=?, reachable=?, reachableDate=?, ip=?, country=?, username=?, " +
+							"timesVerified=?, mediumResponseTime=?, shutdownTime=?, serviceTime=? where hash=?",
 					su.getTarget(), su.getSponsor(), su.getCreated(), su.getOwner(), su.getMode(), 
 					su.getSafe(), su.getSpam(), su.getSpamDate(), su.getReachable(), su.getReachableDate(),
-					su.getIP(), su.getCountry(), su.getUsername(), su.getHash());
+					su.getIP(), su.getCountry(), su.getUsername(),su.getTimesVerified(), su.getMediumResponseTime(),
+					su.getShutdownTime(),su.getServiceTime(), su.getHash());
 		} catch (Exception e) {
 			log.debug("When update for hash " + su.getHash(), e);
 		}
