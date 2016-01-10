@@ -7,7 +7,7 @@ public class FishyURL {
 
     private String targetURL;
     private String dateSince;
-    private String errorMsg;
+    private String message;
 
     public String getTargetURL() {
         return targetURL;
@@ -18,12 +18,12 @@ public class FishyURL {
     }
 
     public String getErrorMsg() {
-        return errorMsg;
+        return message;
     }
 
-    public FishyURL(String targetURL, String dateSince, String errorMsg) {
+    public FishyURL(String targetURL, String dateSince, String message) {
         this.targetURL = targetURL;
         this.dateSince = dateSince;
-        this.errorMsg = errorMsg;
+        this.message = message;
     }
 }
