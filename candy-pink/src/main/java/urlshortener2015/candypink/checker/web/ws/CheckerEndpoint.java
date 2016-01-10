@@ -1,4 +1,4 @@
-package urlshortener2015.candypink.checker.service.web.ws;
+package urlshortener2015.candypink.checker.web.ws;
 
 import urlshortener2015.candypink.checker.service.CheckerService;
 import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
@@ -15,7 +15,7 @@ public class CheckerEndpoint {
 	@Autowired
 	protected CheckerService checker;
 
-	@PayloadRoot(namespace = "http://checker/web/ws/schema", localPart = "getCheckerRequest")
+	@PayloadRoot(namespace = "http://urlshortener2015/candypink/checker/web/ws/schema", localPart = "getCheckerRequest")
 	@ResponsePayload
 	public GetCheckerResponse translator(@RequestPayload GetCheckerRequest request) {
 		GetCheckerResponse response = new GetCheckerResponse();
