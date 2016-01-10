@@ -1,4 +1,4 @@
-package checker.infrastructure;
+package urlshortener2015.candypink.checker.infraestructure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -1,7 +1,7 @@
 package urlshortener2015.candypink.web;
 
-import checker.web.ws.schema.GetCheckerRequest;
-import checker.web.ws.schema.GetCheckerResponse;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
 import com.google.common.hash.Hashing;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
@@ -191,7 +191,7 @@ public class UrlShortenerController {
 						response.sendRedirect("incorrectToken.html");
 						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 					}
-					//Needed permission
+					/*//Needed permission
 					if(!l.getUsers().equals("All")) {
 						// Obtain jwt
 						final Claims claims = (Claims) request.getAttribute("claims");
@@ -210,7 +210,8 @@ public class UrlShortenerController {
 							response.sendRedirect("403.html");
 							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
 						}
-					}
+					}*/
+					else {return new ResponseEntity<>(HttpStatus.FORBIDDEN);}
 				}
 				// URL is not safe or token matches
 				return createSuccessfulRedirectToResponse(l);
@@ -385,7 +386,7 @@ public class UrlShortenerController {
                     //Needed permission
                     if (!l.getUsers().equals("All")) {
                         // Obtain jwt
-                        final Claims claims = (Claims) request.getAttribute("claims");
+                        /*final Claims claims = (Claims) request.getAttribute("claims");
                         try {
                             // Obtain username
                             String username = claims.getSubject();
@@ -397,7 +398,7 @@ public class UrlShortenerController {
                             }
                         } catch (NullPointerException e) {
                             return NOT_AUTH;
-                        }
+                        }*/
                     }
                 }
                 // URL is not safe or token matches

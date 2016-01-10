@@ -1,4 +1,4 @@
-package checker;
+package urlshortener2015.candypink.checker;
 
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;

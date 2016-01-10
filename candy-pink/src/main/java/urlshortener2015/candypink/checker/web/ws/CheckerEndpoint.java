@@ -1,8 +1,8 @@
-package checker.web.ws;
+package urlshortener2015.candypink.checker.service.web.ws;
 
-import checker.service.CheckerService;
-import checker.web.ws.schema.GetCheckerRequest;
-import checker.web.ws.schema.GetCheckerResponse;
+import urlshortener2015.candypink.checker.service.CheckerService;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
