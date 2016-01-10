@@ -21,11 +21,11 @@ public class ApplicationConfig {
 	@Value("${jwt.key}")
 	private String key;
 
-	@Bean
+	/*@Bean
 	public FilterRegistrationBean jwtFilter() {
 		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
 		JWTokenFilter authenticationFilter = new JWTokenFilter(key, AuthUtils.buildAuthURIs());
 		registrationBean.setFilter(authenticationFilter);
 		return registrationBean;
-	}
+	}*/
 }

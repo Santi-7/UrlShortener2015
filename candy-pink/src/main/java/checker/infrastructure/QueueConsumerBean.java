@@ -9,9 +9,7 @@ import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
 import javax.annotation.Resource;
-import java.net.UnknownHostException;
-import java.util.Date;
-import java.util.List;
+import java.sql.Date;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -38,17 +36,17 @@ public class QueueConsumerBean {
         while(true){
         try {
             String url = sharedQueue.take();
+            LOG.info("Hay "+shortURLRepository.count()+ " urls en la bd");
             LOG.info("Se ha metido algo en la cola");
             LOG.info("Comprobando " + url);
             Map<String,Boolean> map = adapter.checkUrl(url);
             ShortURL shortURL = shortURLRepository.findByTarget(url).get(0);
-            if(shortURL.getReachable() || map.get("Reachable")){
-                shortURL.setReachableDate(new Date().toString());
+            if(shortURL.getReachableDate()== null || shortURL.getReachable() || map.get("Reachable")){
+                shortURL.setReachable(map.get("Reachable"));
+                shortURL.setReachableDate(new Date(System.currentTimeMillis()));
             }
-            shortURL.setReachable(map.get("Reachable"));
             shortURL.setSpam(map.get("Spam"));
-            shortURL.setSpamDate(new Date().toString());
-
+            shortURL.setSpamDate(new Date(System.currentTimeMillis()));
             shortURLRepository.update(shortURL);
             LOG.info("La url es spam: " + map.get("Spam"));
             LOG.info("La url es alcanzable: " + map.get("Reachable"));
