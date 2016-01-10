@@ -387,7 +387,7 @@ public class UrlShortenerController {
                     //Needed permission
                     if (!l.getUsers().equals("All")) {
                         // Obtain jwt
-                        /*final Claims claims = (Claims) request.getAttribute("claims");
+                        final Claims claims = (Claims) request.getAttribute("claims");
                         try {
                             // Obtain username
                             String username = claims.getSubject();
@@ -399,7 +399,7 @@ public class UrlShortenerController {
                             }
                         } catch (NullPointerException e) {
                             return NOT_AUTH;
-                        }*/
+                        }
                     }
                 }
                 // URL is not safe or token matches

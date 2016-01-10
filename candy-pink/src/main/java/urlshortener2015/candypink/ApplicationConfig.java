@@ -9,7 +9,7 @@ import urlshortener2015.candypink.auth.support.AuthURI;
 import urlshortener2015.candypink.auth.support.AuthUtils;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
-
+import java.util.ArrayList;
 /**
  * Created by david on 2/01/16.
  */
@@ -24,6 +24,10 @@ public class ApplicationConfig {
 		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();
 		JWTokenFilter authenticationFilter = new JWTokenFilter(key, AuthUtils.buildAuthURIs());
 		registrationBean.setFilter(authenticationFilter);
+		ArrayList<String> uris = new ArrayList<String>();
+		uris.add("/login");
+		uris.add("/link");
+		registrationBean.setUrlPatterns(uris);
 		return registrationBean;
 	}
 }
