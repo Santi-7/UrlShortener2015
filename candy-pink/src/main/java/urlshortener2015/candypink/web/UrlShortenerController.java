@@ -185,7 +185,7 @@ public class UrlShortenerController {
         logger.info("Users who can redirect: " + users);
         logger.info("Time to be safe: " + time);
         // Obtain jwt
-       /* final Claims claims = (Claims) request.getAttribute("claims");
+       final Claims claims = (Claims) request.getAttribute("claims");
         // Obtain username
         String username = claims.getSubject();
         // Obtain role
@@ -195,8 +195,7 @@ public class UrlShortenerController {
             response.sendRedirect("noMore.html");
             // Can't redirect more today
             return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-        }*/
-        String username = "user";
+        }
         boolean safe = !(users.equals("select") && time.equals("select"));
         if (users.equals("select")) {
             users = "All";
