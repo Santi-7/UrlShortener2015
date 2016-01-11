@@ -1,4 +1,4 @@
-package urlshortener2015.candypink.checker.infraestructure;
+package urlshortener2015.candypink.checker.infrastructure;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -11,6 +11,7 @@ import urlshortener2015.candypink.repository.ShortURLRepository;
 
 import javax.annotation.Resource;
 import java.sql.Date;
+import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
@@ -62,20 +63,23 @@ public class QueueConsumerBean {
             Map<String,Object> map = adapter.checkUrl(url);
             //Now the uri has been checked
             ShortURL shortURL = shortURLRepository.findByTarget(url).get(0);
+            LOG.info(shortURL.getTarget() +" expires " + shortURL.getTimeToBeSafe());
+            Date now = new Date(System.currentTimeMillis());
             //Checks if it is reachable
             if(shortURL.getReachableDate()== null || shortURL.getReachable() || (Boolean)map.get("Reachable")){
                 shortURL.setReachable((Boolean)map.get("Reachable"));
-                shortURL.setReachableDate(new Date(System.currentTimeMillis()));
+                shortURL.setReachableDate(now);
                 Integer mediumResponseTime = calculateMediumResponseTime((Integer)map.get("responseTime"),
                         shortURL.getMediumResponseTime(),shortURL.getTimesVerified());
                 shortURL.setMediumResponseTime(mediumResponseTime);
             }
             //Checks if security has expired
-            /*if(shortURL.getSafe()){
-                if(shortURL.getCreated().)
-            }*/
+            if(shortURL.getSafe()){
+                Date expires = calculateExpiresTime(shortURL.getCreated(),shortURL.getTimeToBeSafe());
+                shortURL.setSafe(!expires.before(now));
+            }
             shortURL.setSpam((Boolean)map.get("Spam"));
-            shortURL.setSpamDate(new Date(System.currentTimeMillis()));
+            shortURL.setSpamDate(now);
             shortURLRepository.update(shortURL);
             LOG.info("La url es spam: " + map.get("Spam"));
             LOG.info("La url es alcanzable: " + map.get("Reachable"));
@@ -86,5 +90,13 @@ public class QueueConsumerBean {
 
     public int calculateMediumResponseTime(int timeToCount, int timeStored, int times){
         return ((timeStored*times) + timeToCount)/(times + 1);
+    }
+
+    public Date calculateExpiresTime(Date created, Integer timeToBeSafe){
+        Date updated = new Date(created.getTime());
+        //timeToBeSafe is given in days, so needs to be converted to hours
+        updated.setTime(updated.getTime()+(timeToBeSafe*86400*1000));
+        LOG.info("Expira a esta fecha:");
+       return updated;
     }
 }
