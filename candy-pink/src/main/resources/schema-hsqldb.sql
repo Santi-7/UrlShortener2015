@@ -48,4 +48,10 @@ CREATE TABLE SHORTURL(
 	SERVICETIME	INTEGER			--Time the uri has been up
 );
 
+-- SecureToken
 
+CREATE TABLE SECURETOKEN(
+
+	TOKEN		VARCHAR(1024) PRIMARY KEY, -- Token
+
+);

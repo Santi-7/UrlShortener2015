@@ -17,8 +17,8 @@ import org.springframework.ws.client.core.WebServiceTemplate;
 import urlshortener2015.candypink.domain.FishyURL;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
-
 import io.jsonwebtoken.*;
+
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -29,6 +29,12 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.Random;
 import java.util.UUID;
+
+import urlshortener2015.candypink.repository.SecureTokenRepository;
+import urlshortener2015.candypink.repository.SecureTokenRepositoryImpl;
+import urlshortener2015.candypink.domain.SecureToken;
+
+import org.springframework.util.Base64Utils;
 
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
@@ -54,6 +60,9 @@ public class UrlShortenerController {
     @Autowired
     protected ShortURLRepository shortURLRepository;
 
+    @Autowired
+    protected SecureTokenRepository secureTokenRepository;
+
 
     /**
      * Redirect to the related URL associated to the ShortUrl with hash id
@@ -69,7 +78,7 @@ public class UrlShortenerController {
                                             @RequestParam(value = "token", required = false) String token,
                                             HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        logger.info("Requested redirection with hash " + id);
+        logger.info("Requested redirectionJSON with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
         String code = validateURI(l, token, request);
         if (code.equals(IS_SPAM)) {
@@ -95,7 +104,7 @@ public class UrlShortenerController {
                                                 @RequestParam(value = "token", required = false) String token,
                                                 HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        logger.info("Requested redirection with hash " + id);
+        logger.info("Requested redirectionAnything with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
         String code = validateURI(l, token, request);
         if (code.equals(IS_SPAM)) {
@@ -134,7 +143,7 @@ public class UrlShortenerController {
                                                 @RequestParam(value = "token", required = false) String token,
                                                 HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        logger.info("Requested redirection with hash " + id);
+        logger.info("Requested redirectionHTML with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
         String code = validateURI(l, token, request);
         if (code.equals(IS_SPAM)) {
@@ -186,7 +195,7 @@ public class UrlShortenerController {
         logger.info("Time to be safe: " + time);
         // Obtain jwt
        final Claims claims = (Claims) request.getAttribute("claims");
-        // Obtain username
+       // Obtain username
         String username = claims.getSubject();
         // Obtain role
         String role = claims.get("role", String.class);
