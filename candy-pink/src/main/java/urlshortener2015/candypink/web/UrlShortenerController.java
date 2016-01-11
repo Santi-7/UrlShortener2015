@@ -212,11 +212,18 @@ public class UrlShortenerController {
         if (users.equals("select")) {
             users = "All";
         }
-        if (time.equals("select")) {
-            time = "Forever";
+        Integer timeToBeSafe;
+        if (time.equals("select") || time.equals("Forever")) {
+            timeToBeSafe = Integer.MAX_VALUE;
+        }else if(time.equals("day")){
+            timeToBeSafe = 1;
+        }else if(time.equals("week")){
+            timeToBeSafe = 7;
+        }else{
+            timeToBeSafe = 30;
         }
         ShortURL su = createAndSaveIfValid(url, username, safe, users, sponsor, brand, UUID
-                .randomUUID().toString(), extractIP(request));
+                .randomUUID().toString(), extractIP(request),timeToBeSafe);
         if (su != null) {
             HttpHeaders h = new HttpHeaders();
             h.setLocation(su.getUri());
@@ -241,7 +248,8 @@ public class UrlShortenerController {
     }
 
     protected ShortURL createAndSaveIfValid(String url, String username, boolean safe, String users,
-                                            String sponsor, String brand, String owner, String ip) {
+                                            String sponsor, String brand, String owner, String ip,
+                                            Integer timeToBeSafe) {
         UrlValidator urlValidator = new UrlValidator(new String[]{"http",
                 "https"});
         // It is a valid URL
@@ -265,7 +273,7 @@ public class UrlShortenerController {
                                         id, token, null, null, null)).toUri(), token, users,
                         sponsor, new Date(System.currentTimeMillis()),
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-                        safe,0, null, null, null, null, ip, null, username,
+                        safe,timeToBeSafe, null, null, null, null, ip, null, username,
                         0,0,0,0);
                 logger.info("Se ha creado la uri");
             } catch (IOException e) {
@@ -439,4 +447,5 @@ public class UrlShortenerController {
         }
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }
+
 }
