@@ -52,24 +52,14 @@ public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 	}
 
 
-	private List<SecureToken> list() {
+	@Override
+	public SecureToken findByToken(String token) {
 		try {
-			return jdbc.query("SELECT * FROM SECURETOKEN", rowMapper);		
+			return jdbc.queryForObject("SELECT * FROM SECURETOKEN WHERE TOKEN=?", rowMapper, token);		
 		} catch (Exception e) {
 			log.debug("When select for token ", e);
 			return null;
 		}
-	}
-	
-	@Override
-	public SecureToken findByToken(String token) {
-		BCryptPasswordEncoder encoder=new BCryptPasswordEncoder();
-		for(SecureToken s : list()) {
-			if(encoder.matches(token,s.getToken())) {
-				return s;
-			}
-		}
-		return null;
 	}
 
 	@Override
