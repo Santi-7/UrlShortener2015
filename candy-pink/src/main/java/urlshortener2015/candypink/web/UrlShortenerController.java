@@ -76,11 +76,12 @@ public class UrlShortenerController {
             method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
     public ResponseEntity<?> redirectToJSON(@PathVariable String id,
                                             @RequestParam(value = "token", required = false) String token,
+					    @RequestParam(value = "secure", required = false) String secureToken,
                                             HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         logger.info("Requested redirectionJSON with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
-        String code = validateURI(l, token, request);
+        String code = validateURI(l, token, secureToken, request);
         if (code.equals(IS_SPAM)) {
             //URL is spam or malware
             FishyURL fishyURL = new FishyURL(l.getTarget(), l.getSpamDate().toString(), MESSAGE_SPAM);
@@ -102,11 +103,12 @@ public class UrlShortenerController {
             method = RequestMethod.GET, produces = {MediaType.APPLICATION_OCTET_STREAM})
     public ResponseEntity<?> redirectToAnything(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
+						@RequestParam(value = "secure", required = false) String secureToken,
                                                 HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         logger.info("Requested redirectionAnything with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
-        String code = validateURI(l, token, request);
+        String code = validateURI(l, token, secureToken, request);
         if (code.equals(IS_SPAM)) {
             String content;
             if(l.getSpamDate() != null) {
@@ -141,11 +143,12 @@ public class UrlShortenerController {
             method = RequestMethod.GET, produces = {MediaType.TEXT_HTML})
     public ResponseEntity<?> redirectToHTML(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
+						@RequestParam(value = "secure", required = false) String secureToken,
                                                 HttpServletRequest request, HttpServletResponse response)
             throws IOException {
         logger.info("Requested redirectionHTML with hash " + id);
         ShortURL l = shortURLRepository.findByKey(id);
-        String code = validateURI(l, token, request);
+        String code = validateURI(l, token, secureToken, request);
         if (code.equals(IS_SPAM)) {
             //URL is spam or malware
             String content;
@@ -259,7 +262,7 @@ public class UrlShortenerController {
                 su = new ShortURL(id, url,
                         linkTo(
                                 methodOn(UrlShortenerController.class).redirectToHTML(
-                                        id, token, null, null)).toUri(), token, users,
+                                        id, token, null, null, null)).toUri(), token, users,
                         sponsor, new Date(System.currentTimeMillis()),
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
                         safe,0, null, null, null, null, ip, null, username,
@@ -314,7 +317,7 @@ public class UrlShortenerController {
     * Validates the uri
     * @return representation code of evaluate url
     * */
-    private String validateURI(ShortURL l, String token, HttpServletRequest request) {
+    private String validateURI(ShortURL l, String token, String secureToken, HttpServletRequest request) {
         // ShortUrl exists in our BBDD
         if (l != null) {
             // URL is not spam
@@ -327,27 +330,33 @@ public class UrlShortenerController {
                     if (!l.getToken().equals(token)) {
                         return NOT_MATCH;
                     }
-                    //Needed permission
-                    if (!l.getUsers().equals("All")) {
-                        // Obtain jwt
-                        final Claims claims = (Claims) request.getAttribute("claims");
-                        try {
-                            // Obtain username
-                            String username = claims.getSubject();
-                            // Obtain role
-                            String role = claims.get("role", String.class);
-                            if ((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
-                                    (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
-                                return NOT_AUTH;
-                            }
-                        } catch (NullPointerException e) {
-                            return NOT_AUTH;
-                        }
-                    }
-                }
-                // URL is not safe or token matches
-                logger.info("Devuelve OK");
-                return OK;
+					logger.info("Verify Token");
+					if(secureToken != null && verifyToken(secureToken, token)) {
+						    //Needed permission
+						    if (!l.getUsers().equals("All")) {
+						        // Obtain jwt
+						        final Claims claims = (Claims) request.getAttribute("claims");
+						        try {
+						            // Obtain username
+						            String username = claims.getSubject();
+						            // Obtain role
+						            String role = claims.get("role", String.class);
+						            if ((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
+						                    (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+						                return NOT_AUTH;
+						            }
+						        } catch (NullPointerException e) {
+						            return NOT_AUTH;
+						        }
+						    }
+					  // URL is not safe or token matches
+					  logger.info("Devuelve OK");
+					  return OK;
+					  }
+					  logger.info("Secure Token bad verified");
+					  return NOT_AUTH;      
+				}
+				return OK;
             }else if(l.getReachable() == false){
                 //Uri is not reachable
                 return NOT_REACH;
@@ -360,6 +369,31 @@ public class UrlShortenerController {
         } else {
             return NOT_EXISTS;
         }
+    }
+
+     /**
+      *
+      */
+     private boolean verifyToken(String secureToken, String token) {
+	SecureToken st = secureTokenRepository.findByToken(secureToken);
+	if(st != null) {
+		logger.info("El token existe");
+		try {
+			String crypt = new String(Base64Utils.decodeFromString(st.getToken()), "UTF-8");
+			logger.info("Obtenido: " + crypt);
+			String salt = crypt.substring(crypt.length()-token.length());
+			logger.info("Salt:" + salt + "-" + "Token: " + token);
+			if(salt.equals(token)) {
+				return true;
+			}
+		}
+		catch(Exception e) {
+			logger.info("EL token no existe");
+			return false;		
+		}
+	}
+	logger.info("El token no existe");
+	return false;	
     }
 
     /*

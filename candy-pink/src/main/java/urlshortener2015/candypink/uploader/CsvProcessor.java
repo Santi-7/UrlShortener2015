@@ -142,7 +142,7 @@ public class CsvProcessor implements Runnable{
 				su = new ShortURL(id, url,
 					linkTo(
 						methodOn(UrlShortenerController.class).redirectToHTML(
-								id, token, null, null)).toUri(), token, users,
+								id, token, null, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
 							safe,0, null,null,null, null, ip, null, null,0,0,0,0);
