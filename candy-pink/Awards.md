@@ -26,9 +26,14 @@ The leader of the group (Alberto Álvarez) has to adjust the score of the other 
 * Iñigo Gascón works with CSV files. 5 points
 * David Nicuesa fight vs BWS problems. 5 points
 * Santiago Gil show user´s uris and create error JSON/HTML. 10 points
+* Iñigo Gascón Royo works in Websockets. 10 points.
+* David Nicuesa works in checking time. 5 points.
+* Santiago gil works in slides. 2.5 points.
+* Iñigo Gascón Royo works in Websockets. 5 points.
+* David Nicuesa works in checking time. 5 points. 
 
 User name            | Points
 ---------------------|-------
-David Nicuesa Aranda | 72
-Santiago Gil Begué   | 72
-Iñigo Gascón Royo    | 26
+David Nicuesa Aranda | 82
+Santiago Gil Begué   | 74.5
+Iñigo Gascón Royo    | 41
