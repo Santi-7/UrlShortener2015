@@ -20,8 +20,7 @@ CREATE TABLE AUTHORITIES(
 
 -- Pass = 'pass';
 INSERT INTO USERS VALUES ('user', '$2a$10$rU3kMgmSHu3/QTfLo9KU2Od21hAGISrzbWQCptxreDUNWx17/tE2W', 'true', 'user@test.com');
-INSERT INTO AUTHORITIES VALUES ('user', 'ROLE_NORMAL');
-
+INSERT INTO AUTHORITIES VALUES ('user', 'ROLE_NORMAL');	
 
 -- ShortURL
 
@@ -48,3 +47,5 @@ CREATE TABLE SHORTURL(
 	SHUTDOWNTIME	INTEGER,	--Time the uri has been down
 	SERVICETIME	INTEGER			--Time the uri has been up
 );
+
+

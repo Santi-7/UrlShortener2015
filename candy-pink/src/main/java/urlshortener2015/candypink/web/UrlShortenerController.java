@@ -165,11 +165,76 @@ public class UrlShortenerController {
         return request.getRemoteAddr();
     }
 
+	/**
+	 * Redirect to the related URL associated to the ShortUrl with hash id
+	 * If URL is spam or, it is redirected to errorSpam.html
+	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
+	 * @param id - hash of the shortUrl
+	 * @param token - optional, token of the shorturl if it is safe
+	 */
+	@RequestMapping(value = "/{id:(?!link|index|login|pene|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403).*}", method = RequestMethod.GET)
+	public ResponseEntity<?> redirectTo(@PathVariable String id, 
+					    @RequestParam(value = "token", required = false) String token,
+					    HttpServletRequest request, HttpServletResponse response)
+					    throws IOException {
+		logger.info("Requested redirection with hash " + id);
+		ShortURL l = shortURLRepository.findByKey(id);
+		// ShortUrl exists in our BBDD
+		if (l != null) {
+			// URL is not spam
+			if (l.getSpam() == false) {
+				// URL is safe, we must check token
+				logger.info("Is URL safe?: " + l.getSafe());
+				if (l.getSafe() == true) {
+					logger.info("Client token " + token + " - Real token: " + l.getToken());
+					// Token doesn't match
+					if (!l.getToken().equals(token)) {
+						response.sendRedirect("incorrectToken.html");
+						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+					}
+					//Needed permission
+					if(!l.getUsers().equals("All")) {
+						// Obtain jwt
+						final Claims claims = (Claims) request.getAttribute("claims");
+						try {
+							// Obtain username
+							String username = claims.getSubject(); 
+							// Obtain role
+							String role = claims.get("role", String.class);
+							if((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
+							 (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+								response.sendRedirect("403.html");
+								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+							}
+						}
+						catch (NullPointerException e) {
+							response.sendRedirect("403.html");
+							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
+						}
+					}
+				}
+				// URL is not safe or token matches
+				return createSuccessfulRedirectToResponse(l);
+			}
+			// URL is spam
+			else {
+				response.sendRedirect("errorSpam.html");
+				// Target is returned in order to permit the client to navigate there
+				// if he decides, although it is spam
+				return new ResponseEntity<>(l.getTarget(), HttpStatus.OK);
+			}
+		// ShortUrl does not exist in our BBDD
+		} else {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
     protected ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
         HttpHeaders h = new HttpHeaders();
         h.setLocation(URI.create(l.getTarget()));
         return new ResponseEntity<>(h, HttpStatus.valueOf(l.getMode()));
     }
+
 
 
     @RequestMapping(value = "/link", method = RequestMethod.POST)
