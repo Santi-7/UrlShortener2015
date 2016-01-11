@@ -17,7 +17,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.ws.client.core.WebServiceTemplate;
 import urlshortener2015.candypink.domain.ShortURL;
-import urlshortener2015.candypink.domain.csvStatusInfo;
+import urlshortener2015.candypink.domain.CsvStatusInfo;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 
 import javax.annotation.PostConstruct;
@@ -27,6 +27,7 @@ import javax.ws.rs.client.ClientBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
@@ -51,15 +52,15 @@ public class FileUploadController {
     }
 
     @RequestMapping(method=RequestMethod.POST)
-    public csvStatusInfo handleFileUpload(@RequestParam("file") MultipartFile file, 
+    public CsvStatusInfo handleFileUpload(@RequestParam("file") MultipartFile file,
 				HttpServletRequest request){
-		csvStatusInfo inf = null;
+		CsvStatusInfo inf = null;
         if (!file.isEmpty()) {
 			try{
 				copyFile(file);
 				File f = new File("temp");
 				boolean ok = true;
-				inf = new csvStatusInfo();
+				inf = new CsvStatusInfo();
 				Scanner sc = new Scanner(f);
 				sc.useDelimiter(",|\\s");
 				while(sc.hasNext() && ok){
@@ -142,9 +143,9 @@ public class FileUploadController {
 					linkTo(
 						methodOn(UrlShortenerController.class).redirectToHTML(
 								id, token,null, null, null)).toUri(), token, users,
-							sponsor, new Date(System.currentTimeMillis()),
+							sponsor, new Timestamp(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe,0, null,null,null, null, ip, null, null,0,0,0,0);
+							safe,0, null,null,null, null, ip, null, null,0,0,0,0,true,0);
 			}
 			catch (IOException e) {}
 			if (su != null) {

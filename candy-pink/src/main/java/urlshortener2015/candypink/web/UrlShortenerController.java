@@ -27,6 +27,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Random;
 import java.util.UUID;
 
@@ -100,7 +101,7 @@ public class UrlShortenerController {
      * @param token - optional, token of the shorturl if it is safe
      */
 @RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
-            method = RequestMethod.GET, produces = {MediaType.APPLICATION_OCTET_STREAM})
+            method = RequestMethod.GET)
     public ResponseEntity<?> redirectToAnything(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
 						@RequestParam(value = "secure", required = false) String secureToken,
@@ -271,10 +272,10 @@ public class UrlShortenerController {
                         linkTo(
                                 methodOn(UrlShortenerController.class).redirectToHTML(
                                         id, token, null, null, null)).toUri(), token, users,
-                        sponsor, new Date(System.currentTimeMillis()),
+                        sponsor, new Timestamp(System.currentTimeMillis()),
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
                         safe,timeToBeSafe, null, null, null, null, ip, null, username,
-                        0,0,0,0);
+                        0,0,0,0,true,0);
                 logger.info("Se ha creado la uri");
             } catch (IOException e) {
                 logger.info("Ha surgido una ioexception en create and safeifvalid");

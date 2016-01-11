@@ -45,13 +45,15 @@ CREATE TABLE SHORTURL(
 	TIMESVERIFIED	INTEGER,	--Times the uri has been verified
 	MEDIUMRESPONSETIME	INTEGER,--Medium response time of the url
 	SHUTDOWNTIME	INTEGER,	--Time the uri has been down
-	SERVICETIME	INTEGER			--Time the uri has been up
+	SERVICETIME	INTEGER,			--Time the uri has been up
+	ENABLED	BOOLEAN,				--Is this uri enabled?
+	FAILSNUMBER	INTEGER			--Number of times the uri has failed
 );
 
 -- SecureToken
 
 CREATE TABLE SECURETOKEN(
 
-	TOKEN		VARCHAR(1024) PRIMARY KEY, -- Token
+	TOKEN		VARCHAR(1024) PRIMARY KEY -- Token
 
 );

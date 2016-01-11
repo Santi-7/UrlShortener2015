@@ -27,6 +27,7 @@ import javax.ws.rs.client.ClientBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
@@ -143,9 +144,9 @@ public class CsvProcessor implements Runnable{
 					linkTo(
 						methodOn(UrlShortenerController.class).redirectToHTML(
 								id, token, null, null, null)).toUri(), token, users,
-							sponsor, new Date(System.currentTimeMillis()),
+							sponsor, new Timestamp(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe,0, null,null,null, null, ip, null, null,0,0,0,0);
+							safe,0, null,null,null, null, ip, null, null,0,0,0,0,true,0);
 			}
 			catch (IOException e) {}
 			if (su != null) {

@@ -2,6 +2,7 @@ package urlshortener2015.candypink.domain;
 
 import java.net.URI;
 import java.sql.Date;
+import java.sql.Timestamp;
 
 public class ShortURL {
 
@@ -11,15 +12,15 @@ public class ShortURL {
 	private String token;
 	private String users;
 	private String sponsor;
-	private Date created;
+	private Timestamp created;
 	private String owner;
 	private Integer mode;
 	private Boolean safe;
 	private Integer timeToBeSafe;
 	private Boolean spam;
-	private Date spamDate;
+	private Timestamp spamDate;
 	private Boolean reachable;
-	private Date reachableDate;
+	private Timestamp reachableDate;
 	private String ip;
 	private String country;
 	private String username;
@@ -27,13 +28,16 @@ public class ShortURL {
 	private Integer mediumResponseTime;
 	private Integer shutdownTime;
 	private Integer serviceTime;
+	private Boolean enabled;
+	private Integer failsNumber;
 
-	public ShortURL(String hash, String target, URI uri, String token,
-					String users, String sponsor, Date created, String owner,
-					Integer mode, Boolean safe,Integer timeToBeSafe, Boolean spam, Date spamDate,
-					Boolean reachable, Date reachableDate, String ip, String country,
-					String username, Integer timesVerified, Integer mediumResponseTime,
-					Integer shutdownTime, Integer serviceTime) {
+	public ShortURL(){}
+
+	public ShortURL(String hash, String target, URI uri, String token, String users, String sponsor,
+					Timestamp created, String owner, Integer mode, Boolean safe, Integer timeToBeSafe,
+					Boolean spam, Timestamp spamDate, Boolean reachable, Timestamp reachableDate, String ip,
+					String country, String username, Integer timesVerified, Integer mediumResponseTime,
+					Integer shutdownTime, Integer serviceTime, Boolean enabled, Integer failsNumber) {
 		this.hash = hash;
 		this.target = target;
 		this.uri = uri;
@@ -56,9 +60,8 @@ public class ShortURL {
 		this.mediumResponseTime = mediumResponseTime;
 		this.shutdownTime = shutdownTime;
 		this.serviceTime = serviceTime;
-	}
-
-	public ShortURL() {
+		this.enabled = enabled;
+		this.failsNumber = failsNumber;
 	}
 
 	public String getHash() {
@@ -109,11 +112,11 @@ public class ShortURL {
 		this.sponsor = sponsor;
 	}
 
-	public Date getCreated() {
+	public Timestamp getCreated() {
 		return created;
 	}
 
-	public void setCreated(Date created) {
+	public void setCreated(Timestamp created) {
 		this.created = created;
 	}
 
@@ -141,6 +144,14 @@ public class ShortURL {
 		this.safe = safe;
 	}
 
+	public Integer getTimeToBeSafe() {
+		return timeToBeSafe;
+	}
+
+	public void setTimeToBeSafe(Integer timeToBeSafe) {
+		this.timeToBeSafe = timeToBeSafe;
+	}
+
 	public Boolean getSpam() {
 		return spam;
 	}
@@ -149,11 +160,11 @@ public class ShortURL {
 		this.spam = spam;
 	}
 
-	public Date getSpamDate() {
+	public Timestamp getSpamDate() {
 		return spamDate;
 	}
 
-	public void setSpamDate(Date spamDate) {
+	public void setSpamDate(Timestamp spamDate) {
 		this.spamDate = spamDate;
 	}
 
@@ -165,11 +176,11 @@ public class ShortURL {
 		this.reachable = reachable;
 	}
 
-	public Date getReachableDate() {
+	public Timestamp getReachableDate() {
 		return reachableDate;
 	}
 
-	public void setReachableDate(Date reachableDate) {
+	public void setReachableDate(Timestamp reachableDate) {
 		this.reachableDate = reachableDate;
 	}
 
@@ -179,14 +190,6 @@ public class ShortURL {
 
 	public void setIP(String ip) {
 		this.ip = ip;
-	}
-
-	public Integer getTimeToBeSafe() {
-		return timeToBeSafe;
-	}
-
-	public void setTimeToBeSafe(Integer timeToBeSafe) {
-		this.timeToBeSafe = timeToBeSafe;
 	}
 
 	public String getCountry() {
@@ -235,5 +238,21 @@ public class ShortURL {
 
 	public void setServiceTime(Integer serviceTime) {
 		this.serviceTime = serviceTime;
+	}
+
+	public Boolean getEnabled() {
+		return enabled;
+	}
+
+	public void setEnabled(Boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	public Integer getFailsNumber() {
+		return failsNumber;
+	}
+
+	public void setFailsNumber(Integer failsNumber) {
+		this.failsNumber = failsNumber;
 	}
 }

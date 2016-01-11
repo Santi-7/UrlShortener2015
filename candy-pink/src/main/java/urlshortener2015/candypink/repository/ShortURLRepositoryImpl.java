@@ -27,13 +27,13 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 		public ShortURL mapRow(ResultSet rs, int rowNum) throws SQLException {
 			return new ShortURL(rs.getString("hash"), rs.getString("target"),
 					null, rs.getString("token"), rs.getString("permission"),
-					rs.getString("sponsor"), rs.getDate("created"),
+					rs.getString("sponsor"), rs.getTimestamp("created"),
 					rs.getString("owner"), rs.getInt("mode"), rs.getBoolean("safe"),
-					new Integer(rs.getInt("timeToBeSafe")),	rs.getBoolean("spam"), rs.getDate("spamDate"),
-					rs.getBoolean("reachable"), rs.getDate("reachableDate"), rs.getString("ip"),
-					rs.getString("country"), rs.getString("username"), new Integer(rs.getInt("timesVerified")),
-					new Integer(rs.getInt("mediumResponseTime")), new Integer(rs.getInt("shutdownTime")),
-					new Integer(rs.getInt("serviceTime")));
+					rs.getInt("timeToBeSafe"),	rs.getBoolean("spam"), rs.getTimestamp("spamDate"),
+					rs.getBoolean("reachable"), rs.getTimestamp("reachableDate"), rs.getString("ip"),
+					rs.getString("country"), rs.getString("username"),rs.getInt("timesVerified"),
+					rs.getInt("mediumResponseTime"), rs.getInt("shutdownTime"),
+					rs.getInt("serviceTime"), rs.getBoolean("enabled"), rs.getInt("failsNumber"));
 		}
 	};
 
@@ -61,12 +61,12 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	@Override
 	public ShortURL save(ShortURL su) {
 		try {
-			jdbc.update("INSERT INTO shorturl VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			jdbc.update("INSERT INTO shorturl VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 					su.getHash(), su.getToken(), su.getUsers(), su.getTarget(), su.getSponsor(),
 					su.getOwner(), su.getMode(), su.getSafe(),su.getTimeToBeSafe(), su.getSpam(), su.getSpamDate(),
 					su.getReachable(), su.getReachableDate(), su.getIP(), su.getCountry(),
 					su.getUsername(), su.getTimesVerified(), su.getMediumResponseTime(), su.getShutdownTime(),
-					su.getServiceTime());
+					su.getServiceTime(),su.getEnabled(),su.getFailsNumber());
 		} catch (DuplicateKeyException e) {
 			log.debug("When insert for key " + su.getHash(), e);
 			return su;
@@ -123,11 +123,12 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 			jdbc.update(
 					"update shorturl set target=?, sponsor=?, created=?, owner=?, mode=?, safe=?, timeToBeSafe=?, spam=?,"
 							+" spamDate=?, reachable=?, reachableDate=?, ip=?, country=?, username=?, " +
-							"timesVerified=?, mediumResponseTime=?, shutdownTime=?, serviceTime=? where hash=?",
+							"timesVerified=?, mediumResponseTime=?, shutdownTime=?, serviceTime=?, enabled=?," +
+							"failsNumber=? where hash=?",
 					su.getTarget(), su.getSponsor(), su.getCreated(), su.getOwner(), su.getMode(), 
 					su.getSafe(), su.getTimeToBeSafe(), su.getSpam(), su.getSpamDate(), su.getReachable(), su.getReachableDate(),
 					su.getIP(), su.getCountry(), su.getUsername(),su.getTimesVerified(), su.getMediumResponseTime(),
-					su.getShutdownTime(),su.getServiceTime(), su.getHash());
+					su.getShutdownTime(),su.getServiceTime(), su.getEnabled(), su.getFailsNumber(), su.getHash());
 		} catch (Exception e) {
 			log.debug("When update for hash " + su.getHash(), e);
 		}

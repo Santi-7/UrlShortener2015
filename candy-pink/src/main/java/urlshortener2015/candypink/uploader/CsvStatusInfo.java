@@ -2,12 +2,12 @@ package urlshortener2015.candypink.domain;
 
 import java.util.ArrayList;
 
-public class csvStatusInfo {
+public class CsvStatusInfo {
 	
 	private ArrayList<String> status;
 	private String failed = "";
 	
-	public csvStatusInfo (){
+	public CsvStatusInfo(){
 		status = new ArrayList<String>();
 	}
 	

@@ -11,6 +11,7 @@ import urlshortener2015.candypink.repository.ShortURLRepository;
 
 import javax.annotation.Resource;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -23,7 +24,7 @@ public class QueueConsumerBean {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
-    //Max mediumresponsetime(secs) tolerable
+    //Max mediumresponsetime(ms) tolerable
     @Value("${maxResponseTime}")
     private Integer maxResponseTime;
 
@@ -64,20 +65,29 @@ public class QueueConsumerBean {
             //Now the uri has been checked
             ShortURL shortURL = shortURLRepository.findByTarget(url).get(0);
             LOG.info(shortURL.getTarget() +" expires " + shortURL.getTimeToBeSafe());
-            Date now = new Date(System.currentTimeMillis());
+            Timestamp now = new Timestamp(System.currentTimeMillis());
             //Checks if it is reachable
             if(shortURL.getReachableDate()== null || shortURL.getReachable() || (Boolean)map.get("Reachable")){
                 shortURL.setReachable((Boolean)map.get("Reachable"));
                 shortURL.setReachableDate(now);
                 Integer mediumResponseTime = calculateMediumResponseTime((Integer)map.get("responseTime"),
                         shortURL.getMediumResponseTime(),shortURL.getTimesVerified());
+                LOG.info("Tiempo de esta respuesta:"+map.get("responseTime"));
+                LOG.info("Tiempo medio de respuesta:"+mediumResponseTime);
+                LOG.info("El tiempo medio tolerable es " + maxResponseTime +"y es "
+                        +(mediumResponseTime<=maxResponseTime)+" que se respeta");
                 shortURL.setMediumResponseTime(mediumResponseTime);
             }
             //Checks if security has expired
             if(shortURL.getSafe()){
-                Date expires = calculateExpiresTime(shortURL.getCreated(),shortURL.getTimeToBeSafe());
+                Timestamp expires = calculateExpiresTime(shortURL.getCreated(),shortURL.getTimeToBeSafe());
+                LOG.info("COMPROBADO:La fecha a la que expira es: " + expires.getTime());
+                LOG.info("COMPROBADO:La fecha de ahora es:" + now.getTime());
+                LOG.info("COMPROBADO:Es segura?: "+ !expires.before(now));
                 shortURL.setSafe(!expires.before(now));
             }
+            Integer shutdownTime = (int)(now.getTime() - shortURL.getReachableDate().getTime());
+            shortURL.setShutdownTime(shortURL.getShutdownTime() + shutdownTime);
             shortURL.setSpam((Boolean)map.get("Spam"));
             shortURL.setSpamDate(now);
             shortURLRepository.update(shortURL);
@@ -92,11 +102,13 @@ public class QueueConsumerBean {
         return ((timeStored*times) + timeToCount)/(times + 1);
     }
 
-    public Date calculateExpiresTime(Date created, Integer timeToBeSafe){
-        Date updated = new Date(created.getTime());
+    public Timestamp calculateExpiresTime(Timestamp created, Integer timeToBeSafe){
+        Timestamp updated = new Timestamp(created.getTime());
+        LOG.info("Creada: " + updated.getTime());
         //timeToBeSafe is given in days, so needs to be converted to hours
         updated.setTime(updated.getTime()+(timeToBeSafe*86400*1000));
-        LOG.info("Expira a esta fecha:");
+        LOG.info("Ahora: " + new Timestamp(System.currentTimeMillis()).getTime());
+        LOG.info("Expira a esta fecha: " + updated.getTime());
        return updated;
     }
 }
