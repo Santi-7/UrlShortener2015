@@ -9,18 +9,34 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
+/**
+ * This class offer methods to process uris to filter
+ * and create Json Web Tokens.
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
+ */
 public class AuthUtils {
 
+	// Logger
 	private static final Logger logger = LoggerFactory.getLogger(AuthUtils.class);
 
+	// End of line in the system
 	private static final String newLine = System.getProperty("line.separator");
+	// Uris that must be checked
 	private static final String URIS = "/admin:GET-Admin,POST-Admin,PUT-Admin,DELETE-Admin:end:"+ newLine
 					 + "/link:POST-Normal:end:"+ newLine
 					 + "/profile:GET-Normal,POST-Normal,PUT-Normal,DELETE-Normal:end:"+ newLine
 					 + "/login:GET-Not,POST-Not,PUT-Not,DELETE-Not:end:"+ newLine;
 
+	// Uris that must be filtered
 	private static final String FILTER = "/login,/link,/profile,/admin";
 
+	/**
+	 * 
+	 * @param - username
+	 * @param - role
+	 * @param - key
+	 * @param expiration
+	 * /
 	public static String createToken(String username, String role, String key, Date expiration) {
 		return Jwts.builder().setSubject(username)
             	.claim("role", role).setIssuedAt(new Date()).setExpiration(expiration)
