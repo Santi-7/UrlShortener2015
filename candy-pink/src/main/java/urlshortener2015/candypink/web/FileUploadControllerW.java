@@ -19,7 +19,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
-import urlshortener2015.candypink.domain.csvStatusInfo;
+import urlshortener2015.candypink.uploader.CsvStatusInfo;
 import urlshortener2015.candypink.domain.ShortURL;
 
 import com.google.common.hash.Hashing;
