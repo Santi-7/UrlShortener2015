@@ -34,6 +34,7 @@ CREATE TABLE SHORTURL(
 	OWNER		VARCHAR(255),			-- User id
 	MODE		INTEGER,			-- Redirect mode
 	SAFE		BOOLEAN,			-- Safe target
+	TIMETOBESAFE	INTEGER,-- Time the uri is going to be safe
 	SPAM		BOOLEAN,			-- Spam target
 	SPAMDATE	TIMESTAMP,			-- Last spam checking
 	REACHABLE	BOOLEAN,			-- Reachable	
@@ -41,10 +42,10 @@ CREATE TABLE SHORTURL(
 	IP		VARCHAR(20),			-- IP
 	COUNTRY		VARCHAR(50),			-- Country
 	USERNAME	VARCHAR(30) FOREIGN KEY REFERENCES USERS(USERNAME),
-	TIMESVERIFIED	INTEGER,
-	MEDIUMRESPONSETIME	INTEGER,
-	SHUTDOWNTIME	INTEGER,
-	SERVICETIME	INTEGER
+	TIMESVERIFIED	INTEGER,	--Times the uri has been verified
+	MEDIUMRESPONSETIME	INTEGER,--Medium response time of the url
+	SHUTDOWNTIME	INTEGER,	--Time the uri has been down
+	SERVICETIME	INTEGER			--Time the uri has been up
 );
 
 -- SecureToken

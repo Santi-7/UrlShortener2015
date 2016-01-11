@@ -3,6 +3,7 @@ package urlshortener2015.candypink.checker.infraestructure;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import urlshortener2015.candypink.domain.ShortURL;
@@ -21,6 +22,18 @@ public class QueueConsumerBean {
 
     protected final Logger LOG = LoggerFactory.getLogger(getClass());
 
+    //Max mediumresponsetime(secs) tolerable
+    @Value("${maxResponseTime}")
+    private Integer maxResponseTime;
+
+    //Min service(hours) time tolerable
+    @Value("${minServiceTime}")
+    private Integer minServiceTime;
+
+    //Max time(hours) the uri can be down
+    @Value("${maxDownTime}")
+    private Integer maxDownTime;
+
     @Resource
     protected LinkedBlockingQueue<String> sharedQueue;
 
@@ -30,6 +43,12 @@ public class QueueConsumerBean {
     @Autowired
     protected ShortURLRepository shortURLRepository;
 
+
+    /*
+    * This method verifies asynchronously the state of the url
+    * using the adapter. It updates stats like if it is reachable,
+    * spam and its times.
+    * */
     @Async
     public void extractAndCheck(){
         LOG.info("La cola esta esperando a que haya algo metido");
@@ -39,13 +58,23 @@ public class QueueConsumerBean {
             LOG.info("Hay "+shortURLRepository.count()+ " urls en la bd");
             LOG.info("Se ha metido algo en la cola");
             LOG.info("Comprobando " + url);
-            Map<String,Boolean> map = adapter.checkUrl(url);
+            //This checks uri
+            Map<String,Object> map = adapter.checkUrl(url);
+            //Now the uri has been checked
             ShortURL shortURL = shortURLRepository.findByTarget(url).get(0);
-            if(shortURL.getReachableDate()== null || shortURL.getReachable() || map.get("Reachable")){
-                shortURL.setReachable(map.get("Reachable"));
+            //Checks if it is reachable
+            if(shortURL.getReachableDate()== null || shortURL.getReachable() || (Boolean)map.get("Reachable")){
+                shortURL.setReachable((Boolean)map.get("Reachable"));
                 shortURL.setReachableDate(new Date(System.currentTimeMillis()));
+                Integer mediumResponseTime = calculateMediumResponseTime((Integer)map.get("responseTime"),
+                        shortURL.getMediumResponseTime(),shortURL.getTimesVerified());
+                shortURL.setMediumResponseTime(mediumResponseTime);
             }
-            shortURL.setSpam(map.get("Spam"));
+            //Checks if security has expired
+            /*if(shortURL.getSafe()){
+                if(shortURL.getCreated().)
+            }*/
+            shortURL.setSpam((Boolean)map.get("Spam"));
             shortURL.setSpamDate(new Date(System.currentTimeMillis()));
             shortURLRepository.update(shortURL);
             LOG.info("La url es spam: " + map.get("Spam"));
@@ -53,5 +82,9 @@ public class QueueConsumerBean {
          } catch (InterruptedException e) {}
 
         }
+    }
+
+    public int calculateMediumResponseTime(int timeToCount, int timeStored, int times){
+        return ((timeStored*times) + timeToCount)/(times + 1);
     }
 }

@@ -145,7 +145,7 @@ public class CsvProcessor implements Runnable{
 								id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null,null,null, null, ip, null, null,0,0,0,0);
+							safe,0, null,null,null, null, ip, null, null,0,0,0,0);
 			}
 			catch (IOException e) {}
 			if (su != null) {

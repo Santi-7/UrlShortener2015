@@ -8,6 +8,6 @@ import java.util.Map;
  */
 public interface AdapterToExtern {
 
-    public Map<String,Boolean> checkUrl(String url);
+    public Map<String,Object> checkUrl(String url);
 
 }

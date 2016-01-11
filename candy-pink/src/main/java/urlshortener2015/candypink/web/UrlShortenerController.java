@@ -174,109 +174,6 @@ public class UrlShortenerController {
         return request.getRemoteAddr();
     }
 
-	/**
-	 * Redirect to the related URL associated to the ShortUrl with hash id
-	 * If URL is spam or, it is redirected to errorSpam.html
-	 * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
-	 * @param id - hash of the shortUrl
-	 * @param token - optional, token of the shorturl if it is safe
-	 */
-	@RequestMapping(value = "/{id:(?!link|index|login|pene|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403).*}", method = RequestMethod.GET)
-	public ResponseEntity<?> redirectTo(@PathVariable String id, 
-					    @RequestParam(value = "token", required = false) String token,
-					    @RequestParam(value = "token", required = false) String secureToken,
-					    HttpServletRequest request, HttpServletResponse response)
-					    throws IOException {
-		logger.info("Requested redirectionNormal with hash " + id);
-		ShortURL l = shortURLRepository.findByKey(id);
-		// ShortUrl exists in our BBDD
-		if (l != null) {
-			// URL is not spam
-			if (l.getSpam() == false) {
-				// URL is safe, we must check token
-				logger.info("Is URL safe?: " + l.getSafe());
-				if (l.getSafe() == true) {
-					logger.info("Client token " + token + " - Real token: " + l.getToken());
-					// Token doesn't match
-					if (!l.getToken().equals(token)) {
-						response.sendRedirect("incorrectToken.html");
-						return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-					}
-					logger.info("Permisos?");
-					//Needed permission
-					if(!l.getUsers().equals("All")) {
-						// Obtain jwt
-						final Claims claims = (Claims) request.getAttribute("claims");
-						try {
-							// Obtain username
-							String username = claims.getSubject(); 
-							// Obtain role
-							logger.info("Comprobando permisos");
-							String role = claims.get("role", String.class);
-							if((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
-							 (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
-								response.sendRedirect("403.html");
-								return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-							}
-							//has permission(verifyToken)
-							else {
-								if(verifyToken(secureToken, token)) {
-									return createSuccessfulRedirectToResponse(l);
-								}
-								else {
-									response.sendRedirect("403.html");
-									return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-								}
-							}	
-						}
-						catch (NullPointerException e) {
-							response.sendRedirect("403.html");
-							return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-						}
-					}
-					else {
-						logger.info("Verificando el token: " + secureToken);
-						if(verifyToken(secureToken, token)) {
-							return createSuccessfulRedirectToResponse(l);
-						}
-					}
-				}
-				// URL is not safe or token matches
-				return createSuccessfulRedirectToResponse(l);
-			}
-			// URL is spam
-			else {
-				response.sendRedirect("errorSpam.html");
-				// Target is returned in order to permit the client to navigate there
-				// if he decides, although it is spam
-				return new ResponseEntity<>(l.getTarget(), HttpStatus.OK);
-			}
-		// ShortUrl does not exist in our BBDD
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
-	}
-
-    private boolean verifyToken(String secureToken, String token) {
-	SecureToken st = secureTokenRepository.findByToken(secureToken);
-	if(st.getToken() != null) {
-		logger.info("El token existe");
-		try {
-			String crypt = new String(Base64Utils.decodeFromString(st.getToken()), "UTF-8");
-			logger.info("Obtenido: " + crypt);
-			String salt = crypt.substring(crypt.length()-token.length());
-			logger.info("Salt:" + salt + "-" + "Token: " + token);
-			if(salt.equals(token)) {
-				return true;
-			}
-		}
-		catch(Exception e) {
-			return false;		
-		}
-	}
-	return false;	
-    }
-
     protected ResponseEntity<?> createSuccessfulRedirectToResponse(ShortURL l) {
         HttpHeaders h = new HttpHeaders();
         h.setLocation(URI.create(l.getTarget()));
@@ -297,8 +194,8 @@ public class UrlShortenerController {
         logger.info("Users who can redirect: " + users);
         logger.info("Time to be safe: " + time);
         // Obtain jwt
-        final Claims claims = (Claims) request.getAttribute("claims");
-        // Obtain username
+       final Claims claims = (Claims) request.getAttribute("claims");
+       // Obtain username
         String username = claims.getSubject();
         // Obtain role
         String role = claims.get("role", String.class);
@@ -308,7 +205,6 @@ public class UrlShortenerController {
             // Can't redirect more today
             return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
         }
-        //String username = "user";
         boolean safe = !(users.equals("select") && time.equals("select"));
         if (users.equals("select")) {
             users = "All";
@@ -366,7 +262,7 @@ public class UrlShortenerController {
                                         id, token, null, null)).toUri(), token, users,
                         sponsor, new Date(System.currentTimeMillis()),
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-                        safe, null, null, null, null, ip, null, username,
+                        safe,0, null, null, null, null, ip, null, username,
                         0,0,0,0);
                 logger.info("Se ha creado la uri");
             } catch (IOException e) {
@@ -505,7 +401,7 @@ public class UrlShortenerController {
             }
             HttpHeaders responseHeaders = new HttpHeaders();
             responseHeaders.setContentType(org.springframework.http.MediaType.TEXT_HTML);
-            return new ResponseEntity<String>(content, responseHeaders, HttpStatus.OK);
+            return new ResponseEntity<String>(content, responseHeaders, HttpStatus.NOT_FOUND);
         }
         return new ResponseEntity<>(HttpStatus.CONFLICT);
     }

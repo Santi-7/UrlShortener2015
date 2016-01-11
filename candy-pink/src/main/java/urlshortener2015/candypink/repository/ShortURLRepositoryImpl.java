@@ -28,8 +28,8 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 			return new ShortURL(rs.getString("hash"), rs.getString("target"),
 					null, rs.getString("token"), rs.getString("permission"),
 					rs.getString("sponsor"), rs.getDate("created"),
-					rs.getString("owner"), rs.getInt("mode"), rs.getBoolean("safe"), 
-					rs.getBoolean("spam"), rs.getDate("spamDate"),
+					rs.getString("owner"), rs.getInt("mode"), rs.getBoolean("safe"),
+					new Integer(rs.getInt("timeToBeSafe")),	rs.getBoolean("spam"), rs.getDate("spamDate"),
 					rs.getBoolean("reachable"), rs.getDate("reachableDate"), rs.getString("ip"),
 					rs.getString("country"), rs.getString("username"), new Integer(rs.getInt("timesVerified")),
 					new Integer(rs.getInt("mediumResponseTime")), new Integer(rs.getInt("shutdownTime")),
@@ -61,9 +61,9 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	@Override
 	public ShortURL save(ShortURL su) {
 		try {
-			jdbc.update("INSERT INTO shorturl VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+			jdbc.update("INSERT INTO shorturl VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 					su.getHash(), su.getToken(), su.getUsers(), su.getTarget(), su.getSponsor(),
-					su.getOwner(), su.getMode(), su.getSafe(), su.getSpam(), su.getSpamDate(),
+					su.getOwner(), su.getMode(), su.getSafe(),su.getTimeToBeSafe(), su.getSpam(), su.getSpamDate(),
 					su.getReachable(), su.getReachableDate(), su.getIP(), su.getCountry(),
 					su.getUsername(), su.getTimesVerified(), su.getMediumResponseTime(), su.getShutdownTime(),
 					su.getServiceTime());
@@ -121,11 +121,11 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	public void update(ShortURL su) {
 		try {
 			jdbc.update(
-					"update shorturl set target=?, sponsor=?, created=?, owner=?, mode=?, safe=?, spam=?,"
+					"update shorturl set target=?, sponsor=?, created=?, owner=?, mode=?, safe=?, timeToBeSafe=?, spam=?,"
 							+" spamDate=?, reachable=?, reachableDate=?, ip=?, country=?, username=?, " +
 							"timesVerified=?, mediumResponseTime=?, shutdownTime=?, serviceTime=? where hash=?",
 					su.getTarget(), su.getSponsor(), su.getCreated(), su.getOwner(), su.getMode(), 
-					su.getSafe(), su.getSpam(), su.getSpamDate(), su.getReachable(), su.getReachableDate(),
+					su.getSafe(), su.getTimeToBeSafe(), su.getSpam(), su.getSpamDate(), su.getReachable(), su.getReachableDate(),
 					su.getIP(), su.getCountry(), su.getUsername(),su.getTimesVerified(), su.getMediumResponseTime(),
 					su.getShutdownTime(),su.getServiceTime(), su.getHash());
 		} catch (Exception e) {
@@ -201,7 +201,7 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	@Override
 	public List<ShortURL> findByTimeHours(Integer hours) {
 		try {
-			return jdbc.query("SELECT * FROM SHORTURL WHERE created>=(CURRENT_TIMESTAMP - interval '"+ hours.intValue()+"' hour) AND created<=CURRENT_TIMESTAMP",
+			return jdbc.query("SELECT * FROM SHORTURL WHERE spamDate<=(CURRENT_TIMESTAMP - interval '"+ hours.intValue()+"' hour)",
 					new Object[]{hours}, rowMapper);
 		} catch (Exception e) {
 			log.debug("When select for shorturls with time: " +hours, e);
