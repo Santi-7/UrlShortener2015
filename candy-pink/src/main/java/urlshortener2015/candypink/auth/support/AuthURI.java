@@ -5,7 +5,7 @@ import java.util.HashMap;
 /**
  * This class represent a uri and the permissions required to reach it,
  * for each method(GET, POST, DELETE, PUT)
- * @author - A.Ãlvarez, I.GascÃ³n, S.Gil, D.Nicuesa 
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
  */
 public class AuthURI {
     
