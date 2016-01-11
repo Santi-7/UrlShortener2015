@@ -49,6 +49,8 @@
 
 * 04/12/2015 11:00-20:00. All members of the group work together in order to progress and improve the project.
 
+* 09/12/2015 09:00-20:00. All members of the group work together in order to progress and improve the project.
+
 ## Acknowledgment
 
 We thank Bangladesh Green Team [1] and Niels Dommerholt [2] due to we have used their code to do our JWTokenFiler.java[3]

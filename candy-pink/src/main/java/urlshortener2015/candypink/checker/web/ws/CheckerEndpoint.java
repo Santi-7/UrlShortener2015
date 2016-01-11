@@ -1,8 +1,8 @@
-package checker.web.ws;
+package urlshortener2015.candypink.checker.web.ws;
 
-import checker.service.CheckerService;
-import checker.web.ws.schema.GetCheckerRequest;
-import checker.web.ws.schema.GetCheckerResponse;
+import urlshortener2015.candypink.checker.service.CheckerService;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.ws.server.endpoint.annotation.Endpoint;
 import org.springframework.ws.server.endpoint.annotation.PayloadRoot;
@@ -15,7 +15,7 @@ public class CheckerEndpoint {
 	@Autowired
 	protected CheckerService checker;
 
-	@PayloadRoot(namespace = "http://checker/web/ws/schema", localPart = "getCheckerRequest")
+	@PayloadRoot(namespace = "http://urlshortener2015/candypink/checker/web/ws/schema", localPart = "getCheckerRequest")
 	@ResponsePayload
 	public GetCheckerResponse translator(@RequestPayload GetCheckerRequest request) {
 		GetCheckerResponse response = new GetCheckerResponse();

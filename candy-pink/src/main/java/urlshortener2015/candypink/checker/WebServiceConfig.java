@@ -1,4 +1,4 @@
-package checker;
+package urlshortener2015.candypink.checker;
 
 import org.springframework.boot.context.embedded.ServletRegistrationBean;
 import org.springframework.context.ApplicationContext;
@@ -35,7 +35,7 @@ public class WebServiceConfig extends WsConfigurerAdapter {
 		DefaultWsdl11Definition wsdl11Definition = new DefaultWsdl11Definition();
 		wsdl11Definition.setPortTypeName("CheckerPort");
 		wsdl11Definition.setLocationUri("/ws");
-		wsdl11Definition.setTargetNamespace("http://checker/web/ws/schema");
+		wsdl11Definition.setTargetNamespace("http://urlshortener2015/candypink/checker/web/ws/schema");
 		wsdl11Definition.setSchema(countriesSchema);
 		return wsdl11Definition;
 	}

@@ -1,7 +1,8 @@
 package urlshortener2015.candypink.web;
 
-import checker.web.ws.schema.GetCheckerRequest;
-import checker.web.ws.schema.GetCheckerResponse;
+
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
 import com.google.common.hash.Hashing;
 import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;

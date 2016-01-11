@@ -1,4 +1,4 @@
-package checker.infrastructure;
+package urlshortener2015.candypink.checker.infraestructure;
 
 import java.net.UnknownHostException;
 import java.util.Map;
