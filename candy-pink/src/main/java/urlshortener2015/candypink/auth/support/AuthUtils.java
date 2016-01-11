@@ -36,7 +36,7 @@ public class AuthUtils {
 	 * @param - role
 	 * @param - key
 	 * @param expiration
-	 * /
+	 */
 	public static String createToken(String username, String role, String key, Date expiration) {
 		return Jwts.builder().setSubject(username)
             	.claim("role", role).setIssuedAt(new Date()).setExpiration(expiration)
