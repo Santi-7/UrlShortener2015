@@ -66,10 +66,10 @@ public class Redirect {
         // ShortUrl exists in our BBDD
         if (l != null) {
             // URL is not spam
-            if (l.getSpam() == false && l.getReachable() == true) {
+            if (!l.getSpam() && l.getReachable() && l.getEnabled()) {
                 // URL is safe, we must check token
                 logger.info("Is URL safe?: " + l.getSafe());
-                if (l.getSafe() == true) {
+                if (l.getSafe()) {
                     logger.info("Client token " + token + " - Real token: " + l.getToken());
                     // Token doesn't match
                     if (!l.getToken().equals(token)) {
@@ -102,10 +102,13 @@ public class Redirect {
 					  return NOT_AUTH;      
 				}
 				return OK;
-            }else if(l.getReachable() == false){
+            }else if(!l.getReachable()){
                 //Uri is not reachable
                 return NOT_REACH;
-            }
+            }else if(!l.getEnabled()){
+				//Uri is not enabled
+				return NOT_EXISTS;
+			}
             else {
                 // URL is spam
                 return IS_SPAM;

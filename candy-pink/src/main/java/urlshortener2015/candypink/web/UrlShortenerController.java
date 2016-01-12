@@ -30,11 +30,11 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Random;
 import java.util.UUID;
 
 import urlshortener2015.candypink.repository.SecureTokenRepository;
-import urlshortener2015.candypink.repository.SecureTokenRepositoryImpl;
 import urlshortener2015.candypink.domain.SecureToken;
 
 import org.springframework.util.Base64Utils;
@@ -92,8 +92,8 @@ public class UrlShortenerController {
      * @param id    - hash of the shortUrl
      * @param token - optional, token of the shorturl if it is safe
      */
-@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
-            method = RequestMethod.GET, produces = {MediaType.APPLICATION_OCTET_STREAM})
+@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
+            method = RequestMethod.GET)
     public ResponseEntity<?> redirectToAnything(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
 						@RequestParam(value = "secure", required = false) String secureToken,
