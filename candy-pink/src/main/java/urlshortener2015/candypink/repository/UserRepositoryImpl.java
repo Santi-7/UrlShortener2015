@@ -25,13 +25,18 @@ import org.springframework.stereotype.Repository;
 
 import urlshortener2015.candypink.domain.User;
 
-
+/**
+* This class offers some methods to work with users of the application
+* @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
+*/
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
+	// Logger
 	private static final Logger log = LoggerFactory
 			.getLogger(UserRepositoryImpl.class);
 
+	// Used to fill the fields of the users
 	private static final RowMapper<User> rowMapper = new RowMapper<User>() {
 		@Override
 		public User mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -40,16 +45,26 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	};
 
+	// Adapter to the database
 	@Autowired
 	protected JdbcTemplate jdbc;
 
+	/** Default constructor of the repository implementor */
 	public UserRepositoryImpl() {
 	}
 
+	/** 
+	 * Constructor of the repository implementor with the database adapter "jdbc"
+	 * @param jdbc - adapter to the database
+	 */
 	public UserRepositoryImpl(JdbcTemplate jdbc) {
 		this.jdbc = jdbc;
 	}
 
+	/**
+	 * It returns a list of all the users managed in the database
+	 * @returns a list of all the users managed in the database
+	 */
 	@Override
 	public List<User> getAllUsers() {
 		try {
@@ -63,6 +78,11 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
+	/**
+	 * It returns the user with username or email "id"
+	 * @param id - username or email of the user to be returned
+	 * @returns the user with username or email "id"
+	 */
 	@Override
 	public User findByUsernameOrEmail(String id) {
 		try {
@@ -76,6 +96,12 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
+	/**
+	 * It inserts the user "user" to the database and returns it
+	 * if has been correctly inserted, null in another case.
+	 * @param user - user to be inserted
+	 * @returns - the user if has been correctly inserted, null in another case.
+	 */
 	@Override
 	public User save(User user) {
 		try {
@@ -85,6 +111,7 @@ public class UserRepositoryImpl implements UserRepository {
 			jdbc.update("INSERT INTO AUTHORITIES VALUES (?, ?)",
 					user.getUsername(), user.getAuthority());
 			return user;
+		// It already exists another user with same username
 		} catch (DuplicateKeyException e) {
 			log.info("When insert for user with user " + user.getUsername());
 			return null;
@@ -94,6 +121,10 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 	
+	/**
+	 * It updates the values of the user "user" to its new details
+	 * @param user - user to be updated
+	 */
 	@Override
 	public void update(User user) {
 		log.info("Username: "+user.getUsername());
@@ -107,6 +138,10 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
+	/**
+	 * Deletes the user with username "username"
+	 * @param username - username of the user to be deleted
+	 */
 	@Override
 	public void delete(String username) {
 		try {
@@ -117,6 +152,9 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
+	/**
+	 * Deletes all the users of the database
+	 */
 	@Override
 	public void deleteAll() {
 		try {
@@ -127,6 +165,10 @@ public class UserRepositoryImpl implements UserRepository {
 		}
 	}
 
+	/**
+	 * Returns the number of users managed in the database
+	 * @returns - the number of users managed in the database
+	 */
 	@Override
 	public Long count() {
 		try {
