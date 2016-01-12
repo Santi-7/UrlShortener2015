@@ -25,7 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
- * This controller manage de access to "/login" used for a user when he want log in.
+ * This controller manage the access to "/login" used for a user when he want log in.
  * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
  */
 @RestController
