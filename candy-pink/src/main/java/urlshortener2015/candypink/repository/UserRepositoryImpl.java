@@ -26,9 +26,9 @@ import org.springframework.stereotype.Repository;
 import urlshortener2015.candypink.domain.User;
 
 /**
-* This class offers some methods to work with users of the application
-* @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
-*/
+ * This class offers some methods to work with users of the application
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
+ */
 @Repository
 public class UserRepositoryImpl implements UserRepository {
 
