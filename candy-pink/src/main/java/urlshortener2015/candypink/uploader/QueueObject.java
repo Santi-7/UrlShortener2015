@@ -4,25 +4,41 @@ import org.springframework.web.multipart.MultipartFile;
 
 public class QueueObject {
 	
-	private MultipartFile file;
-	private String user;
+	private Object toShort;
+	private String uri;
 	private String type;
+	private String username;
+	private String role;
 	
-	public QueueObject(MultipartFile f, String t){
-		file = f;
+	public QueueObject(Object o, String t, String u, String r){
+		toShort = o;
 		type=t;
+		username=u;
+		role=r;
 	}
 	
-	public void setUser(String u){
-		user=u;
+	public void setUri(String u){
+		uri=u;
 	}
 	
-	public MultipartFile getFile(){
-		return file;
+	public Object getToShort(){
+		return toShort;
 	}
 	
-	public String getUser(){
-		return user;
+	public String getUri(){
+		return uri;
+	}
+	
+	public String getUsername(){
+		return username;
 	}	
+	
+	public String getRole(){
+		return role;
+	}
+	
+	public String getType(){
+		return type;
+	}
 	
 }

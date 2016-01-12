@@ -40,6 +40,9 @@ import checker.web.ws.schema.GetCheckerResponse;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 import urlshortener2015.candypink.web.UrlShortenerController;
+import urlshortener2015.candypink.web.shortTools.Short;
+
+import io.jsonwebtoken.*;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -97,159 +100,23 @@ public class CsvQueueConsumerBean{
 		try{
 			while(true){
 				QueueObject qo = csvQueue.take();
-				copyFile(qo.getFile());
-				File f = new File("temp");
-				Scanner sc = new Scanner(f);
-				sc.useDelimiter(",|\\s");
-				Client client = ClientBuilder.newClient();
-				while(sc.hasNext()){
-					String url = sc.next();
-					ResponseEntity<ShortURL> res = shortener(url, null, null, null, null, null);
-					if(res!=null && ((res.getStatusCode()).toString()).equals("400")){
-						String stat = (res.getBody().getUri()) + " : Failed";
-						UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
-						clientUpdate(um);
-					}
-					else{
-						String stat = (res.getBody().getUri()) + " : Success";
-						UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
-						clientUpdate(um);
-					}
+				Object obj = qo.getToShort();
+				if(obj instanceof MultipartFile){
+					processFile(qo);
 				}
-				f.delete();
+				else{
+					processUrl(qo);
+				}
 			}
 		}
 		catch(InterruptedException e){
-			System.err.println(e);
-		}
-		catch (FileNotFoundException e){
-				System.err.println(e);
-		}
-		catch (IOException e){
 			System.err.println(e);
 		}
 		catch (Exception e){
 			System.err.println(e);
 		}
 	}
-	
-	private ResponseEntity<ShortURL> shortener(String url, String users, String time,
-			String sponsor, String brand, HttpServletRequest request) {
-		logger.info("Requested new short for uri " + url);
-		logger.info("Users who can redirect: " + users);
-		logger.info("Time to be safe: " + time);
-		Client client = ClientBuilder.newClient();
-		boolean safe = false;
-		if(users!=null && time!=null){ safe = !(users.equals("select") && time.equals("select"));}
-		ShortURL su = createAndSaveIfValidExtended(url, safe, users, sponsor, brand, UUID.randomUUID().toString(), null);
-		if (su != null) {
-			if (su.getSafe() == false) {// Url requested is not safe
-				HttpHeaders h = new HttpHeaders();
-				h.setLocation(su.getUri());
-				logger.info("Requesting to Checker service");
-				GetCheckerRequest requestToWs = new GetCheckerRequest();
-				requestToWs.setUrl(url);
-				Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
-						+ "8080" + "/ws", requestToWs);
-				GetCheckerResponse checkerResponse = (GetCheckerResponse) response;
-				String resultCode = checkerResponse.getResultCode();
-				logger.info("respuesta recibida por el Web Service: "+resultCode);
-				if(resultCode.equals("ok")){
-					return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
-				}else{
-					return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-				}
-			} else {
-				return null;
-			}
-		} else {
-			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-		}
-	}
     
-    
-	protected ShortURL createAndSaveIfValid(String url, boolean safe, String users,
-			String sponsor,	String brand, String owner, String ip) {
-		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
-				"https" });
-		if (urlValidator.isValid(url)) {
-			String id = Hashing.murmur3_32()
-					.hashString(url, StandardCharsets.UTF_8).toString();
-			String token = null;
-			// If Url is safe, we create the token, else token = null
-			if (safe == true) {
-				// Random token of ten digits
-				token = createToken(10);
-			}
-			// ShortUrl
-			ShortURL su = null;
-			try {
-				su = new ShortURL(id, url,
-					linkTo(
-						methodOn(UrlShortenerController.class).redirectTo(
-							id, token, null, null)).toUri(), token, users,
-							sponsor, new Date(System.currentTimeMillis()),
-							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null,null,null, null, ip, null, null);			
-			}
-			catch (IOException e) {}
-			if (su != null) {
-					return shortURLRepository.save(su);
-			} else {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-	
-	protected ShortURL createAndSaveIfValidExtended(String url, boolean safe, String users,
-			String sponsor,	String brand, String owner, String ip) {
-		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
-				"https" });
-		if (urlValidator.isValid(url)) {
-			String id = Hashing.murmur3_32()
-					.hashString(url, StandardCharsets.UTF_8).toString();
-			String token = null;
-			// If Url is safe, we create the token, else token = null
-			if (safe == true) {
-				// Random token of ten digits
-				token = createToken(10);
-			}
-			// ShortUrl
-			ShortURL su = null;
-			try {
-				su = new ShortURL(id, url, new URI(createLink(id)), token, users,
-							sponsor, new Date(System.currentTimeMillis()),
-							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null,null,null, null, ip, null, null);			
-			}
-			catch(URISyntaxException e){
-				System.err.println(e);
-			}
-			if (su != null) {
-					return shortURLRepository.save(su);
-			} else {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-	
-	/**
-	 * Creates a random token of digits
-	 * @param length - length of the token to return
-	 */
-	private String createToken(int length) {
-		Random r = new Random();
-		String token = "";
-		for (int i = 0; i < length; i++) {
-			// Only digits in the token
-			token += r.nextInt(10);
-		}
-		return token;
-	}
 	
 	@PostConstruct
 	private void initWsComs(){
@@ -269,26 +136,55 @@ public class CsvQueueConsumerBean{
 			stream.close();	
 	}
 	
-	private String createLink(String id){
-		String url = "http://localhost:8080/" + id;
-		return url;
-	}
 	
 	public void clientUpdate(UpdateMessage update) {
         this.messagingTemplate.convertAndSend(update.getUser(), update.getStatus());
     }
     
-    /*private void processUrl(String url){
-		ResponseEntity<ShortURL> res = shortener(url, null, null, null, null, null);
+    private void processFile(QueueObject qo){
+		try{
+			copyFile((MultipartFile) qo.getToShort());
+			File f = new File("temp");
+			Scanner sc = new Scanner(f);
+			sc.useDelimiter(",|\\s");
+			Client client = ClientBuilder.newClient();
+			while(sc.hasNext()){
+				String url = sc.next();
+				ResponseEntity<ShortURL> res = Short.shortsFromUploader(url, qo.getUsername(), qo.getRole(), shortURLRepository, marshaller);
+				if(res!=null && ((res.getStatusCode()).toString()).equals("400")){
+					String stat = url + " : Failed";
+					UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
+					clientUpdate(um);
+				}
+				else{
+					String stat = (res.getBody().getUri()) + " : Success";
+					UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
+					clientUpdate(um);
+				}
+			}
+			f.delete();
+		}
+		catch(FileNotFoundException e){
+			System.err.println(e);
+		}
+		catch(Exception e){
+			System.err.println(e);
+		}
+		
+	}
+    
+    private void processUrl(QueueObject qo){
+		String url = (String) qo.getToShort();
+		ResponseEntity<ShortURL> res = Short.shortsFromUploader(url, qo.getUsername(), qo.getRole(), shortURLRepository, marshaller);
 		if(res!=null && ((res.getStatusCode()).toString()).equals("400")){
 			String stat = url + " : Failed";
-			UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
+			UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
 			clientUpdate(um);
 		}
 		else{
-			String stat = url + " : Success";
-			UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
+			String stat = (res.getBody().getUri()) + " : Success";
+			UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
 			clientUpdate(um);
 		}
-	}*/		
+	}	
 }

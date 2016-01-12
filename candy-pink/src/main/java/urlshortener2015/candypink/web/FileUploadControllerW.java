@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
-import urlshortener2015.candypink.domain.csvStatusInfo;
 import urlshortener2015.candypink.domain.ShortURL;
 
 import com.google.common.hash.Hashing;
@@ -60,6 +59,8 @@ import java.sql.Date;
 import java.util.Random;
 import java.util.UUID;
 
+import io.jsonwebtoken.*;
+
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn; 
 
@@ -85,13 +86,18 @@ public class FileUploadControllerW {
     @RequestMapping(method=RequestMethod.POST)
     public QueueInfo handleFileUpload(@RequestParam("file") MultipartFile file, 
 				HttpServletRequest request, HttpServletResponse response){
-					
+	
+		final Claims claims = (Claims) request.getAttribute("claims");	
+		// Obtain username
+		String username = claims.getSubject(); 
+		// Obtain role
+		String role = claims.get("role", String.class);			
         if (!file.isEmpty()) {
 			try{
-				QueueObject qo = new QueueObject(file, "csv");
-				qo.setUser("/queue/urlUploads/user"+qo.hashCode());
+				QueueObject qo = new QueueObject(file, "csv", username, role);
+				qo.setUri("/queue/urlUploads/user"+qo.hashCode());
 				csvQueue.put(qo);
-				QueueInfo qi = new QueueInfo(qo.getUser());
+				QueueInfo qi = new QueueInfo(qo.getUri());
 				return qi;
 			}
 			catch(InterruptedException e){
@@ -100,24 +106,4 @@ public class FileUploadControllerW {
 		}
 		return null;
     }
-    
-    /*@RequestMapping(method=RequestMethod.POST)
-    @RequestMapping("/htmlText")
-    public ResponseEntity<?> handleFormUpload(String url){
-		if(!url.equals("")){
-			try{
-				QueueObject qo = new QueueObject(url, "user", "url");
-				csvQueue.put(qo);
-				response.sendRedirect("websocket.html");
-			}
-			catch(InterruptedException e){
-				System.err.println(e);
-			}
-			catch(IOException e){
-				System.err.println(e);
-			}
-			return new ResponseEntity<>(HttpStatus.OK);
-		}
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-	}*/
 }

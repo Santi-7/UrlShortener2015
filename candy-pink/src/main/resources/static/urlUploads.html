@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>URL Shortener</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
+<link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.3.5/css/bootstrap.min.css" />
+<link type="text/css" rel="stylesheet" href="css/bgStyle.css" media="all" />
+<link type="text/css" rel="stylesheet" href="css/form.css" media="all" />
+<script type="text/javascript" src="webjars/jquery/2.1.4/jquery.min.js"></script>
+<script type="text/javascript" src="webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
+<script type="text/javascript" src="js/login.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="js/sockjs-0.3.4.js"></script>
+    <script src="js/stomp.js"></script>
+    <script type="text/javascript">
+        var stompClient = null;
+        
+        function connect(){
+			var socket = new SockJS('/uploader');
+		    stompClient = Stomp.over(socket);
+		    stompClient.connect({}, function(frame) {
+			     console.log('Connected: ' + frame);
+			     stompClient.subscribe("/queue/response", function(update){
+				     showUpdate(update.body);
+			     });
+		    });
+		}
+
+        function disconnect() {
+            if (stompClient != null) {
+                stompClient.disconnect();
+            }
+            console.log("Disconnected");
+        }
+
+        function showUpdate(message) {
+            var response = document.getElementById('response');
+            var p = document.createElement('p');
+            p.style.wordWrap = 'break-word';
+            p.appendChild(document.createTextNode(message));
+            response.appendChild(p);
+        }
+        
+        function sendForm() {
+			connect();
+			var form = document.getElementById('urls').value;
+			var urls = form.split(",");
+			for(i=0; i<urls.lentgth;i++){
+				var url = urls[i];
+				stompclient.send("/app/uploader", {}, JSON.stringify({ 'url': url }));
+			}
+		}
+    </script>
+</head>
+<body>
+	<!-- Imagen de cabecera del sitio web -->
+	<center><img src="images/CandyLogoTrans.png" height="103" alt="CandyShort logo"/></center>
+	<!-- Menú con los botones descritos a continuación -->
+	<nav class="navbar navbar-inverse">
+		<div class="container-fluid">
+			<div>
+				<ul class="nav navbar-nav">
+					<!-- Home -->
+					<li class="active"><a href="index.html"><span class="glyphicon glyphicon-home"></span> Home</a></li>
+				</ul>
+				<ul class="nav navbar-nav navbar-right">
+					<!-- Enlace a registro -->
+					<li><a href="signUp.html"><span class="glyphicon glyphicon-user"></span> Sign Up</a></li>
+					<!-- Enlace a identificarse -->
+					<li><a href="login.html"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+				</ul>
+			</div>
+		</div>
+	</nav>
+	<div>
+		URLs to upload: 
+		<br /> <br />
+		<textarea cols="50" rows="4" name="urls" id="urls"></textarea>
+		<br /> <br /> <br /> 
+		<button id="connect" onclick="sendForm();">Upload</button> Press here to upload the URLs!
+	</div>
+	<div>
+    <div id="conversationDiv">
+        <p id="response"></p>
+    </div>
+</div>
+</body>
+</html>
