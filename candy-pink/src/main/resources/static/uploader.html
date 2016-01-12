@@ -15,14 +15,17 @@
     <script src="js/stomp.js"></script>
     <script type="text/javascript">
         var stompClient = null;
-
+        var returnData;
+		
+		//Disconnect the websocket connection.
         function disconnect() {
             if (stompClient != null) {
                 stompClient.disconnect();
             }
             console.log("Disconnected");
         }
-
+        
+		//Shows the message given.
         function showUpdate(message) {
             var response = document.getElementById('response');
             var p = document.createElement('p');
@@ -73,6 +76,8 @@
     
 </div>
 <script>
+		 //Sends the post request for uploading a file using AJAX to prevent
+		 //an unwanted redirection and process the server response.
 		 $("#fileUploader").submit(function(event) {
 			 event.preventDefault();
 			 
@@ -88,7 +93,6 @@
 				  processData: false,
 				  success: function (returndata) {
 					  if(stompClient==null){
-						  console.log("****VOY A CONECTARME");
 						   var socket = new SockJS('/uploader');
 						   stompClient = Stomp.over(socket);
 						   stompClient.connect({}, function(frame) {
@@ -96,13 +100,17 @@
 							   stompClient.subscribe(returndata.uri, function(update){
 								   showUpdate(update.body);
 							   });
+							   returnData = returndata.uri;
 						   });
 					  }
+					  //If there already exists a connection, the client unsuscribes from
+					  //the previous queue and subscribes to the new one.
 					  else{
-						  stompClient.unsubscribe(returndata.uri);
+						  stompClient.unsubscribe(returnData);
 						  stompClient.subscribe(returndata.uri, function(update){
 								   showUpdate(update.body);
 						  });
+						  returnData = returndata.uri;
 					  }
 				  },
 				  error: function() {
