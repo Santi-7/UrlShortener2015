@@ -24,6 +24,8 @@ import java.sql.Timestamp;
 import java.util.Random;
 import java.util.UUID;
 
+import java.net.URI;
+
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
@@ -140,7 +142,6 @@ public class Short {
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
                         safe,timeToBeSafe, null, null, null, null, ip, null, username,
                         0,0,0.0,0.0,true,0);
-<<<<<<< HEAD
 					logger.info("Se ha creado la uri");
 				}
 				else {
@@ -153,11 +154,6 @@ public class Short {
 				}                
             } catch (Exception e) {
                 logger.info("Ha surgido una ioexception en create and safeifvalid");
-=======
-                logger.info("Se ha creado la uri");
-            } catch (IOException e) {
-                logger.info("Exception in createAndSafe from Short: ",e);
->>>>>>> upstream/master
             }
             if (su != null) {
                 logger.info("Se va a guardar en la bd");
