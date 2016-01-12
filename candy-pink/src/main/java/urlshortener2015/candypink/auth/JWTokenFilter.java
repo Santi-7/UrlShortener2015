@@ -57,42 +57,38 @@ public class JWTokenFilter extends GenericFilterBean {
 	String jwtoken = null;
 	Cookie[] cookies = request.getCookies();
 	if (cookies != null) {
-	for (int i = 0; i < cookies.length; i++) {
-		if(cookies[i].getName().equals("Authorization")) {
-			jwtoken = cookies[i].getValue();
-		}	
-	}
+		for (int i = 0; i < cookies.length; i++) {
+			if (cookies[i].getName().equals("Authorization")) {
+				jwtoken = cookies[i].getValue();
+			}
+		}
 		log.info("KEY: " + key);
 		log.info("JWT: " + jwtoken);
 		String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 		// All users
-		if(permission == null) {
+		if (permission == null) {
 			log.info("Authentication not required");
-			chain.doFilter(req, res); 
-		}
-		else if(permission.equals("Not")) {
+			chain.doFilter(req, res);
+		} else if (permission.equals("Not")) {
 			//Error
 			log.info("Requires not authenticate");
-			 try {
-				if(jwtoken != null) {
-			 		final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
-						log.info("NAMEUSER: " + claims.getSubject());
+			try {
+				if (jwtoken != null) {
+					final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+					log.info("NAMEUSER: " + claims.getSubject());
 				}
-			 }
-			catch(ExpiredJwtException expiredException) {
-                    		// Token Expired
+			} catch (ExpiredJwtException expiredException) {
+				// Token Expired
 				jwtoken = null;
 			}
-			if(jwtoken != null) {
+			if (jwtoken != null) {
 				log.info("Authenticated yet");
 				forbidden(response);
-			}		
-			else {
+			} else {
 				log.info("Correct, no authenticated");
-				chain.doFilter(req, res); 
+				chain.doFilter(req, res);
 			}
-		}
-		else {
+		} else {
 			// No authenticated
 			if (jwtoken == null) {
 				log.info("No authenticate");
@@ -101,16 +97,16 @@ public class JWTokenFilter extends GenericFilterBean {
 			// Authenticated
 			else {
 				log.info("Authenticated-Go parse!");
-                try {
-                    //Parse claims from JWT
-                    final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
-					log.info("NAMEUSER: " + claims.getSubject());					
+				try {
+					//Parse claims from JWT
+					final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+					log.info("NAMEUSER: " + claims.getSubject());
 					String role = claims.get("role", String.class);
 					log.info("Role: " + role);
 					log.info("Parsed");
 					// Has not permission
-					if(permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
-					   permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
+					if (permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
+							permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
 						log.info("Not PErmission");
 						forbidden(response);
 						//Error
@@ -118,21 +114,19 @@ public class JWTokenFilter extends GenericFilterBean {
 					// Has permission
 					else {
 						log.info("Yes Permission");
-						request.setAttribute("claims",claims);	
-                        			chain.doFilter(req, res);
+						request.setAttribute("claims", claims);
+						chain.doFilter(req, res);
 					}
-                }
-                catch(ExpiredJwtException expiredException){
-                    // Token Expired
+				} catch (ExpiredJwtException expiredException) {
+					// Token Expired
 					log.info("Expired");
 					forbidden(response);
-                }
-                catch (final SignatureException  | NullPointerException  |MalformedJwtException e) {
-                    // Format incorrect
+				} catch (final SignatureException | NullPointerException | MalformedJwtException e) {
+					// Format incorrect
 					e.printStackTrace();
 					log.info("Format incorrect");
 					forbidden(response);
-                }
+				}
 			}
 		}
 	}
