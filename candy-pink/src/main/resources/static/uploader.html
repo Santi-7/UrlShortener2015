@@ -10,8 +10,30 @@
 <script type="text/javascript" src="webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script type="text/javascript" src="js/login.js"></script>
+<script src="http://code.jquery.com/jquery-1.9.1.js"></script>
+<script src="js/sockjs-0.3.4.js"></script>
+    <script src="js/stomp.js"></script>
+    <script type="text/javascript">
+        var stompClient = null;
+
+        function disconnect() {
+            if (stompClient != null) {
+                stompClient.disconnect();
+            }
+            console.log("Disconnected");
+        }
+
+        function showUpdate(message) {
+            var response = document.getElementById('response');
+            var p = document.createElement('p');
+            p.style.wordWrap = 'break-word';
+            p.appendChild(document.createTextNode(message));
+            response.appendChild(p);
+        }
+	
+    </script>
 </head>
-<body>
+<body onunload="disconnect()">
 	<!-- Imagen de cabecera del sitio web -->
 	<center><img src="images/CandyLogoTrans.png" height="103" alt="CandyShort logo"/></center>
 	<!-- Menú con los botones descritos a continuación -->
@@ -40,9 +62,54 @@
 		</div>
 	</nav>
 	<form method="POST" enctype="multipart/form-data"
-		action="/upload">
+		action="/upload" id="fileUploader">
 		File to upload: <input type="file" name="file"><br /> <br /> <br /> <input type="submit"
 			value="Upload"> Press here to upload the file!
 	</form>
+	<div>
+    <div id="conversationDiv">
+        <p id="response"></p>
+    </div>
+    
+</div>
+<script>
+		 $("#fileUploader").submit(function(event) {
+			 event.preventDefault();
+			 
+			  var formData = new FormData($(this)[0]);
+			  
+			  $.ajax({
+				  type: "POST",
+				  url: "/upload",
+				  data: formData,
+				  aync: false,
+				  cache: false,
+				  contentType: false, 
+				  processData: false,
+				  success: function (returndata) {
+					  if(stompClient==null){
+						  console.log("****VOY A CONECTARME");
+						   var socket = new SockJS('/uploader');
+						   stompClient = Stomp.over(socket);
+						   stompClient.connect({}, function(frame) {
+							   console.log('Connected: ' + frame);
+							   stompClient.subscribe(returndata.uri, function(update){
+								   showUpdate(update.body);
+							   });
+						   });
+					  }
+					  else{
+						  stompClient.unsubscribe(returndata.uri);
+						  stompClient.subscribe(returndata.uri, function(update){
+								   showUpdate(update.body);
+						  });
+					  }
+				  },
+				  error: function() {
+					  alert("****There has been an error while uploading your file");
+				  }
+			  });
+		 })
+    </script>
 </body>
 </html>

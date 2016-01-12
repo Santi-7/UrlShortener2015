@@ -24,6 +24,8 @@ import java.sql.Timestamp;
 import java.util.Random;
 import java.util.UUID;
 
+import java.net.URI;
+
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
@@ -41,6 +43,7 @@ public class Short {
                                                  HttpServletRequest request, HttpServletResponse response,
                                                  ShortURLRepository shortURLRepository,Jaxb2Marshaller marshaller)
            throws IOException{
+
 	 logger.info("Requested new short for uri " + url);
         logger.info("Users who can redirect: " + users);
         logger.info("Time to be safe: " + time);
@@ -71,7 +74,7 @@ public class Short {
             timeToBeSafe = 30;
         }
         ShortURL su = createAndSaveIfValid(url, username, safe, users, sponsor, brand, UUID
-                .randomUUID().toString(), extractIP(request),timeToBeSafe, shortURLRepository);
+                .randomUUID().toString(), extractIP(request),timeToBeSafe, shortURLRepository, 1);
         if (su != null) {
             HttpHeaders h = new HttpHeaders();
             h.setLocation(su.getUri());
@@ -111,7 +114,8 @@ public class Short {
 
 	public static  ShortURL createAndSaveIfValid(String url, String username, boolean safe, String users,
                                             String sponsor, String brand, String owner, String ip,
-                                            Integer timeToBeSafe, ShortURLRepository shortURLRepository) {
+                                            Integer timeToBeSafe, ShortURLRepository shortURLRepository, 
+                                            int mode) {
         UrlValidator urlValidator = new UrlValidator(new String[]{"http",
                 "https"});
         // It is a valid URL
@@ -129,7 +133,8 @@ public class Short {
             // ShortUrl
             ShortURL su = null;
             try {
-                su = new ShortURL(id, url,
+				if (mode == 1) {
+					su = new ShortURL(id, url,
                         linkTo(
                                 methodOn(UrlShortenerController.class).redirectToHTML(
                                         id, token, null, null, null)).toUri(), token, users,
@@ -137,9 +142,18 @@ public class Short {
                         owner, HttpStatus.TEMPORARY_REDIRECT.value(),
                         safe,timeToBeSafe, null, null, null, null, ip, null, username,
                         0,0,0.0,0.0,true,0);
-                logger.info("Se ha creado la uri");
-            } catch (IOException e) {
-                logger.info("Exception in createAndSafe from Short: ",e);
+					logger.info("Se ha creado la uri");
+				}
+				else {
+					su = new ShortURL(id, url,new URI(createLink(id)), token, users,
+                        sponsor, new Timestamp(System.currentTimeMillis()),
+                        owner, HttpStatus.TEMPORARY_REDIRECT.value(),
+                        safe,timeToBeSafe, null, null, null, null, ip, null, username,
+                        0,0,0.0,0.0,true,0);
+					logger.info("Se ha creado la uri");
+				}                
+            } catch (Exception e) {
+                logger.info("Ha surgido una ioexception en create and safeifvalid");
             }
             if (su != null) {
                 logger.info("Se va a guardar en la bd");
@@ -157,4 +171,43 @@ public class Short {
      public static String extractIP(HttpServletRequest request) {
         return request.getRemoteAddr();
     }
+    
+    private static String createLink(String id){
+		String url = "http://localhost:8080/" + id;
+		return url;
+	}
+	
+	public static ResponseEntity<ShortURL> shortsFromUploader(String url, String username, String role, ShortURLRepository shortURLRepository, 
+					  Jaxb2Marshaller marshaller) {
+		logger.info("Requested new short for uri " + url);
+		
+		if (role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
+			// Can't redirect more today
+			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
+		}
+		
+        ShortURL su = createAndSaveIfValid(url, username, false, null, null, null, UUID
+                .randomUUID().toString(),null,null, shortURLRepository, 0);
+        if (su != null) {
+            HttpHeaders h = new HttpHeaders();
+            h.setLocation(su.getUri());
+            logger.info("Requesting to Checker service");
+            GetCheckerRequest requestToWs = new GetCheckerRequest();
+            requestToWs.setUrl(url);
+            Object responseR = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
+                    + "8080" + "/ws", requestToWs);
+            GetCheckerResponse checkerResponse = (GetCheckerResponse) responseR;
+            String resultCode = checkerResponse.getResultCode();
+            logger.info("respuesta recibida por el Web Service: " + resultCode);
+            logger.info("Hay "+shortURLRepository.count()+ " urls en la bd");
+            if (resultCode.equals("ok")) {
+                return new ResponseEntity<ShortURL>(su, h, HttpStatus.CREATED);
+            } else {
+                return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
+            }
+        } else {
+            logger.info("La uri es null");
+            return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
+        }
+	}
 }

@@ -174,6 +174,8 @@ public class JWTokenFilter extends GenericFilterBean {
 	 * a method
 	 */
 	private String requiredPermission(String uri, String method) {
+		log.info("URI: " + uri);
+		log.info("METHOD: " + method);
 		for(int i = 0; i < uris.length; i++) {
 			if(uri.contains(uris[i].getUri())) {
 				return uris[i].getPermission(method);

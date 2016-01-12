@@ -19,7 +19,6 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 
-import urlshortener2015.candypink.uploader.CsvStatusInfo;
 import urlshortener2015.candypink.domain.ShortURL;
 
 import com.google.common.hash.Hashing;
@@ -36,10 +35,12 @@ import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ws.client.core.WebServiceTemplate;
 
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
+import checker.web.ws.schema.GetCheckerRequest;
+import checker.web.ws.schema.GetCheckerResponse;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
+import urlshortener2015.candypink.uploader.QueueObject;
+import urlshortener2015.candypink.uploader.QueueInfo;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -58,6 +59,8 @@ import java.sql.Date;
 import java.util.Random;
 import java.util.UUID;
 
+import io.jsonwebtoken.*;
+
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn; 
 
@@ -65,8 +68,8 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 @RequestMapping("/upload")
 public class FileUploadControllerW {
 	
-	/*@Resource
-	protected LinkedBlockingQueue<MultipartFile> csvQueue;
+	@Resource
+	protected LinkedBlockingQueue<QueueObject> csvQueue;
 	
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
@@ -81,21 +84,27 @@ public class FileUploadControllerW {
     }
 
     @RequestMapping(method=RequestMethod.POST)
-    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file, 
-				HttpServletResponse response){
+    public QueueInfo handleFileUpload(@RequestParam("file") MultipartFile file, 
+				HttpServletRequest request, HttpServletResponse response){
+	
+		final Claims claims = (Claims) request.getAttribute("claims");	
+		// Obtain username
+		String username = claims.getSubject(); 
+		// Obtain role
+		String role = claims.get("role", String.class);			
         if (!file.isEmpty()) {
 			try{
-				csvQueue.put(file);
-				response.sendRedirect("index.html");
+				QueueObject qo = new QueueObject(file, "csv", username, role);
+				qo.setUri("/queue/urlUploads/user"+qo.hashCode());
+				csvQueue.put(qo);
+				QueueInfo qi = new QueueInfo(qo.getUri());
+				return qi;
 			}
 			catch(InterruptedException e){
 				System.err.println(e);
 			}
-			catch(IOException e){
-				System.err.println(e);
-			}
-			return new ResponseEntity<>(HttpStatus.OK);
 		}
-		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }*/
+		return null;
+    }
+
 }

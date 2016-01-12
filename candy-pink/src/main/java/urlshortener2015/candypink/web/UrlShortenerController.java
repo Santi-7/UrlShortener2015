@@ -52,7 +52,7 @@ public class UrlShortenerController {
      * @param id    - hash of the shortUrl
      * @param token - optional, token of the shorturl if it is safe
      */
-    @RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
+    @RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL|urlUploads).*}",
             method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
     public ResponseEntity<?> redirectToJSON(@PathVariable String id,
                                             @RequestParam(value = "token", required = false) String token,
@@ -79,7 +79,7 @@ public class UrlShortenerController {
      * @param id    - hash of the shortUrl
      * @param token - optional, token of the shorturl if it is safe
      */
-@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
+@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL|urlUploads).*}",
             method = RequestMethod.GET)
     public ResponseEntity<?> redirectToAnything(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
@@ -119,7 +119,7 @@ public class UrlShortenerController {
      * @param id    - hash of the shortUrl
      * @param token - optional, token of the shorturl if it is safe
      */
-@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
+@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL|urlUploads).*}",
             method = RequestMethod.GET, produces = {MediaType.TEXT_HTML})
     public ResponseEntity<?> redirectToHTML(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
