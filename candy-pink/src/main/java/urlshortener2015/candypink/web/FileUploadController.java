@@ -32,6 +32,7 @@ import javax.ws.rs.client.ClientBuilder;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.UUID;
