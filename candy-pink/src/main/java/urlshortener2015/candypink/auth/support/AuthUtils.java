@@ -2,8 +2,7 @@ package urlshortener2015.candypink.auth.support;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
 import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,10 +24,11 @@ public class AuthUtils {
 	private static final String URIS = "/admin:GET-Admin,POST-Admin,PUT-Admin,DELETE-Admin:end:"+ newLine
 					 + "/link:POST-Normal:end:"+ newLine
 					 + "/profile:GET-Normal,POST-Normal,PUT-Normal,DELETE-Normal:end:"+ newLine
-					 + "/login:GET-Not,POST-Not,PUT-Not,DELETE-Not:end:"+ newLine;
+					 + "/login:GET-Not,POST-Not,PUT-Not,DELETE-Not:end:"+ newLine
+					 + "/upload:POST-Normal:end:" + newLine;
 
 	// Uris that must be filtered
-	private static final String FILTER = "/login,/link,/profile,/admin";
+	private static final String FILTER = "/login,/link,/profile,/admin,/upload";
 
 	/**
 	 * Returns a JWT for a client with a time of expiration and encrypted with a key.
@@ -43,6 +43,10 @@ public class AuthUtils {
             	.claim("role", role).setIssuedAt(new Date()).setExpiration(expiration)
             	.signWith(SignatureAlgorithm.HS256, key).compact();
 	 }
+
+	public static Claims getClaims(String jwt, String key) {
+		return Jwts.parser().setSigningKey(key).parseClaimsJws(jwt).getBody();
+	}
 
 	/**
 	 * Returns a list with the uris to filter

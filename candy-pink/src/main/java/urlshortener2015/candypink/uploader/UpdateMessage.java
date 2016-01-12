@@ -6,6 +6,8 @@ public class UpdateMessage{
 	private String status;
 	private String user;
 	
+	public UpdateMessage() {}
+	
 	public UpdateMessage (String s, String u){
 		status = s;
 		user = u;

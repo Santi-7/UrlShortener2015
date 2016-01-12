@@ -165,7 +165,7 @@ public class Short {
                         0,0,0.0,0.0,true,0);
 					logger.info("Se ha creado la uri");
 				}                
-            } catch (IOException e) {
+            } catch (Exception e) {
                 logger.info("Ha surgido una ioexception en create and safeifvalid");
             }
             if (su != null) {
@@ -193,10 +193,12 @@ public class Short {
 	public static ResponseEntity<ShortURL> shortsFromUploader(String url, String username, String role, ShortURLRepository shortURLRepository, 
 					  Jaxb2Marshaller marshaller) {
 		logger.info("Requested new short for uri " + url);
-        if (role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
-            // Can't redirect more today
-            return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-        }
+		
+		if (role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
+			// Can't redirect more today
+			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
+		}
+		
         ShortURL su = createAndSaveIfValid(url, username, false, null, null, null, UUID
                 .randomUUID().toString(),null,null, shortURLRepository, 0);
         if (su != null) {

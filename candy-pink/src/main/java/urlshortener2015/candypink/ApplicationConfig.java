@@ -10,6 +10,11 @@ import urlshortener2015.candypink.auth.support.AuthUtils;
 import org.springframework.boot.context.embedded.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import java.util.ArrayList;
+
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+
+import urlshortener2015.candypink.uploader.QueueObject;
 /**
  * Created by david on 2/01/16.
  */
@@ -26,5 +31,9 @@ public class ApplicationConfig {
 		registrationBean.setFilter(authenticationFilter);
 		registrationBean.setUrlPatterns(AuthUtils.filterList());
 		return registrationBean;
+	}
+	@Bean
+	public LinkedBlockingQueue<QueueObject> csvQueue(){
+		return new LinkedBlockingQueue<QueueObject>();
 	}
 }

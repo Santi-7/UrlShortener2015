@@ -35,8 +35,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 
-import checker.web.ws.schema.GetCheckerRequest;
-import checker.web.ws.schema.GetCheckerResponse;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 import urlshortener2015.candypink.web.UrlShortenerController;
@@ -139,6 +139,7 @@ public class CsvQueueConsumerBean{
 	
 	public void clientUpdate(UpdateMessage update) {
         this.messagingTemplate.convertAndSend(update.getUser(), update.getStatus());
+        logger.info("***ENVIO MENSAJE a: "+update.getUser());
     }
     
     private void processFile(QueueObject qo){
@@ -157,7 +158,7 @@ public class CsvQueueConsumerBean{
 					clientUpdate(um);
 				}
 				else{
-					String stat = (res.getBody().getUri()) + " : Success";
+					String stat = url + " -> " + (res.getBody().getUri()) + " : Success";
 					UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
 					clientUpdate(um);
 				}
@@ -182,7 +183,7 @@ public class CsvQueueConsumerBean{
 			clientUpdate(um);
 		}
 		else{
-			String stat = (res.getBody().getUri()) + " : Success";
+			String stat = url + " -> " + (res.getBody().getUri()) + " : Success";
 			UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
 			clientUpdate(um);
 		}

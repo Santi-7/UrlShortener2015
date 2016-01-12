@@ -63,6 +63,7 @@ public class JWTokenFilter extends GenericFilterBean {
 	// Obtain the required permission
 	String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 	// All users can access
+	log.info("FLITRO");
 	if(permission == null) {
 		log.info("Authentication not required");
 		chain.doFilter(req, res); 
@@ -96,6 +97,7 @@ public class JWTokenFilter extends GenericFilterBean {
 	}
 	// Only authenticated users can access
 	else {
+		log.info("Search authenticated");
 		// No authenticated
 		if (jwtoken == null) {
 			log.info("No authenticate");
@@ -177,6 +179,8 @@ public class JWTokenFilter extends GenericFilterBean {
 	 * a method
 	 */
 	private String requiredPermission(String uri, String method) {
+		log.info("URI: " + uri);
+		log.info("METHOD: " + method);
 		for(int i = 0; i < uris.length; i++) {
 			if(uri.contains(uris[i].getUri())) {
 				return uris[i].getPermission(method);

@@ -30,20 +30,10 @@
             p.appendChild(document.createTextNode(message));
             response.appendChild(p);
         }
-        
-        /*function sendForm(form) {
-			var urls = form.split(",");
-			for(i=0; i<urls.lentgth;i++){
-				var url = urls[i];
-				stompclient.send("/app/uploader", {}, JSON.stringify({ 'url': url }));
-			}
-		}*/
-		
-		
-		
+	
     </script>
 </head>
-<body>
+<body onunload="disconnect()">
 	<!-- Imagen de cabecera del sitio web -->
 	<center><img src="images/CandyLogoTrans.png" height="103" alt="CandyShort logo"/></center>
 	<!-- Menú con los botones descritos a continuación -->
@@ -98,6 +88,7 @@
 				  processData: false,
 				  success: function (returndata) {
 					  if(stompClient==null){
+						  console.log("****VOY A CONECTARME");
 						   var socket = new SockJS('/uploader');
 						   stompClient = Stomp.over(socket);
 						   stompClient.connect({}, function(frame) {
@@ -111,7 +102,7 @@
 						  stompClient.unsubscribe(returndata.uri);
 						  stompClient.subscribe(returndata.uri, function(update){
 								   showUpdate(update.body);
-							   });
+						  });
 					  }
 				  },
 				  error: function() {

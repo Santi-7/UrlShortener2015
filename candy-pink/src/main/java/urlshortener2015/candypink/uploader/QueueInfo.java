@@ -4,6 +4,8 @@ public class QueueInfo {
 	
 	private String uri;
 	
+	public QueueInfo(){}
+	
 	public QueueInfo (String u){
 		uri=u;
 	}

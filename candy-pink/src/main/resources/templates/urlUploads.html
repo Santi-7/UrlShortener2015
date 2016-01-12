@@ -15,20 +15,18 @@
     <script src="js/stomp.js"></script>
     <script type="text/javascript">
         var stompClient = null;
-        var subscribe;
         
         function connect(){
-			var rand = token();
-			var subscribe = "/queue/response"+rand
 			var socket = new SockJS('/uploader');
+			var num = socket.hashCode();
+			console.log("****Numero hash: "+num);
 		    stompClient = Stomp.over(socket);
 		    stompClient.connect({}, function(frame) {
 			     console.log('Connected: ' + frame);
-			     stompClient.subscribe(subscribe, function(update){
+			     stompClient.subscribe("/queue/response", function(update){
 				     showUpdate(update.body);
 			     });
 		    });
-		    return subscribe;
 		}
 
         function disconnect() {
@@ -47,48 +45,17 @@
         }
         
         function sendForm() {
-			if(stompClient==null){
-				subscribe = connect();
+			connect();
+			var form = document.getElementById('urls').value;
+			var urls = form.split(",");
+			for(i=0; i<urls.lentgth;i++){
+				var url = urls[i];
+				stompclient.send("/app/uploader", {}, JSON.stringify({ 'url': url }));
 			}
-			else{
-				stompClient.unsubscribe(subscribe);
-				stompClient.subscribe(subscribe);
-			}
-			var cookie = getCookie('Authorization');
-			setTimeout(function(){
-				var form = document.getElementById('urls').value;
-				var urls = form.split(",");
-				var l = urls.length;
-				for(i=0; i<l; i++){
-					var url = urls[i];
-					stompClient.send("/app/uploader", {}, JSON.stringify({ 'subs' : subscribe, 'url': url, 'token' : cookie }));
-				}
-			}, 200);
-			
 		}
-		
-		function rand (){
-			return Math.random().toString(36).substr(2);
-		}
-		
-		function token(){
-			return rand() + rand();
-		}
-		
-		function getCookie(cname) {
-			var name = cname + "=";
-			var ca = document.cookie.split(';');
-			for(var i=0; i<ca.length; i++) {
-				var c = ca[i];
-				while (c.charAt(0)==' ') c = c.substring(1);
-				if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
-			}
-			return "";
-		}
-		
     </script>
 </head>
-<body>
+<body onload="connect()">
 	<!-- Imagen de cabecera del sitio web -->
 	<center><img src="images/CandyLogoTrans.png" height="103" alt="CandyShort logo"/></center>
 	<!-- Menú con los botones descritos a continuación -->
