@@ -1,23 +1,20 @@
 package urlshortener2015.candypink.auth;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.springframework.beans.factory.annotation.Configurable;
-import org.springframework.web.filter.GenericFilterBean;
-import java.util.Date;
+import io.jsonwebtoken.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Configurable;
+import org.springframework.web.filter.GenericFilterBean;
+import urlshortener2015.candypink.auth.support.AuthURI;
+
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import javax.servlet.http.Cookie;
-import io.jsonwebtoken.*;
-
-import urlshortener2015.candypink.auth.support.AuthURI;
-import urlshortener2015.candypink.auth.support.AuthUtils;
 
 /**
  * This class is a JWT filter to filter the uris and check the permissions
@@ -56,90 +53,88 @@ public class JWTokenFilter extends GenericFilterBean {
     public void doFilter(final ServletRequest req,
                          final ServletResponse res,
                          final FilterChain chain) throws IOException, ServletException {
-	// Obtain servlets
-        final HttpServletRequest request = (HttpServletRequest) req;
-        final HttpServletResponse response  = (HttpServletResponse) res;
-	String jwtoken = getToken(request);
-	// Obtain the required permission
-	String permission = requiredPermission(request.getRequestURI(), request.getMethod());
-	// All users can access
-	log.info("FLITRO");
-	if(permission == null) {
-		log.info("Authentication not required");
-		chain.doFilter(req, res); 
-	}
-	// Only not authenticated users can access
-	else if(permission.equals("Not")) {
-		// Error
-		log.info("Requires not authenticate");
-		 try {
-			// Obtain the jwt
-			if(jwtoken != null) {
-			 	final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
-				log.info("NAMEUSER: " + claims.getSubject());
+		// Obtain servlets
+		final HttpServletRequest request = (HttpServletRequest) req;
+		final HttpServletResponse response = (HttpServletResponse) res;
+		String jwtoken = getToken(request);
+		// Obtain the required permission
+		String permission = requiredPermission(request.getRequestURI(), request.getMethod());
+		// All users can access
+		if (permission == null) {
+			log.info("Authentication not required");
+			chain.doFilter(req, res);
+		}
+		// Only not authenticated users can access
+		else if (permission.equals("Not")) {
+			// Error
+			log.info("Requires not authenticate");
+			try {
+				// Obtain the jwt
+				if (jwtoken != null) {
+					final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+					log.info("NAMEUSER: " + claims.getSubject());
+				}
+			}
+			// The token is expired
+			catch (ExpiredJwtException expiredException) {
+				// Token Expired
+				jwtoken = null;
+			}
+			// The user is authenticated
+			if (jwtoken != null) {
+				log.info("Authenticated yet");
+				forbidden(response);
+			}
+			// The user is not authenticated
+			else {
+				log.info("Correct, no authenticated");
+				chain.doFilter(req, res);
 			}
 		}
-		// The token is expired
-		catch(ExpiredJwtException expiredException) {
-                    	// Token Expired
-			jwtoken = null;
-		}
-		// The user is authenticated
-		if(jwtoken != null) {
-			log.info("Authenticated yet");
-			forbidden(response);
-		}		
-		// The user is not authenticated
+		// Only authenticated users can access
 		else {
-			log.info("Correct, no authenticated");
-			chain.doFilter(req, res); 
-		}
-	}
-	// Only authenticated users can access
-	else {
-		log.info("Search authenticated");
-		// No authenticated
-		if (jwtoken == null) {
-			log.info("No authenticate");
-			forbidden(response);
-		}
-		// Authenticated
-		else {
-			log.info("Authenticated-Go parse!");
-                	try {
-                    		//Parse claims from JWT
-                    		final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
-				log.info("NAMEUSER: " + claims.getSubject());					
-				String role = claims.get("role", String.class);
-				log.info("Role: " + role);
-				log.info("Parsed");
-				// Has not permission
-				if(permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
-					permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
-					log.info("Not Permission");
+			// No authenticated
+			if (jwtoken == null) {
+				log.info("No authenticate");
+				forbidden(response);
+			}
+			// Authenticated
+			else {
+				log.info("Authenticated-Go parse!");
+				try {
+					//Parse claims from JWT
+					final Claims claims = Jwts.parser().setSigningKey(key).parseClaimsJws(jwtoken).getBody();
+					log.info("NAMEUSER: " + claims.getSubject());
+					String role = claims.get("role", String.class);
+					log.info("Role: " + role);
+					log.info("Parsed");
+					// Has not permission
+					if (permission.equals("Admin") && !role.equals("ROLE_ADMIN") ||
+							permission.equals("Premium") && role.equals("ROLE_NORMAL")) {
+						log.info("Not Permission");
+						forbidden(response);
+					}
+					// Has permission
+					else {
+						log.info("Yes Permission");
+						request.setAttribute("claims", claims);
+						chain.doFilter(req, res);
+					}
+				}
+				// The token has expired
+				catch (ExpiredJwtException expiredException) {
+					log.info("Expired");
 					forbidden(response);
 				}
-				// Has permission
-				else {
-					log.info("Yes Permission");
-					request.setAttribute("claims",claims);	
-                        		chain.doFilter(req, res);
+				// The format is incorrect
+				catch (final SignatureException | NullPointerException | MalformedJwtException e) {
+					e.printStackTrace();
+					log.info("Format incorrect");
+					forbidden(response);
 				}
-               		}
-			// The token has expired
-                	catch(ExpiredJwtException expiredException){
-				log.info("Expired");
-				forbidden(response);
-                	}
-			// The format is incorrect
-                	catch (final SignatureException  | NullPointerException  |MalformedJwtException e) {
-				e.printStackTrace();
-				log.info("Format incorrect");
-				forbidden(response);
-                	}
+			}
 		}
 	}
-}
 
 	/**
 	 * Returns he JWT from the cookies of the request if exist, null 

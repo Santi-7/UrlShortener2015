@@ -15,15 +15,21 @@ import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import urlshortener2015.candypink.uploader.QueueObject;
+
 /**
- * Created by david on 2/01/16.
+ * Application configuration
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
  */
 @Configuration
 public class ApplicationConfig {
 
+	// Key to encrypt JWT
 	@Value("${jwt.key}")
 	private String key;
 
+	/**
+	 * Creates a JWT filter
+	 */
 	@Bean
 	public FilterRegistrationBean jwtFilter() {
 		final FilterRegistrationBean registrationBean = new FilterRegistrationBean();

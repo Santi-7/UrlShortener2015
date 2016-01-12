@@ -1,9 +1,5 @@
 package urlshortener2015.candypink.web;
 
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
-import com.google.common.hash.Hashing;
-import org.apache.commons.validator.routines.UrlValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,35 +9,25 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.ws.client.core.WebServiceTemplate;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
 import urlshortener2015.candypink.domain.FishyURL;
 import urlshortener2015.candypink.domain.ShortURL;
+import urlshortener2015.candypink.repository.SecureTokenRepository;
 import urlshortener2015.candypink.repository.ShortURLRepository;
-import io.jsonwebtoken.*;
-
-import urlshortener2015.candypink.web.shortTools.Short;
 import urlshortener2015.candypink.web.shortTools.Redirect;
+import urlshortener2015.candypink.web.shortTools.Short;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.sql.Date;
-import java.sql.Timestamp;
-import java.util.Random;
-import java.util.UUID;
 
-import urlshortener2015.candypink.repository.SecureTokenRepository;
-import urlshortener2015.candypink.domain.SecureToken;
-
-import org.springframework.util.Base64Utils;
-
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
-import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
-
+/**
+ *  Class containing the methods to short the urls.
+ *  It is a controller of type REST.
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
+ */
 @RestController
 public class UrlShortenerController {
 
@@ -49,23 +35,28 @@ public class UrlShortenerController {
 
     private Jaxb2Marshaller marshaller;//Communication to WS
 
-
+    //Repository of shortened urls
     @Autowired
     protected ShortURLRepository shortURLRepository;
 
+    //Repository of security tokens
     @Autowired
     protected SecureTokenRepository secureTokenRepository;
 
 
     /**
      * Redirect to the related URL associated to the ShortUrl with hash id
-     * If URL is spam returns the JSON representation of a FishyURL as response
-     * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
+     * If URL is spam returns the JSON representation of a FishyURL as response.
+     * It is invoked if the client requests JSON content
      *
      * @param id    - hash of the shortUrl
      * @param token - optional, token of the shorturl if it is safe
      */
+<<<<<<< HEAD
     @RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|fishyURL|urlUploads).*}",
+=======
+    @RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
+>>>>>>> upstream/master
             method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
     public ResponseEntity<?> redirectToJSON(@PathVariable String id,
                                             @RequestParam(value = "token", required = false) String token,
@@ -86,13 +77,13 @@ public class UrlShortenerController {
     }
     /**
      * Redirect to the related URL associated to the ShortUrl with hash id
-     * If URL is spam returns the representation of a FishyURL as response
-     * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
+     * If URL is spam returns HTML page that notifies the problem. It is invoked
+     * if the client requests HTML content
      *
      * @param id    - hash of the shortUrl
      * @param token - optional, token of the shorturl if it is safe
      */
-@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|fishyURL|urlUploads).*}",
+@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL|urlUploads).*}",
             method = RequestMethod.GET)
     public ResponseEntity<?> redirectToAnything(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
@@ -126,13 +117,17 @@ public class UrlShortenerController {
     }
     /**
      * Redirect to the related URL associated to the ShortUrl with hash id
-     * If URL is spam returns the representation of a FishyURL as response
-     * If URL is safe and token doesn't match, it is redirected to incorrectToken.html
+     * If URL is spam returns the HTML page that notifies the error. It is
+     * invoked if the client requests anything but JSON nor HTML
      *
      * @param id    - hash of the shortUrl
      * @param token - optional, token of the shorturl if it is safe
      */
+<<<<<<< HEAD
 @RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|403|fishyURL|urlUploads).*}",
+=======
+@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|manageUsers|incorrectToken|uploader|errorSpam|noMore|403|fishyURL).*}",
+>>>>>>> upstream/master
             method = RequestMethod.GET, produces = {MediaType.TEXT_HTML})
     public ResponseEntity<?> redirectToHTML(@PathVariable String id,
                                                 @RequestParam(value = "token", required = false) String token,
@@ -166,6 +161,26 @@ public class UrlShortenerController {
         }
     }
 
+    /**
+     * Shorts the url.
+     * Mapped to /link, generates a response to method POST
+     * @param url;
+     *           target that is going to be shortened
+     * @param users;
+     *             Type of users that can access the url
+     * @param time;
+     *            Time the url is going to be safe
+     * @param sponsor;
+     *               Sponsor of the url
+     * @param brand;
+     *             Brand that creates the url
+     * @param request;
+     *               Request from client
+     * @param response;
+     *                Response to client
+     * @return ResponseEntity
+     * @throws IOException
+     */
     @RequestMapping(value = "/link", method = RequestMethod.POST)
     public ResponseEntity<ShortURL> shortener(@RequestParam("url") String url,
                                               @RequestParam(value = "users", required = false) String users,
@@ -191,9 +206,18 @@ public class UrlShortenerController {
         }
     }
 
-    /*
-    * Returns a JSON response according to the type of status code
-    * */
+    /**
+     * Generates a response according to the code
+     * @param l;
+     *         url shortened that is analyzed
+     * @param code;
+     *            Code that indicates the validation of the url
+     * @param response;
+     * @param request
+     * @return
+     *          ResponseEntity that represents the content returned
+     * @throws IOException
+     */
     private ResponseEntity<?> generateResponse(ShortURL l, String code,
                                                HttpServletResponse response,
                                                HttpServletRequest request)
