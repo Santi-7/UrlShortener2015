@@ -79,11 +79,13 @@ public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 	}
 
 	@Override
-	public void delete(String token) {
+	public boolean delete(String token) {
 		try {
 			jdbc.update("delete from SECURETOKEN where TOKEN=?", token);
+			return true;
 		} catch (Exception e) {
 			log.debug("When delete for token " + token, e);
+			return false;
 		}
 	}
 }
