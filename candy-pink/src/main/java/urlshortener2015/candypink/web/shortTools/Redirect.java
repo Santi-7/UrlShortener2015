@@ -1,40 +1,18 @@
 package urlshortener2015.candypink.web.shortTools;
 
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
-import com.google.common.hash.Hashing;
-import org.apache.commons.validator.routines.UrlValidator;
+import io.jsonwebtoken.Claims;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.oxm.jaxb.Jaxb2Marshaller;
-import org.springframework.util.ClassUtils;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.ws.client.core.WebServiceTemplate;
-import urlshortener2015.candypink.domain.FishyURL;
-import urlshortener2015.candypink.domain.ShortURL;
-import urlshortener2015.candypink.repository.ShortURLRepository;
-import io.jsonwebtoken.*;
-
-import javax.annotation.PostConstruct;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-import javax.ws.rs.core.MediaType;
-import java.io.IOException;
-import java.net.URI;
-import java.nio.charset.StandardCharsets;
-import java.sql.Date;
-import java.util.Random;
-import java.util.UUID;
-
-import urlshortener2015.candypink.repository.SecureTokenRepository;
-import urlshortener2015.candypink.repository.SecureTokenRepositoryImpl;
-import urlshortener2015.candypink.domain.SecureToken;
-
 import org.springframework.util.Base64Utils;
+import urlshortener2015.candypink.domain.SecureToken;
+import urlshortener2015.candypink.domain.ShortURL;
+import urlshortener2015.candypink.repository.SecureTokenRepository;
+
+import javax.servlet.http.HttpServletRequest;
+import java.net.URI;
 
 public class Redirect {
 

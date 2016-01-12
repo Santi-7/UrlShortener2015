@@ -63,54 +63,54 @@ public class QueueConsumerBean {
     * spam and its times.
     * */
     @Async
-    public void extractAndCheck(){
+    public void extractAndCheck() {
         LOG.info("La cola esta esperando a que haya algo metido");
-        LOG.info("Estos son los parametros:"+maxResponseTime +", "+minServiceTime+", "+maxDownTime);
-        while(true){
-        try {
-            String url = sharedQueue.take();
-            //This checks uri
-            Map<String,Object> map = adapter.checkUrl(url);
-            //Now the uri has been checked
-            //Takes it from repo
-            ShortURL shortURL = shortURLRepository.findByTarget(url).get(0);
-            LOG.info(shortURL.getTarget() +" expires " + shortURL.getTimeToBeSafe());
-            Timestamp now = new Timestamp(System.currentTimeMillis());//Date now
-            //Checks if it is reachable
-            if(shortURL.getReachableDate()== null || shortURL.getReachable() || (Boolean)map.get("Reachable")){
-                //Url is reachable and date must be updated
-                shortURL.setReachable((Boolean)map.get("Reachable"));
-                shortURL.setReachableDate(now);
-                //Calculate times of the threshold
-                //Medium response time
-                Integer mediumResponseTime = calculateMediumResponseTime((Integer)map.get("responseTime"),
-                        shortURL.getMediumResponseTime(),shortURL.getTimesVerified());
-                shortURL.setMediumResponseTime(mediumResponseTime);
-                //Service time
-                Double sTime = shortURL.getServiceTime();
-                sTime = (sTime * shortURL.getTimesVerified() + 1)/(shortURL.getTimesVerified() + 1);
-                //Shutdown time
-                Double downTime = shortURL.getShutdownTime();
-                downTime = (downTime * shortURL.getTimesVerified() + 1)/(shortURL.getTimesVerified() + 1);
-                shortURL.setShutdownTime(downTime);
-                shortURL.setServiceTime(sTime);
-            }
-            //Checks if security has expired
-            if(shortURL.getSafe()){
-                Timestamp expires = calculateExpiresTime(shortURL.getCreated(),shortURL.getTimeToBeSafe());
-                shortURL.setSafe(!expires.before(now));
-            }
-            //Has been verified once more
-            shortURL.setTimesVerified(shortURL.getTimesVerified() + 1);
+        LOG.info("Estos son los parametros:" + maxResponseTime + ", " + minServiceTime + ", " + maxDownTime);
+        while (true) {
+            try {
+                String url = sharedQueue.take();
+                //This checks uri
+                Map<String, Object> map = adapter.checkUrl(url);
+                //Now the uri has been checked
+                //Takes it from repo
+                ShortURL shortURL = shortURLRepository.findByTarget(url).get(0);
+                LOG.info(shortURL.getTarget() + " expires " + shortURL.getTimeToBeSafe());
+                Timestamp now = new Timestamp(System.currentTimeMillis());//Date now
+                //Checks if it is reachable
+                if (shortURL.getReachableDate() == null || shortURL.getReachable() || (Boolean) map.get("Reachable")) {
+                    //Url is reachable and date must be updated
+                    shortURL.setReachable((Boolean) map.get("Reachable"));
+                    shortURL.setReachableDate(now);
+                    //Calculate times of the threshold
+                    //Medium response time
+                    Integer mediumResponseTime = calculateMediumResponseTime((Integer) map.get("responseTime"),
+                            shortURL.getMediumResponseTime(), shortURL.getTimesVerified());
+                    shortURL.setMediumResponseTime(mediumResponseTime);
+                    //Service time
+                    Double sTime = shortURL.getServiceTime();
+                    sTime = (sTime * shortURL.getTimesVerified() + 1) / (shortURL.getTimesVerified() + 1);
+                    //Shutdown time
+                    Double downTime = shortURL.getShutdownTime();
+                    downTime = (downTime * shortURL.getTimesVerified() + 1) / (shortURL.getTimesVerified() + 1);
+                    shortURL.setShutdownTime(downTime);
+                    shortURL.setServiceTime(sTime);
+                }
+                //Checks if security has expired
+                if (shortURL.getSafe()) {
+                    Timestamp expires = calculateExpiresTime(shortURL.getCreated(), shortURL.getTimeToBeSafe());
+                    shortURL.setSafe(!expires.before(now));
+                }
+                //Has been verified once more
+                shortURL.setTimesVerified(shortURL.getTimesVerified() + 1);
 
-            evaluate(shortURL);
-            //Verify spam
-            shortURL.setSpam((Boolean)map.get("Spam"));
-            shortURL.setSpamDate(now);
-            //Updates the db
-            shortURLRepository.update(shortURL);
-            } catch (InterruptedException e) {}
-
+                evaluate(shortURL);
+                //Verify spam
+                shortURL.setSpam((Boolean) map.get("Spam"));
+                shortURL.setSpamDate(now);
+                //Updates the db
+                shortURLRepository.update(shortURL);
+            } catch (InterruptedException e) {
+            }
         }
     }
 

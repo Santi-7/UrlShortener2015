@@ -1,8 +1,5 @@
 package urlshortener2015.candypink.web;
 
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
-import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerResponse;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,23 +9,19 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.ws.client.core.WebServiceTemplate;
+import urlshortener2015.candypink.checker.web.ws.schema.GetCheckerRequest;
 import urlshortener2015.candypink.domain.FishyURL;
 import urlshortener2015.candypink.domain.ShortURL;
+import urlshortener2015.candypink.repository.SecureTokenRepository;
 import urlshortener2015.candypink.repository.ShortURLRepository;
-import io.jsonwebtoken.*;
-
-import urlshortener2015.candypink.web.shortTools.Short;
 import urlshortener2015.candypink.web.shortTools.Redirect;
+import urlshortener2015.candypink.web.shortTools.Short;
 
 import javax.annotation.PostConstruct;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.core.MediaType;
 import java.io.IOException;
-
-
-import urlshortener2015.candypink.repository.SecureTokenRepository;
 
 /**
  *  Class containing the methods to short the urls.
