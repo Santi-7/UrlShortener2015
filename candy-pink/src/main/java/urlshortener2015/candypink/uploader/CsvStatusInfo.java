@@ -1,4 +1,4 @@
-package urlshortener2015.candypink.domain;
+package urlshortener2015.candypink.uploader;
 
 import java.util.ArrayList;
 
@@ -7,7 +7,7 @@ public class CsvStatusInfo {
 	private ArrayList<String> status;
 	private String failed = "";
 	
-	public CsvStatusInfo(){
+	public CsvStatusInfo (){
 		status = new ArrayList<String>();
 	}
 	
