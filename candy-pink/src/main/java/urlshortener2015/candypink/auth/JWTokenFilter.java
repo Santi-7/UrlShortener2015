@@ -20,6 +20,9 @@ import urlshortener2015.candypink.auth.support.AuthURI;
 import urlshortener2015.candypink.auth.support.AuthUtils;
 
 /**
+ * 
+ * This class is JWT filter to filter the uris and chec the permissions
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
  *  We thank Bangladesh Green Team [1] and Niels Dommerholt [2] due to we have used their code to do our JWTokenFiler.java
  * [1]-(https://github.com/teruyi/UrlShortener2015/blob/master/bangladesh-green/src/main/java/urlshortener/bangladeshgreen/auth/WebTokenFilter.java)
  * [2]-(https://github.com/nielsutrecht/jwt-angular-spring/tree/master/src/main/java/com/nibado/example/jwtangspr)
@@ -27,12 +30,18 @@ import urlshortener2015.candypink.auth.support.AuthUtils;
 @Configurable
 public class JWTokenFilter extends GenericFilterBean {
    
+    // logger
     private static final Logger log = LoggerFactory.getLogger(JWTokenFilter.class);
 
+    // key
     private String key;
 
+    // list of uris
     private AuthURI[] uris;
     
+    /**
+     * @param key
+     */
     public JWTokenFilter(String key, AuthURI[] uris){
         this.key = key;
         this.uris = uris;

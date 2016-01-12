@@ -7,11 +7,12 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
 import urlshortener2015.candypink.repository.UserRepository;
 import urlshortener2015.candypink.repository.UserRepositoryImpl;
 
 @RestController
-@RequestMapping("/admin/manageUsers")
+@RequestMapping("/manageUsers")
 public class ManageUsersController {
 
 	private static final Logger logger = LoggerFactory.getLogger(ManageUsersController.class);
@@ -34,5 +35,14 @@ public class ManageUsersController {
 		// Redirection to manageUsersPage
 		model.setViewName("manageUsersPage");
 		return model;
+  	}
+
+	@RequestMapping(method = RequestMethod.POST)
+  	public ModelAndView deleteUser(@RequestParam String user) {
+		logger.info("Requested delete of username " + user);
+		// Delete user
+		userRepository.delete(user);
+		// Load page again
+		return getUsers();
   	}
 }

@@ -28,13 +28,21 @@ public class QueueConsumerBean {
     @Value("${maxResponseTime}")
     private Integer maxResponseTime;
 
-    //Min service(hours) time tolerable
+    //Min service(percentage) time tolerable
     @Value("${minServiceTime}")
-    private Integer minServiceTime;
+    private String minServiceTime;
 
-    //Max time(hours) the uri can be down
+    //Max time(percentage) the uri can be down
     @Value("${maxDownTime}")
-    private Integer maxDownTime;
+    private String maxDownTime;
+
+    //Max times before disable uri
+    @Value("${maxTimesBeforeDisable}")
+    private Integer timesBeforeDisable;
+
+    //Max times before delete uri
+    @Value("${maxTimesBeforeDelete}")
+    private Integer timesBeforeDelete;
 
     @Resource
     protected LinkedBlockingQueue<String> sharedQueue;
@@ -74,7 +82,7 @@ public class QueueConsumerBean {
                         shortURL.getMediumResponseTime(),shortURL.getTimesVerified());
                 LOG.info("Tiempo de esta respuesta:"+map.get("responseTime"));
                 LOG.info("Tiempo medio de respuesta:"+mediumResponseTime);
-                LOG.info("El tiempo medio tolerable es " + maxResponseTime +"y es "
+                LOG.info("El tiempo medio tolerable es " + maxResponseTime +" y es "
                         +(mediumResponseTime<=maxResponseTime)+" que se respeta");
                 shortURL.setMediumResponseTime(mediumResponseTime);
             }
@@ -87,7 +95,12 @@ public class QueueConsumerBean {
                 shortURL.setSafe(!expires.before(now));
             }
             Integer shutdownTime = (int)(now.getTime() - shortURL.getReachableDate().getTime());
-            shortURL.setShutdownTime(shortURL.getShutdownTime() + shutdownTime);
+            shortURL.setShutdownTime((shortURL.getShutdownTime() + shutdownTime)/(now.getTime() - shortURL.getCreated().getTime()));
+
+            /*
+            * HERE SERVICETIME NEEDS TO BE CALCULATED
+            * */
+            evaluate(shortURL);
             shortURL.setSpam((Boolean)map.get("Spam"));
             shortURL.setSpamDate(now);
             shortURLRepository.update(shortURL);
@@ -110,5 +123,22 @@ public class QueueConsumerBean {
         LOG.info("Ahora: " + new Timestamp(System.currentTimeMillis()).getTime());
         LOG.info("Expira a esta fecha: " + updated.getTime());
        return updated;
+    }
+
+    public void evaluate(ShortURL url){
+
+        Double doubleMaxDownTime =  Double.parseDouble(maxDownTime);
+        Double doubleMinServiceTime =  Double.parseDouble(minServiceTime);
+        if(url.getMediumResponseTime() > maxResponseTime || url.getShutdownTime() > doubleMaxDownTime
+                || url.getServiceTime() < doubleMinServiceTime){
+            //There are problems with the url and threshold has been reached
+            Integer failsNumber = url.getFailsNumber();
+            url.setFailsNumber(failsNumber+1);
+        }else{
+            url.setFailsNumber(0);
+        }
+        if(url.getEnabled() && (url.getFailsNumber() >= timesBeforeDisable)){
+            url.setEnabled(false);
+        }
     }
 }
