@@ -59,7 +59,7 @@ public class JWTokenFilter extends GenericFilterBean {
 	// Obtain servlets
         final HttpServletRequest request = (HttpServletRequest) req;
         final HttpServletResponse response  = (HttpServletResponse) res;
-	String jwtoken = getToken();
+	String jwtoken = getToken(request);
 	// Obtain the required permission
 	String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 	// All users can access
@@ -147,14 +147,16 @@ public class JWTokenFilter extends GenericFilterBean {
 	 *	   in other case	
 	 */
 	private String getToken(HttpServletRequest request) {
+		String jwt = null;
 		Cookie[] cookies = request.getCookies();
 		if (cookies != null) {
 			for (int i = 0; i < cookies.length; i++) {
 				if(cookies[i].getName().equals("Authorization")) {
-					jwtoken = cookies[i].getValue();
+					jwt = cookies[i].getValue();
 				}	
 			}
 		}
+		return jwt;
 	}
 
 	/**
