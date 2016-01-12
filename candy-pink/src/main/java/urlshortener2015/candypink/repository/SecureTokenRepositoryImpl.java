@@ -27,13 +27,19 @@ import urlshortener2015.candypink.domain.SecureToken;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
+/**
+ * This class implements methods to the access of the SecureToken data
+ * in the database
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
+ */
 @Repository
 public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 
+	// logger
 	private static final Logger log = LoggerFactory
 			.getLogger(SecureTokenRepositoryImpl.class);
 
-
+	// For fill data
 	private static final RowMapper<SecureToken> rowMapper = new RowMapper<SecureToken>() {
 		@Override
 		public SecureToken mapRow(ResultSet rs, int rowNum) throws SQLException {
@@ -41,17 +47,31 @@ public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 		}
 	};
 
+	// Access to database
 	@Autowired
 	protected JdbcTemplate jdbc;
 
+	/**
+	 * Constructor without paramas
+	 */
 	public SecureTokenRepositoryImpl() {
 	}
 
+	/**
+	 * Constructor with database connection
+	 * @param jdbc - Connection to database
+	 */
 	public SecureTokenRepositoryImpl(JdbcTemplate jdbc) {
 		this.jdbc = jdbc;
 	}
 
-
+	/**
+	 * Search the secure token in the database. Return the token if it exist
+	 * and null in other case.
+	 * @param token - Token to search
+	 * @return the token if it exist
+	 * and null in other case.
+	 */
 	@Override
 	public SecureToken findByToken(String token) {
 		try {
@@ -62,6 +82,10 @@ public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 		}
 	}
 
+	/**
+	 * Save the secure token in the database. Return the 
+	 * @param token - Token to save
+	 */
 	@Override
 	public SecureToken save(SecureToken token) {
 		try {
@@ -78,12 +102,18 @@ public class SecureTokenRepositoryImpl implements SecureTokenRepository {
 		}
 	}
 
+	/**
+	 * Return true if the secure token is deleted, false in other case
+	 * @param token - Secure token to delete
+	 */
 	@Override
-	public void delete(String token) {
+	public boolean delete(String token) {
 		try {
 			jdbc.update("delete from SECURETOKEN where TOKEN=?", token);
+			return true;
 		} catch (Exception e) {
 			log.debug("When delete for token " + token, e);
+			return false;
 		}
 	}
 }
