@@ -25,6 +25,11 @@ import urlshortener2015.candypink.auth.support.AuthUtils;
 
 import io.jsonwebtoken.*;
 
+/**
+ * This controller manages the incoming messages from the clients
+ * sent vía websockets.
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa  
+ */
 @Controller
 public class WebSocketController {
 	
@@ -42,7 +47,14 @@ public class WebSocketController {
 	public WebSocketController(SimpMessagingTemplate messagingTemplate) {
 		this.messagingTemplate = messagingTemplate;
 	}
-
+	
+	/**
+	 * Handles every messages sent to "/uploader". Constructs
+	 * a new QueueObject with the information received
+	 * and puts it into the queue.
+	 * @param hf - JSON with information about the URL to short, the token
+	 * from the users session and the queue on which the client is subscribed.
+	 */
     @MessageMapping("/uploader")
     public void handleFormUpload(HtmlFormInfo hf){
 		try{

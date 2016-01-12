@@ -16,7 +16,7 @@
     <script type="text/javascript">
         var stompClient = null;
         var subscribe;
-        
+        //Creates a websocket conection betwen the client and the server
         function connect(){
 			var rand = token();
 			var subscribe = "/queue/response"+rand
@@ -24,20 +24,22 @@
 		    stompClient = Stomp.over(socket);
 		    stompClient.connect({}, function(frame) {
 			     console.log('Connected: ' + frame);
+			     //The client subscribes to a defined queue and sets a function
+			     //to process the responses.
 			     stompClient.subscribe(subscribe, function(update){
 				     showUpdate(update.body);
 			     });
 		    });
 		    return subscribe;
 		}
-
+		//Disconnect the websocket connection.
         function disconnect() {
             if (stompClient != null) {
                 stompClient.disconnect();
             }
             console.log("Disconnected");
         }
-
+		//Shows the message given.
         function showUpdate(message) {
             var response = document.getElementById('response');
             var p = document.createElement('p');
@@ -45,17 +47,21 @@
             p.appendChild(document.createTextNode(message));
             response.appendChild(p);
         }
-        
+        //Sends to the server the urls writen on the html form, one by one via websockets.
         function sendForm() {
 			if(stompClient==null){
 				subscribe = connect();
 			}
+			//If there already exists a connection, the client unsuscribes from
+			//the previous queue and subscribes to the new one.
 			else{
 				stompClient.unsubscribe(subscribe);
 				stompClient.subscribe(subscribe);
 			}
 			var cookie = getCookie('Authorization');
+			//Waits 200 ms for the connection to stablish.
 			setTimeout(function(){
+				//Parses the urls on the html form and sends them individually.
 				var form = document.getElementById('urls').value;
 				var urls = form.split(",");
 				var l = urls.length;
@@ -66,15 +72,15 @@
 			}, 200);
 			
 		}
-		
+		//Generates a random number and parses to a sting in base 36.
 		function rand (){
 			return Math.random().toString(36).substr(2);
 		}
-		
+		//Returns a ramdomly generated token.
 		function token(){
 			return rand() + rand();
 		}
-		
+		//Returns the cookie named [cname]
 		function getCookie(cname) {
 			var name = cname + "=";
 			var ca = document.cookie.split(';');

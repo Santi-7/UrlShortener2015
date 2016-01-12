@@ -66,10 +66,15 @@ import java.util.UUID;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
+/**
+ * This class provides an asynchronous method to consume
+ * the queue of CSVs and URLs and processing and shortening
+ * them and sending the information of the process to the
+ * client.
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
+ */
 @Component
 public class CsvQueueConsumerBean{
-	
-	private int procNum;
 	
 	@Resource
 	protected LinkedBlockingQueue<QueueObject> csvQueue;
@@ -83,18 +88,19 @@ public class CsvQueueConsumerBean{
 	
 	private final SimpMessagingTemplate messagingTemplate;
 	
+	/**
+	 * Initialize the template used to send messages via websockets.
+	 */ 
 	@Autowired
 	public CsvQueueConsumerBean(SimpMessagingTemplate messagingTemplate) {
 		this.messagingTemplate = messagingTemplate;
 	}
 	
-	@Async
-	public void test(){
-		while(true){
-			clientUpdate(null);
-		}
-	}
-	
+	/**
+	 * An asynchronous method that takes objects form the
+	 * queue and calls the appropiate method based on the
+	 * content of the object.
+	 */ 
 	@Async
 	public void extractAndProcess(){
 		try{
@@ -117,7 +123,9 @@ public class CsvQueueConsumerBean{
 		}
 	}
     
-	
+	/**
+    * Initializes the utils to communicate with the Web Service
+    */
 	@PostConstruct
 	private void initWsComs(){
 		marshaller = new Jaxb2Marshaller();
@@ -127,6 +135,11 @@ public class CsvQueueConsumerBean{
 		} catch (Exception e) {}
 	}
 	
+	/**
+	 * Copies the Multipart File uploaded to the server to a 
+	 * standard temporal file in the server.
+	 * @param f - The file to copy.
+	 */ 
 	private void copyFile(MultipartFile f) throws Exception{
 		
 		byte[] bytes = f.getBytes();
@@ -136,27 +149,43 @@ public class CsvQueueConsumerBean{
 			stream.close();	
 	}
 	
-	
-	public void clientUpdate(UpdateMessage update) {
+	/**
+	 * Sends a message to the client with the information
+	 * about the shortening process (either success or failed).
+	 * @param update - Object containing the information to send
+	 * and where to send it.
+	 */ 
+	private void clientUpdate(UpdateMessage update) {
         this.messagingTemplate.convertAndSend(update.getUser(), update.getStatus());
-        logger.info("***ENVIO MENSAJE a: "+update.getUser());
     }
     
+    /**
+     * Process the CSV file extracting the URLs on it,
+     * shortening them and sending a message with the
+     * information on the process to the client.
+     * @param qo - The object with all the information needed
+     * to short the URLs on it.
+     */ 
     private void processFile(QueueObject qo){
 		try{
+			//Copies the MultipartFile to a standard file.
 			copyFile((MultipartFile) qo.getToShort());
 			File f = new File("temp");
 			Scanner sc = new Scanner(f);
 			sc.useDelimiter(",|\\s");
 			Client client = ClientBuilder.newClient();
+			//Reads the file.
 			while(sc.hasNext()){
 				String url = sc.next();
+				//Shorts the read URL.
 				ResponseEntity<ShortURL> res = Short.shortsFromUploader(url, qo.getUsername(), qo.getRole(), shortURLRepository, marshaller);
+				//If the shortening process failed.
 				if(res!=null && ((res.getStatusCode()).toString()).equals("400")){
 					String stat = url + " : Failed";
 					UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
 					clientUpdate(um);
 				}
+				//If the shortening process went well.
 				else{
 					String stat = url + " -> " + (res.getBody().getUri()) + " : Success";
 					UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
@@ -174,14 +203,22 @@ public class CsvQueueConsumerBean{
 		
 	}
     
+    /**
+     * Shorts the URL contained on the QueueObject
+     * and sends a message to the client with
+     * information on the process.
+     */ 
     private void processUrl(QueueObject qo){
 		String url = (String) qo.getToShort();
+		//Shorts the read URL.
 		ResponseEntity<ShortURL> res = Short.shortsFromUploader(url, qo.getUsername(), qo.getRole(), shortURLRepository, marshaller);
+		//If the shortening process failed.
 		if(res!=null && ((res.getStatusCode()).toString()).equals("400")){
 			String stat = url + " : Failed";
 			UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
 			clientUpdate(um);
 		}
+		//If the shortening process went well.
 		else{
 			String stat = url + " -> " + (res.getBody().getUri()) + " : Success";
 			UpdateMessage um = new UpdateMessage(stat, qo.getUri());  
