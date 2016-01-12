@@ -19,6 +19,10 @@ import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
 import io.jsonwebtoken.*;
 
+import org.springframework.mail.javamail.JavaMailSenderImpl;
+import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.mail.SimpleMailMessage;
+
 import urlshortener2015.candypink.web.shortTools.Short;
 import urlshortener2015.candypink.web.shortTools.Redirect;
 
@@ -35,7 +39,6 @@ import java.util.Random;
 import java.util.UUID;
 
 import urlshortener2015.candypink.repository.SecureTokenRepository;
-import urlshortener2015.candypink.repository.SecureTokenRepositoryImpl;
 import urlshortener2015.candypink.domain.SecureToken;
 
 import org.springframework.util.Base64Utils;
@@ -57,6 +60,53 @@ public class UrlShortenerController {
     @Autowired
     protected SecureTokenRepository secureTokenRepository;
 
+
+    @RequestMapping(value = "/", method = RequestMethod.GET, produces = {MediaType.APPLICATION_JSON})
+    public ResponseEntity<?> doSomething(){
+        logger.info("Se ha hecho peticion");
+        SimpleMailMessage message = new SimpleMailMessage();
+        /*message.setFrom("653224@unizar.es");
+        message.setTo("685215@unizar.es");
+        message.setSubject("hello");
+        message.setText("Hoa esto es un correo que ha llegado");
+        javaMailSender.setHost("smtp.unizar.es");
+        javaMailSender.setPort(25);
+        javaMailSender.setPassword("huef6q");
+        javaMailSender.setUsername("653224");*/
+        message.setFrom("candyshort.noreply@gmail.com");
+        message.setTo("wynro@hotmail.com");
+        message.setSubject("Information about your candyshort account");
+        message.setText("Otro correo para comprobar que funca el bean");
+        logger.info("Se ha creado el mensaje");
+        /*logger.info("Se va a mandar con estas credenciales:" + javaMailSender.getUsername() +
+                " " + javaMailSender.getHost() + " "+ javaMailSender.getPassword() + " "
+                + javaMailSender.getPort() + " " + javaMailSender.getJavaMailProperties().toString());*/
+      /*  javaMailSender.setHost("smtp.gmail.com");
+        javaMailSender.setPort(587);
+        javaMailSender.setPassword("CANDYSHORT2015");
+        javaMailSender.setUsername("candyshort.noreply");
+        Properties props = new Properties();
+        /*
+        props.put("mail.smtp.ssl.enable", "true");
+        javaMailSender.setJavaMailProperties(props);*/
+/*        props.put("mail.smtp.auth", "true");
+        props.put("mail.smtp.starttls.enable", "true");
+        javaMailSender.setJavaMailProperties(props);
+        logger.info("Establecidas properties");*/
+        javaMailSender.send(message);
+        logger.info("Enviado");
+       /* marshaller.setPackagesToScan(ClassUtils.getPackageName(GetCheckerRequest.class));
+        try {
+            marshaller.afterPropertiesSet();
+        } catch (Exception e) {}
+        GetCheckerRequest request = new GetCheckerRequest();
+        request.setUrl("http://www.unizar.es");
+        Object response = new WebServiceTemplate(marshaller).marshalSendAndReceive("http://localhost:"
+                + "8080" + "/ws", request);
+        logger.info("respuesta recibida por el Web Service: "+((GetCheckerResponse) response).getResultCode());
+        //sharedQueue.offer("Esto es una url");*/
+        return new ResponseEntity(HttpStatus.OK);
+    }
 
     /**
      * Redirect to the related URL associated to the ShortUrl with hash id

@@ -44,8 +44,8 @@ CREATE TABLE SHORTURL(
 	USERNAME	VARCHAR(30) FOREIGN KEY REFERENCES USERS(USERNAME),
 	TIMESVERIFIED	INTEGER,	--Times the uri has been verified
 	MEDIUMRESPONSETIME	INTEGER,--Medium response time of the url
-	SHUTDOWNTIME	INTEGER,	--Time the uri has been down
-	SERVICETIME	INTEGER,			--Time the uri has been up
+	SHUTDOWNTIME	DOUBLE,	--Time the uri has been down
+	SERVICETIME	DOUBLE,			--Time the uri has been up
 	ENABLED	BOOLEAN,				--Is this uri enabled?
 	FAILSNUMBER	INTEGER			--Number of times the uri has failed
 );

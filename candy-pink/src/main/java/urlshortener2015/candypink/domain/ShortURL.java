@@ -26,8 +26,8 @@ public class ShortURL {
 	private String username;
 	private Integer timesVerified;
 	private Integer mediumResponseTime;
-	private Integer shutdownTime;
-	private Integer serviceTime;
+	private Double shutdownTime;
+	private Double serviceTime;
 	private Boolean enabled;
 	private Integer failsNumber;
 
@@ -37,7 +37,7 @@ public class ShortURL {
 					Timestamp created, String owner, Integer mode, Boolean safe, Integer timeToBeSafe,
 					Boolean spam, Timestamp spamDate, Boolean reachable, Timestamp reachableDate, String ip,
 					String country, String username, Integer timesVerified, Integer mediumResponseTime,
-					Integer shutdownTime, Integer serviceTime, Boolean enabled, Integer failsNumber) {
+					Double shutdownTime, Double serviceTime, Boolean enabled, Integer failsNumber) {
 		this.hash = hash;
 		this.target = target;
 		this.uri = uri;
@@ -224,19 +224,19 @@ public class ShortURL {
 		this.mediumResponseTime = mediumResponseTime;
 	}
 
-	public Integer getShutdownTime() {
+	public Double getShutdownTime() {
 		return shutdownTime;
 	}
 
-	public void setShutdownTime(Integer shutdownTime) {
+	public void setShutdownTime(Double shutdownTime) {
 		this.shutdownTime = shutdownTime;
 	}
 
-	public Integer getServiceTime() {
+	public Double getServiceTime() {
 		return serviceTime;
 	}
 
-	public void setServiceTime(Integer serviceTime) {
+	public void setServiceTime(Double serviceTime) {
 		this.serviceTime = serviceTime;
 	}
 

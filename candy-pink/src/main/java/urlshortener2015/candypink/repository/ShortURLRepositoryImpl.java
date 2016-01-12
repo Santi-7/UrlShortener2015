@@ -32,8 +32,8 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 					rs.getInt("timeToBeSafe"),	rs.getBoolean("spam"), rs.getTimestamp("spamDate"),
 					rs.getBoolean("reachable"), rs.getTimestamp("reachableDate"), rs.getString("ip"),
 					rs.getString("country"), rs.getString("username"),rs.getInt("timesVerified"),
-					rs.getInt("mediumResponseTime"), rs.getInt("shutdownTime"),
-					rs.getInt("serviceTime"), rs.getBoolean("enabled"), rs.getInt("failsNumber"));
+					rs.getInt("mediumResponseTime"), rs.getDouble("shutdownTime"),
+					rs.getDouble("serviceTime"), rs.getBoolean("enabled"), rs.getInt("failsNumber"));
 		}
 	};
 
@@ -173,6 +173,30 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 					new Object[] { target }, rowMapper);
 		} catch (Exception e) {
 			log.debug("When select for target " + target , e);
+			return Collections.emptyList();
+		}
+	}
+
+	@Override
+	public List<ShortURL> findByThresholdAndUser(String user,Integer maxResponseTime, Double minServiceTime,
+												  Double maxShutdownTime) {
+		try {
+			return jdbc.query("SELECT * FROM SHORTURL WHERE username=? AND " +
+							"(maxResponseTime>? OR minServiceTime<? OR maxShutdownTime>?)",
+					new Object[]{user,maxResponseTime,minServiceTime,maxShutdownTime}, rowMapper);
+		} catch (Exception e) {
+			log.debug("When select for shorturls of user: " +user+ " and thresholds", e);
+			return Collections.emptyList();
+		}
+	}
+
+	@Override
+	public List<ShortURL> findByUserAndAvailability(String user,Boolean enabled) {
+		try {
+			return jdbc.query("SELECT * FROM SHORTURL WHERE username=? AND enabled=?",
+					new Object[]{user,enabled}, rowMapper);
+		} catch (Exception e) {
+			log.debug("When select for shorturls of user: " +user+ " and availability: "+ enabled, e);
 			return Collections.emptyList();
 		}
 	}

@@ -54,6 +54,9 @@ public class ScheduledChecker {
     @Autowired
     protected UserRepository userRepository;
 
+    @Autowired
+    protected JavaMailSender javaMailSender;
+
     /*
     * This method is executed every hour after the previous
     * excution
