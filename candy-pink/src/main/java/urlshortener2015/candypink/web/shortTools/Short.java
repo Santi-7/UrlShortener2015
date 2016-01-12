@@ -31,6 +31,7 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
+import java.sql.Timestamp;
 import java.util.Random;
 import java.util.UUID;
 
@@ -147,21 +148,23 @@ public class Short {
             try {
 				if (mode == 1) {
 					su = new ShortURL(id, url,
-							linkTo(
-									methodOn(UrlShortenerController.class).redirectToHTML(
-											id, token, null, null, null)).toUri(), token, users,
-							sponsor, new Date(System.currentTimeMillis()),
-							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe,timeToBeSafe, null, null, null, null, ip, null, username,
-							0,0,0,0);
+                        linkTo(
+                                methodOn(UrlShortenerController.class).redirectToHTML(
+                                        id, token, null, null, null)).toUri(), token, users,
+                        sponsor, new Timestamp(System.currentTimeMillis()),
+                        owner, HttpStatus.TEMPORARY_REDIRECT.value(),
+                        safe,timeToBeSafe, null, null, null, null, ip, null, username,
+                        0,0,0.0,0.0,true,0);
 					logger.info("Se ha creado la uri");
 				}
 				else {
-					su = new ShortURL(id, url, new URI(createLink(id)), token, users,
-							sponsor, new Date(System.currentTimeMillis()),
-							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null,null,null, null, ip, null, null);
-				}
+					su = new ShortURL(id, url,new URI(createLink(id)), token, users,
+                        sponsor, new Timestamp(System.currentTimeMillis()),
+                        owner, HttpStatus.TEMPORARY_REDIRECT.value(),
+                        safe,timeToBeSafe, null, null, null, null, ip, null, username,
+                        0,0,0.0,0.0,true,0);
+					logger.info("Se ha creado la uri");
+				}                
             } catch (IOException e) {
                 logger.info("Ha surgido una ioexception en create and safeifvalid");
             }

@@ -32,4 +32,7 @@ public interface ShortURLRepository {
 
 	List<ShortURL> findByTimeHours(Integer hours);
 
+	List<ShortURL> findByThresholdAndUser(String user,Integer maxResponseTime, Double minServiceTime,
+										  Double maxShutdownTime);
+	List<ShortURL> findByUserAndAvailability(String user,Boolean enabled);
 }
