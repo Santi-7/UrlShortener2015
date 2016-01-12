@@ -1,4 +1,4 @@
-package checker.infrastructure;
+package urlshortener2015.candypink.checker.infrastructure;
 
 import java.net.UnknownHostException;
 import java.util.Map;
@@ -8,6 +8,6 @@ import java.util.Map;
  */
 public interface AdapterToExtern {
 
-    public Map<String,Boolean> checkUrl(String url);
+    public Map<String,Object> checkUrl(String url);
 
 }

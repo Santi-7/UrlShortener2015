@@ -17,6 +17,7 @@ CREATE TABLE AUTHORITIES(
 	USERNAME	VARCHAR(30) NOT NULL FOREIGN KEY REFERENCES USERS(USERNAME), 
 	AUTHORITY	VARCHAR(30)
 );
+
 -- Pass = 'pass';
 INSERT INTO USERS VALUES ('user', '$2a$10$rU3kMgmSHu3/QTfLo9KU2Od21hAGISrzbWQCptxreDUNWx17/tE2W', 'true', 'user@test.com');
 INSERT INTO AUTHORITIES VALUES ('user', 'ROLE_NORMAL');	
@@ -33,11 +34,24 @@ CREATE TABLE SHORTURL(
 	OWNER		VARCHAR(255),			-- User id
 	MODE		INTEGER,			-- Redirect mode
 	SAFE		BOOLEAN,			-- Safe target
+	TIMETOBESAFE	INTEGER,-- Time the uri is going to be safe
 	SPAM		BOOLEAN,			-- Spam target
 	SPAMDATE	TIMESTAMP,			-- Last spam checking
 	REACHABLE	BOOLEAN,			-- Reachable	
 	REACHABLEDATE   TIMESTAMP,			-- Last reachabling checking	
 	IP		VARCHAR(20),			-- IP
 	COUNTRY		VARCHAR(50),			-- Country
-	USERNAME	VARCHAR(30) FOREIGN KEY REFERENCES USERS(USERNAME)
+	USERNAME	VARCHAR(30) FOREIGN KEY REFERENCES USERS(USERNAME),
+	TIMESVERIFIED	INTEGER,	--Times the uri has been verified
+	MEDIUMRESPONSETIME	INTEGER,--Medium response time of the url
+	SHUTDOWNTIME	INTEGER,	--Time the uri has been down
+	SERVICETIME	INTEGER			--Time the uri has been up
+);
+
+-- SecureToken
+
+CREATE TABLE SECURETOKEN(
+
+	TOKEN		VARCHAR(1024) PRIMARY KEY, -- Token
+
 );

@@ -1,4 +1,4 @@
-package checker.service;
+package urlshortener2015.candypink.checker.service;
 
 import org.springframework.stereotype.Service;
 

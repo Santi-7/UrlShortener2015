@@ -1,4 +1,4 @@
-package checker.infrastructure;
+package urlshortener2015.candypink.checker.infrastructure;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -33,9 +33,9 @@ public class AdapterToExternImpl implements AdapterToExtern {
 
 
     @Override
-    public Map<String, Boolean> checkUrl(String url) {
+    public Map<String, Object> checkUrl(String url) {
         Client checkerClient = ClientBuilder.newClient();
-        Map<String,Boolean> results = new HashMap<String,Boolean>();
+        Map<String,Object> results = new HashMap<String,Object>();
         //Preparing URI to check
         WebTarget target = checkerClient.target("https://sb-ssl.google.com/safebrowsing/api/lookup");
         WebTarget targetWithQueryParams = target.queryParam("key", apiKey);
@@ -57,10 +57,13 @@ public class AdapterToExternImpl implements AdapterToExtern {
         //Request to check if URI is reachable
         try {
             target = checkerClient.target(url);
+            Long beforeRequest = System.currentTimeMillis();
             response = target.request(MediaType.TEXT_PLAIN_TYPE).get();
+            Integer responseTime = new Long(System.currentTimeMillis() - beforeRequest).intValue();
             if(response.getStatus() == 200){
                 reach = true;
             }
+            results.put("responseTime",responseTime);
         }catch(ProcessingException e){}
         results.put("Spam", spam);
         results.put("Reachable", reach);
