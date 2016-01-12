@@ -57,20 +57,23 @@
 				  			<tbody>
 				  				<p th:each="user : ${users}">
 				  					<tr>
-										<!-- Username -->
-				  						<td><div th:text="${user.username}"></div></td>
-										<!-- Password -->
-										<td><div th:text="${user.password}"></div></td>
-										<!-- Email -->
-										<td><div th:text="${user.email}"></div></td>
-										<!-- Role -->
-										<td><div th:text="${user.authority}"></div></td>
-										<!-- Button to remove him -->
-										<td>
-											<span class="input-group-btn"><button class="btn btn-lg btn-primary">
-												<span class="glyphicon glyphicon-remove"></span> Remove user
-											</button></span>
-										</td>
+										<form id="contactform" action="manageUsers" method="POST">
+											<!-- Username -->
+					  						<td>
+												<input th:name="user" th:value="${user.username}" required="" type="hidden"></input>
+												<div th:text="${user.username}"></div>
+											</td>
+											<!-- Password -->
+											<td><div th:text="${user.password}"></div></td>
+											<!-- Email -->
+											<td><div th:text="${user.email}"></div></td>
+											<!-- Role -->
+											<td><div th:text="${user.authority}"></div></td>
+											<!-- Button to remove him -->
+											<td>
+												<input class="buttom" name="submit" id="submit" value="Remove user" type="submit"></input>
+											</td>
+										</form>
 				  					</tr>
 				  				</p>
 				  			</tbody>
