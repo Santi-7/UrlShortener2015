@@ -40,6 +40,8 @@ import checker.web.ws.schema.GetCheckerRequest;
 import checker.web.ws.schema.GetCheckerResponse;
 import urlshortener2015.candypink.domain.ShortURL;
 import urlshortener2015.candypink.repository.ShortURLRepository;
+import urlshortener2015.candypink.uploader.QueueObject;
+import urlshortener2015.candypink.uploader.QueueInfo;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -66,7 +68,7 @@ import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 public class FileUploadControllerW {
 	
 	@Resource
-	protected LinkedBlockingQueue<MultipartFile> csvQueue;
+	protected LinkedBlockingQueue<QueueObject> csvQueue;
 	
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
@@ -81,12 +83,32 @@ public class FileUploadControllerW {
     }
 
     @RequestMapping(method=RequestMethod.POST)
-    public ResponseEntity<?> handleFileUpload(@RequestParam("file") MultipartFile file, 
-				HttpServletResponse response){
+    public QueueInfo handleFileUpload(@RequestParam("file") MultipartFile file, 
+				HttpServletRequest request, HttpServletResponse response){
+					
         if (!file.isEmpty()) {
 			try{
-				csvQueue.put(file);
-				response.sendRedirect("index.html");
+				QueueObject qo = new QueueObject(file, "csv");
+				qo.setUser("/queue/urlUploads/user"+qo.hashCode());
+				csvQueue.put(qo);
+				QueueInfo qi = new QueueInfo(qo.getUser());
+				return qi;
+			}
+			catch(InterruptedException e){
+				System.err.println(e);
+			}
+		}
+		return null;
+    }
+    
+    /*@RequestMapping(method=RequestMethod.POST)
+    @RequestMapping("/htmlText")
+    public ResponseEntity<?> handleFormUpload(String url){
+		if(!url.equals("")){
+			try{
+				QueueObject qo = new QueueObject(url, "user", "url");
+				csvQueue.put(qo);
+				response.sendRedirect("websocket.html");
 			}
 			catch(InterruptedException e){
 				System.err.println(e);
@@ -97,5 +119,5 @@ public class FileUploadControllerW {
 			return new ResponseEntity<>(HttpStatus.OK);
 		}
 		return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-    }
+	}*/
 }

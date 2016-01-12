@@ -1,4 +1,4 @@
-package urlshortener2015.candypink;
+package urlshortener2015.candypink.uploader;
 
 import java.io.BufferedOutputStream;
 import java.io.File;
@@ -30,6 +30,10 @@ import org.springframework.oxm.jaxb.Jaxb2Marshaller;
 import org.springframework.util.ClassUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.ws.client.core.WebServiceTemplate;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.stereotype.Component;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.messaging.handler.annotation.MessageMapping;
 
 import checker.web.ws.schema.GetCheckerRequest;
 import checker.web.ws.schema.GetCheckerResponse;
@@ -44,11 +48,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URLEncoder;
+import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.sql.Date;
 import java.util.Random;
@@ -57,39 +63,57 @@ import java.util.UUID;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.linkTo;
 import static org.springframework.hateoas.mvc.ControllerLinkBuilder.methodOn;
 
-
-public class CsvProcessor implements Runnable{
+@Component
+public class CsvQueueConsumerBean{
 	
 	private int procNum;
 	
 	@Resource
-	protected LinkedBlockingQueue<MultipartFile> csvQueue;
+	protected LinkedBlockingQueue<QueueObject> csvQueue;
 	
 	@Autowired
 	protected ShortURLRepository shortURLRepository;
 	
-	private static final Logger logger = LoggerFactory.getLogger(UrlShortenerController.class);
+	private static final Logger logger = LoggerFactory.getLogger(CsvQueueConsumerBean.class);
 	
 	private Jaxb2Marshaller marshaller;//Communication to WS
 	
-	public CsvProcessor(int n){
-		procNum=n;
+	private final SimpMessagingTemplate messagingTemplate;
+	
+	@Autowired
+	public CsvQueueConsumerBean(SimpMessagingTemplate messagingTemplate) {
+		this.messagingTemplate = messagingTemplate;
 	}
 	
-	public void run(){
+	@Async
+	public void test(){
+		while(true){
+			clientUpdate(null);
+		}
+	}
+	
+	@Async
+	public void extractAndProcess(){
 		try{
 			while(true){
-				copyFile(csvQueue.take());
-				File f = new File("temp"+procNum);
+				QueueObject qo = csvQueue.take();
+				copyFile(qo.getFile());
+				File f = new File("temp");
 				Scanner sc = new Scanner(f);
 				sc.useDelimiter(",|\\s");
+				Client client = ClientBuilder.newClient();
 				while(sc.hasNext()){
 					String url = sc.next();
 					ResponseEntity<ShortURL> res = shortener(url, null, null, null, null, null);
-					if(res!=null && ((res.getStatusCode()).toString()).equals("400")){  
-						//Ha ido mal, comunicarselo al cliente (websocket)
+					if(res!=null && ((res.getStatusCode()).toString()).equals("400")){
+						String stat = (res.getBody().getUri()) + " : Failed";
+						UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
+						clientUpdate(um);
 					}
-					else{ //Ha ido ok, comunicarselo al cliente (websocket) 
+					else{
+						String stat = (res.getBody().getUri()) + " : Success";
+						UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
+						clientUpdate(um);
 					}
 				}
 				f.delete();
@@ -107,7 +131,6 @@ public class CsvProcessor implements Runnable{
 		catch (Exception e){
 			System.err.println(e);
 		}
-			
 	}
 	
 	private ResponseEntity<ShortURL> shortener(String url, String users, String time,
@@ -118,7 +141,7 @@ public class CsvProcessor implements Runnable{
 		Client client = ClientBuilder.newClient();
 		boolean safe = false;
 		if(users!=null && time!=null){ safe = !(users.equals("select") && time.equals("select"));}
-		ShortURL su = createAndSaveIfValid(url, safe, users, sponsor, brand, UUID.randomUUID().toString(), null);
+		ShortURL su = createAndSaveIfValidExtended(url, safe, users, sponsor, brand, UUID.randomUUID().toString(), null);
 		if (su != null) {
 			if (su.getSafe() == false) {// Url requested is not safe
 				HttpHeaders h = new HttpHeaders();
@@ -167,9 +190,43 @@ public class CsvProcessor implements Runnable{
 							id, token, null, null)).toUri(), token, users,
 							sponsor, new Date(System.currentTimeMillis()),
 							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
-							safe, null,null,null, null, ip, null, null);
+							safe, null,null,null, null, ip, null, null);			
 			}
 			catch (IOException e) {}
+			if (su != null) {
+					return shortURLRepository.save(su);
+			} else {
+				return null;
+			}
+		} else {
+			return null;
+		}
+	}
+	
+	protected ShortURL createAndSaveIfValidExtended(String url, boolean safe, String users,
+			String sponsor,	String brand, String owner, String ip) {
+		UrlValidator urlValidator = new UrlValidator(new String[] { "http",
+				"https" });
+		if (urlValidator.isValid(url)) {
+			String id = Hashing.murmur3_32()
+					.hashString(url, StandardCharsets.UTF_8).toString();
+			String token = null;
+			// If Url is safe, we create the token, else token = null
+			if (safe == true) {
+				// Random token of ten digits
+				token = createToken(10);
+			}
+			// ShortUrl
+			ShortURL su = null;
+			try {
+				su = new ShortURL(id, url, new URI(createLink(id)), token, users,
+							sponsor, new Date(System.currentTimeMillis()),
+							owner, HttpStatus.TEMPORARY_REDIRECT.value(),
+							safe, null,null,null, null, ip, null, null);			
+			}
+			catch(URISyntaxException e){
+				System.err.println(e);
+			}
 			if (su != null) {
 					return shortURLRepository.save(su);
 			} else {
@@ -207,8 +264,31 @@ public class CsvProcessor implements Runnable{
 		
 		byte[] bytes = f.getBytes();
 			BufferedOutputStream stream =
-					new BufferedOutputStream(new FileOutputStream(new File("temp"+procNum)));
+					new BufferedOutputStream(new FileOutputStream(new File("temp")));
 			stream.write(bytes);
 			stream.close();	
-	}	
+	}
+	
+	private String createLink(String id){
+		String url = "http://localhost:8080/" + id;
+		return url;
+	}
+	
+	public void clientUpdate(UpdateMessage update) {
+        this.messagingTemplate.convertAndSend(update.getUser(), update.getStatus());
+    }
+    
+    /*private void processUrl(String url){
+		ResponseEntity<ShortURL> res = shortener(url, null, null, null, null, null);
+		if(res!=null && ((res.getStatusCode()).toString()).equals("400")){
+			String stat = url + " : Failed";
+			UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
+			clientUpdate(um);
+		}
+		else{
+			String stat = url + " : Success";
+			UpdateMessage um = new UpdateMessage(stat, qo.getUser());  
+			clientUpdate(um);
+		}
+	}*/		
 }

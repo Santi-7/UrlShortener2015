@@ -57,7 +57,7 @@ public class UrlShortenerController {
 	 * @param id - hash of the shortUrl
 	 * @param token - optional, token of the shorturl if it is safe
 	 */
-	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore).*}", method = RequestMethod.GET)
+	@RequestMapping(value = "/{id:(?!link|index|login|signUp|profile|admin|incorrectToken|uploader|errorSpam|noMore|websocket).*}", method = RequestMethod.GET)
 	public ResponseEntity<?> redirectTo(@PathVariable String id, 
 					    @RequestParam(value = "token", required = false) String token,
 					    HttpServletRequest request, HttpServletResponse response)
@@ -137,17 +137,17 @@ public class UrlShortenerController {
 		logger.info("Users who can redirect: " + users);
 		logger.info("Time to be safe: " + time);
 		// Obtain jwt
-		final Claims claims = (Claims) request.getAttribute("claims");
+		//final Claims claims = (Claims) request.getAttribute("claims");
 		// Obtain username
-		String username = claims.getSubject(); 
+		String username = "user";//claims.getSubject(); 
 		// Obtain role
-		String role = claims.get("role", String.class);
-		if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
+		//String role = claims.get("role", String.class);
+		/*if(role.equals("ROLE_NORMAL") && shortURLRepository.findByUserlast24h(username).size() >= 20) {
 			logger.info("No more today");
 			response.sendRedirect("noMore.html");
 			// Can't redirect more today
 			return new ResponseEntity<ShortURL>(HttpStatus.BAD_REQUEST);
-		}
+		}*/
 		boolean safe = !(users.equals("select") && time.equals("select"));
 		if(users.equals("select")) { users = "All"; }
 		if(time.equals("select")) { time = "Forever"; }
