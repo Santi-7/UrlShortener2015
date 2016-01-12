@@ -24,25 +24,45 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+/**
+ * This controller manage de access to "/login" used for a user when he want log in.
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
+ */
 @RestController
 @RequestMapping("/login")
 public class LoginController {
 
+	// logger
 	private static final Logger logger = LoggerFactory.getLogger(LoginController.class);
 
+	// Key of JWT
 	@Value("${jwt.key}")
     	private String key;
 
+	// User repository
 	@Autowired
 	protected UserRepository userRepository;
 
 
+	/**
+	 * Constructor of LoginController without params
+	 */
 	public LoginController() {}
 
+	/**
+	 * Constructor of LoginController with a user repository
+	 * @param userRepository - Repository of users
+	 */
 	public LoginController(UserRepositoryImpl userRepository){
         	this.userRepository = userRepository;
     	}
 
+	/**
+	 * Return the model and view of login page
+	 * @param error - error in log in
+	 * @param request - request of the client
+	 * @return the model and view of login page
+	 */
 	@RequestMapping(method = RequestMethod.GET)
 	public ModelAndView login(@RequestParam(value = "error", required = false) String error, HttpServletRequest request) {
 		ModelAndView model = new ModelAndView();
@@ -50,6 +70,14 @@ public class LoginController {
 		return model;
 	}
 
+	/**
+	 * Check the user whi has loged in exist in the database and give him a JWT
+	 * @param id - username of the user
+	 * @param password - password of the user
+	 * @param request - request of the user
+	 * @param response - response to the request of the user
+	 * @returns the user who has loged in
+	 */
 	@RequestMapping(method = RequestMethod.POST)
 	public ResponseEntity<User> login(@RequestParam("user") String id, @RequestParam("password") String password, 						  HttpServletRequest request, HttpServletResponse response) { 
 		logger.info("Requested login with username " + id);
@@ -61,16 +89,17 @@ public class LoginController {
 				BCryptPasswordEncoder encoder=new BCryptPasswordEncoder();
 				// The password is correct
 				if(encoder.matches(password, user.getPassword())) {
-					logger.info("KEY: " + key);
+					// Creates a token
 					String token = AuthUtils.createToken(user.getUsername(), user.getAuthority(), 
 							     key, new Date(System.currentTimeMillis() + 15*60*1000));
-					logger.info("JWT: " + token);
+					// Put a token as a cookie of the response
 					response.addCookie(new Cookie("Authorization", token));					
-					// Put token in response
+					// Return the user and a correct status
 					return new ResponseEntity<>(user, HttpStatus.CREATED);
 				}
 				// The password is incorrect
 				else {
+					// Return a bad request status
 					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 				}
 			}
