@@ -32,9 +32,12 @@ The leader of the group (Alberto Álvarez) has to adjust the score of the other 
 * Santiago gil works in slides. 2.5 points.
 * Iñigo Gascón Royo works in Websockets. 5 points.
 * David Nicuesa works in checking time. 5 points. 
+* David Nicuesa  mail and times. 10 points 
+* Santiago Gil delete users. 10 ponints
+* Iñigo Gascón websockets. 15 points
 
 User name            | Points
 ---------------------|-------
-David Nicuesa Aranda | 82
-Santiago Gil Begué   | 74.5
-Iñigo Gascón Royo    | 42
+David Nicuesa Aranda | 92
+Santiago Gil Begué   | 84.5
+Iñigo Gascón Royo    | 57
