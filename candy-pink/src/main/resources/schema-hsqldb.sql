@@ -19,9 +19,19 @@ CREATE TABLE AUTHORITIES(
 	AUTHORITY	VARCHAR(30)
 );
 
--- Pass = 'pass';
+-- Normal User: User = 'user' Pass = 'pass';
  INSERT INTO USERS VALUES ('user', '$2a$10$rU3kMgmSHu3/QTfLo9KU2Od21hAGISrzbWQCptxreDUNWx17/tE2W', 'true', 'user@test.com');
  INSERT INTO AUTHORITIES VALUES ('user', 'ROLE_NORMAL');
+
+-- Premium User: User = 'premium' Pass = 'pass';
+ INSERT INTO USERS VALUES ('premium', '$2a$10$rU3kMgmSHu3/QTfLo9KU2Od21hAGISrzbWQCptxreDUNWx17/tE2W', 'true', 'premium@test.com');
+ INSERT INTO AUTHORITIES VALUES ('premium', 'ROLE_PREMIUM');
+
+-- Admin: User = 'admin' Pass = 'pass';
+ INSERT INTO USERS VALUES ('admin', '$2a$10$rU3kMgmSHu3/QTfLo9KU2Od21hAGISrzbWQCptxreDUNWx17/tE2W', 'true', 'admin@test.com');
+ INSERT INTO AUTHORITIES VALUES ('admin', 'ROLE_ADMIN');
+
+
 
 -- ShortURL
 
