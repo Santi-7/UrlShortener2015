@@ -1,5 +1,5 @@
 
- #Funcionality 1
+#Funcionality 1
   * Pass: A.Alvarez (1.5) - D.Nicuesa (6)
   * Good: D.Nicuesa (3.75)
 
@@ -28,6 +28,10 @@
   * RESTful between machines: D. Nicuesa (5)
   * Websockets: I. Gascón (5)
   
+
+
+
+
 
 
   User name          | Points
