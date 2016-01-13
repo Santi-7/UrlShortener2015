@@ -86,11 +86,13 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public User findByUsernameOrEmail(String id) {
 		try {
+			log.info("Puta cuenta nano: " + count());
 			return jdbc.queryForObject("SELECT u.username, u.password, u.enabled, u.email, a.authority" 
 			                            +" FROM USERS u, AUTHORITIES a "
 			                            +"WHERE u.username=? OR u.email=? AND u.username=a.username",
          					    rowMapper, id, id);
 		} catch (Exception e) {
+			log.info("Puta cuenta nano222: " + count());
 			log.debug("When select for id " + id, e);
 			return null;
 		}
@@ -105,11 +107,11 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public User save(User user) {
 		try {
-			log.info("Password " + user.getPassword());
 			jdbc.update("INSERT INTO USERS VALUES (?, ?, ?, ?)",
 					user.getUsername(), user.getPassword(), user.getEnabled(), user.getEmail());
 			jdbc.update("INSERT INTO AUTHORITIES VALUES (?, ?)",
 					user.getUsername(), user.getAuthority());
+			log.info("Long authorities:" +count());
 			return user;
 		// It already exists another user with same username
 		} catch (DuplicateKeyException e) {
@@ -172,7 +174,7 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public Long count() {
 		try {
-			return jdbc.queryForObject("select count(*) from Users", Long.class);
+			return jdbc.queryForObject("select count(*) from Authorities", Long.class);
 		} catch (Exception e) {
 			log.debug("When counting", e);
 		}

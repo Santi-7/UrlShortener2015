@@ -83,33 +83,43 @@ public class LoginController {
 		logger.info("Requested login with username " + id);
 		//Verify the fields aren´t empty
 		if (verifyFields(id, password)) {
+			logger.info("Fields are not empty. User: "+ id + ",Pass: "+password);
 			//There is a user with this username or email
 			User user = userRepository.findByUsernameOrEmail(id);
 			if (user != null) {
+				logger.info("user is not null.  We found it");
 				BCryptPasswordEncoder encoder=new BCryptPasswordEncoder();
 				// The password is correct
 				if(encoder.matches(password, user.getPassword())) {
+					logger.info("Correct password");
 					// Creates a token
 					String token = AuthUtils.createToken(user.getUsername(), user.getAuthority(), 
 							     key, new Date(System.currentTimeMillis() + 15*60*1000));
+					logger.info("Token:" + token);
 					// Put a token as a cookie of the response
 					response.addCookie(new Cookie("Authorization", token));					
 					// Return the user and a correct status
+					logger.info("Devuelto");
 					return new ResponseEntity<>(user, HttpStatus.CREATED);
 				}
 				// The password is incorrect
 				else {
 					// Return a bad request status
+					logger.info("Not matches");
+					logger.info("User pwd: "+ user.getPassword());
+					logger.info("Pwd introduced: "+ password);
 					return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 				}
 			}
 			//There aren't a user with this username or email
 			else {
+				logger.info("No user with this username or email");
 				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 		}
 		// There are empty fields
 		else {
+			logger.info("Empty fields");
 			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
