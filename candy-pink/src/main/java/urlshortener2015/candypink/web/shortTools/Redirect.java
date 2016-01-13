@@ -14,11 +14,19 @@ import urlshortener2015.candypink.repository.SecureTokenRepository;
 import javax.servlet.http.HttpServletRequest;
 import java.net.URI;
 
+import org.springframework.beans.factory.annotation.Value;
+
+import urlshortener2015.candypink.auth.support.AuthUtils;
+
+
 /**
  * This class offers method for redirect a shortURL
  * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
  */
 public class Redirect {
+
+    // Key to encrypt JWT
+    private static String key = "secret";
 
     // Message if is spam
     public static final String IS_SPAM = "is_spam";
@@ -84,19 +92,27 @@ public class Redirect {
 						//Needed permission
 						if (!l.getUsers().equals("All")) {
 							// Obtain jwt
-							final Claims claims = (Claims) request.getAttribute("claims");
+							Claims claims = (Claims) request.getAttribute("claims");
+							if(claims == null) {
+								claims = AuthUtils.getClaimsFromCookies(request, key);
+							}
 							try {
+								logger.info("Obtained Claims");
 								// Obtain username
 								String username = claims.getSubject();
 								// Obtain role
 								String role = claims.get("role", String.class);
+								logger.info("User Role:" + role);
+								logger.info("Uri Role:" + l.getUsers());
 								// The user haven't got permission
 								if ((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
 										(l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+									logger.info("You can't");
 									return NOT_AUTH;
 								}
 								// A exception occurred
 							} catch (NullPointerException e) {
+								logger.info("Claims null");
 								return NOT_AUTH;
 							}
 						}

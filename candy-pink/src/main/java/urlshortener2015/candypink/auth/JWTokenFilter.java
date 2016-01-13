@@ -16,6 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 
+import urlshortener2015.candypink.auth.support.AuthUtils;
+
 /**
  * This class is a JWT filter to filter the uris and check the permissions
  * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa 
@@ -56,7 +58,7 @@ public class JWTokenFilter extends GenericFilterBean {
 		// Obtain servlets
 		final HttpServletRequest request = (HttpServletRequest) req;
 		final HttpServletResponse response = (HttpServletResponse) res;
-		String jwtoken = getToken(request);
+		String jwtoken = AuthUtils.getToken(request);
 		// Obtain the required permission
 		String permission = requiredPermission(request.getRequestURI(), request.getMethod());
 		// All users can access
@@ -134,26 +136,6 @@ public class JWTokenFilter extends GenericFilterBean {
 				}
 			}
 		}
-	}
-
-	/**
-	 * Returns he JWT from the cookies of the request if exist, null 
-	 *	   in other case
-	 * @param request - Request of the client
-	 * @return the JWT from the cookies of the request if exist, null 
-	 *	   in other case	
-	 */
-	private String getToken(HttpServletRequest request) {
-		String jwt = null;
-		Cookie[] cookies = request.getCookies();
-		if (cookies != null) {
-			for (int i = 0; i < cookies.length; i++) {
-				if(cookies[i].getName().equals("Authorization")) {
-					jwt = cookies[i].getValue();
-				}	
-			}
-		}
-		return jwt;
 	}
 
 	/**

@@ -7,6 +7,8 @@ import java.util.Date;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletRequest;
 
 /**
  * This class offer methods to process uris to filter
@@ -25,10 +27,11 @@ public class AuthUtils {
 					 + "/link:POST-Normal:end:"+ newLine
 					 + "/profile:GET-Normal,POST-Normal,PUT-Normal,DELETE-Normal:end:"+ newLine
 					 + "/login:GET-Not,POST-Not,PUT-Not,DELETE-Not:end:"+ newLine
-					 + "/upload:POST-Normal:end:" + newLine;
+					 + "/upload:POST-Normal:end:" + newLine
+					 + "/secure:GET-Normal:end:" + newLine;
 
 	// Uris that must be filtered
-	private static final String FILTER = "/login,/link,/profile,/manageUsers,/upload";
+	private static final String FILTER = "/login,/link,/profile,/manageUsers,/upload,/secure";
 
 	/**
 	 * Returns a JWT for a client with a time of expiration and encrypted with a key.
@@ -93,5 +96,37 @@ public class AuthUtils {
 		auth = authList.toArray(auth);
 		logger.info("TAM: " + auth.length);
 		return auth;
+	}
+
+	/**
+	 * Returns he JWT from the cookies of the request if exist, null 
+	 *	   in other case
+	 * @param request - Request of the client
+	 * @return the JWT from the cookies of the request if exist, null 
+	 *	   in other case	
+	 */
+	public static String getToken(HttpServletRequest request) {
+		String jwt = null;
+		Cookie[] cookies = request.getCookies();
+		if (cookies != null) {
+			for (int i = 0; i < cookies.length; i++) {
+				if(cookies[i].getName().equals("Authorization")) {
+					jwt = cookies[i].getValue();
+				}	
+			}
+		}
+		return jwt;
+	}
+
+	/**
+	 * Return the claims of the cookie if exist. Null in other case
+	 * @param request - request of the client
+	 * @param key - key for the encryption
+	 * @return the claims of the cookie if exist. Null in other case.
+	 */
+	public static Claims getClaimsFromCookies(HttpServletRequest request, String key) {
+		String jwt = getToken(request);
+		return getClaims(jwt, key);
+		
 	}
 }
