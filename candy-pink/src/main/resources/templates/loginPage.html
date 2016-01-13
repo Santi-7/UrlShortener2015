@@ -3,7 +3,6 @@
 <head>
 <title>URL Shortener</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"></meta>
-<meta name="google-signin-client_id" content="524571196627-84aatcf383nfc983vrvqum52alc3kbav.apps.googleusercontent.com"></meta>
 <link rel="stylesheet" type="text/css" href="webjars/bootstrap/3.3.5/css/bootstrap.min.css" />
 <link type="text/css" rel="stylesheet" href="css/bgStyle.css" media="all" />
 <link type="text/css" rel="stylesheet" href="css/form.css" media="all" />
@@ -11,18 +10,8 @@
 <script type="text/javascript" src="webjars/bootstrap/3.3.5/js/bootstrap.min.js"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
 <script type="text/javascript" src="js/login.js"></script>
-<script src="https://apis.google.com/js/platform.js" async defer></script>
 </head>
 <body>
-	<!-- Facebook Inicialization -->
-	<div id="fb-root"></div>
-	<script>(function(d, s, id) {
-	  var js, fjs = d.getElementsByTagName(s)[0];
-	  if (d.getElementById(id)) return;
-	  js = d.createElement(s); js.id = id;
-	  js.src = "//connect.facebook.net/en_US/sdk.js#xfbml=1&version=v2.5";
-	  fjs.parentNode.insertBefore(js, fjs);
-	}(document, 'script', 'facebook-jssdk'));</script>
 	<!-- Imagen de cabecera del sitio web -->
 	<center><img src="images/CandyLogoTrans.png" height="103" alt="CandyShort logo"/></center>
 	<!-- Menú con los botones descritos a continuación -->
@@ -57,129 +46,15 @@
         	</header>
 		<div class="form">
 			<form id="contactform" action="login" method="POST">
-				<p class="contact"><label for="name">Username or email</label></p> 
+				<p class="contact"><label for="name">Username</label></p> 
 				<input id="user" name="user" placeholder="Text your username" required="" type="text"></input>
 				<p class="contact"><label for="password">Password</label></p> 
 				<input type="password" id="password" name="password" placeholder="Text your password" required=""></input>
 
-				<input class="buttom" name="submit" id="submit" value="Log in!" type="submit"></input>
-				<p id="forgot"><a href="forgotPass.html"><label for="forget"><font color="blue">Forgot your password?</font></label></a></p> 					
+				<input class="buttom" name="submit" id="submit" value="Log in!" type="submit"></input>				
 			</form>
 		</div></br>
-		<!-- Google log in -->
-		<center><div class="g-signin2" data-onsuccess="onSignIn"></div></center>
-		<script>
-			function onSignIn(googleUser) {
-			  var profile = googleUser.getBasicProfile();
-			  console.log('ID: ' + profile.getId()); // Do not send to your backend! Use an ID token instead.
-			  console.log('Name: ' + profile.getName());
-			  console.log('Image URL: ' + profile.getImageUrl());
-			  console.log('Email: ' + profile.getEmail());
-			};
-		</script>
-		<!-- Facebook log in -->
-		<div id="fb-root"></div>
-<script>
-  window.fbAsyncInit = function() {
-    FB.init({
-      appId      : '788155934645484', // Set YOUR APP ID
-      status     : true, // check login status
-      cookie     : true, // enable cookies to allow the server to access the session
-      xfbml      : true  // parse XFBML
-    });
- 
-    FB.Event.subscribe('auth.authResponseChange', function(response) 
-    {
-     if (response.status === 'connected') 
-    {
-        document.getElementById("message").innerHTML +=  "<br>Connected to Facebook";
-        //SUCCESS
- 
-    }    
-    else if (response.status === 'not_authorized') 
-    {
-        document.getElementById("message").innerHTML +=  "<br>Failed to Connect";
- 
-        //FAILED
-    } else 
-    {
-        document.getElementById("message").innerHTML +=  "<br>Logged Out";
- 
-        //UNKNOWN ERROR
-    }
-    }); 
- 
-    };
- 
-    function Login()
-    {
- 
-        FB.login(function(response) {
-           if (response.authResponse) 
-           {
-		var uid = response.authResponse.userID;
-                var accessToken = response.authResponse.accessToken;
-                getUserInfo();
-            } else 
-            {
-             console.log('User cancelled login or did not fully authorize.');
-            }
-         },{scope: 'email,user_photos,user_videos,public_profile'});
- 
-    }
- 
-  function getUserInfo() {
-        FB.api('/me', function(response) {
- 
-      var str="<b>Name</b> : "+response.name+"<br>";
-          str +="<b>Link: </b>"+response.link+"<br>";
-          str +="<b>Username:</b> "+response.username+"<br>";
-          str +="<b>id: </b>"+response.id+"<br>";
-          str +="<b>Email:</b> "+response.email+"<br>";
-          str +="<input type='button' value='Get Photo' onclick='getPhoto();'/>";
-          str +="<input type='button' value='Logout' onclick='Logout();'/>";
-          document.getElementById("status").innerHTML=str;
- 
-    });
-    }
-    function getPhoto()
-    {
-      FB.api('/me/picture?type=normal', function(response) {
- 
-          var str="<br/><b>Pic</b> : <img src='"+response.data.url+"'/>";
-          document.getElementById("status").innerHTML+=str;
- 
-    });
- 
-    }
-    function Logout()
-    {
-        FB.logout(function(){document.location.reload();});
-    }
- 
-  // Load the SDK asynchronously
-  (function(d){
-     var js, id = 'facebook-jssdk', ref = d.getElementsByTagName('script')[0];
-     if (d.getElementById(id)) {return;}
-     js = d.createElement('script'); js.id = id; js.async = true;
-     js.src = "//connect.facebook.net/en_US/all.js";
-     ref.parentNode.insertBefore(js, ref);
-   }(document));
- 
-</script>
-<div align="center">
- 
-<div id="status"><br/>
-<img src="http://hayageek.com/examples/oauth/facebook/oauth-javascript/LoginWithFacebook.png" style="cursor:pointer;" onclick="Login()"/>
-</div>
- 
 <br/><br/><br/><br/><br/>
- 
-<div id="message">
-Logs:<br/>
-</div>
- 
 </div>
 </body>
 </html>
-/script

@@ -107,6 +107,7 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 	@Override
 	public ShortURL save(ShortURL su) {
 		try {
+			log.info("Inserting...");
 			jdbc.update("INSERT INTO shorturl VALUES (?,?,?,?,?,CURRENT_TIMESTAMP,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
 					su.getHash(), su.getToken(), su.getUsers(), su.getTarget(), su.getSponsor(),
 					su.getOwner(), su.getMode(), su.getSafe(),su.getTimeToBeSafe(), su.getSpam(), su.getSpamDate(),
@@ -115,12 +116,13 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 					su.getServiceTime(),su.getEnabled(),su.getFailsNumber());
 		// It already exists another ShortUrl with same username
 		} catch (DuplicateKeyException e) {
-			log.debug("When insert for key " + su.getHash(), e);
+			log.info("When insert for key " + su.getHash());
 			return su;
 		} catch (Exception e) {
-			log.debug("When insert", e);
+			log.info("When insert", e);
 			return null;
 		}
+		log.info("INSERTED");
 		return su;
 	}
 

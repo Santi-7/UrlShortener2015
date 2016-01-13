@@ -36,6 +36,8 @@ public class ApplicationConfig {
 		JWTokenFilter authenticationFilter = new JWTokenFilter(key, AuthUtils.buildAuthURIs());
 		registrationBean.setFilter(authenticationFilter);
 		registrationBean.setUrlPatterns(AuthUtils.filterList());
+		//ArrayList<String> auth = new ArrayList<String>();
+		//registrationBean.setUrlPatterns("/{?!ws}");
 		return registrationBean;
 	}
 	@Bean

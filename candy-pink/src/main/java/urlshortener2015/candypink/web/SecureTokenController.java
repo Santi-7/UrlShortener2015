@@ -76,7 +76,8 @@ public class SecureTokenController {
 				// Save the token
 				if(secureTokenRepository.save(new SecureToken(crypt))!=null) {
 					logger.info("Token saved");
-					return new ResponseEntity<>(scureToken, HttpStatus.OK);			
+					return new ResponseEntity<>("Token: " + scureToken +
+								    " - SecureToken: " + crypt, HttpStatus.OK);			
 				}
 			}
 			// Exception occurred

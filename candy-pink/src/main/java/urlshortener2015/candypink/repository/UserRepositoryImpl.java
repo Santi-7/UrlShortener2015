@@ -86,13 +86,13 @@ public class UserRepositoryImpl implements UserRepository {
 	@Override
 	public User findByUsernameOrEmail(String id) {
 		try {
-			log.info("Puta cuenta nano: " + count());
+			log.info("Searching: " + id);
 			return jdbc.queryForObject("SELECT u.username, u.password, u.enabled, u.email, a.authority" 
 			                            +" FROM USERS u, AUTHORITIES a "
-			                            +"WHERE u.username=? OR u.email=? AND u.username=a.username",
-         					    rowMapper, id, id);
+			                            +"WHERE (u.username=? OR u.email=?) AND a.username=? AND a.username=u.username",
+         					    rowMapper, id, id, id);
 		} catch (Exception e) {
-			log.info("Puta cuenta nano222: " + count());
+			log.info("Problems searching");
 			log.debug("When select for id " + id, e);
 			return null;
 		}

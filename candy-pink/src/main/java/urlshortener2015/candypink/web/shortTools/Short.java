@@ -122,8 +122,8 @@ public class Short {
         if (urlValidator.isValid(url)) {
             // Hash
             logger.info("La url es valida");
-            String id = Hashing.murmur3_32()
-                    .hashString(url, StandardCharsets.UTF_8).toString();
+            String id = "0".concat(Hashing.murmur3_32()
+                    .hashString(url, StandardCharsets.UTF_8).toString());
             String token = null;
             // If Url is safe, we create the token, else token = null
             if (safe == true) {
@@ -173,7 +173,7 @@ public class Short {
     }
     
     private static String createLink(String id){
-		String url = "http://localhost:8080/" + id;
+		String url = "http://localhost:8080/0" + id;
 		return url;
 	}
 	

@@ -83,8 +83,11 @@ public class QueueConsumerBean {
                     shortURL.setReachableDate(now);
                     //Calculate times of the threshold
                     //Medium response time
-                    Integer mediumResponseTime = calculateMediumResponseTime((Integer) map.get("responseTime"),
+                    Integer mediumResponseTime = 0;
+		    if(map.get("responseTime") != null) {		    
+			mediumResponseTime = calculateMediumResponseTime((Integer) map.get("responseTime"),
                             shortURL.getMediumResponseTime(), shortURL.getTimesVerified());
+		    }
                     shortURL.setMediumResponseTime(mediumResponseTime);
                     //Service time
                     Double sTime = shortURL.getServiceTime();
@@ -139,7 +142,6 @@ public class QueueConsumerBean {
      * Disables the url if must so
      */
     private void evaluate(ShortURL url){
-
         Double doubleMaxDownTime =  Double.parseDouble(maxDownTime);
         Double doubleMinServiceTime =  Double.parseDouble(minServiceTime);
         if(url.getMediumResponseTime() > maxResponseTime || url.getShutdownTime() > doubleMaxDownTime
