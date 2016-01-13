@@ -1,7 +1,8 @@
 package urlshortener2015.candypink.checker.service;
 
 /**
- * Created by david on 1/01/16.
+ * This class provides an interface for the service
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
  */
 public interface CheckerService {
 

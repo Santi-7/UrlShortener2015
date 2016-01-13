@@ -66,64 +66,63 @@ public class Redirect {
     * */
     public static String validateURI(ShortURL l, String token, String secureToken, HttpServletRequest request,
 			       SecureTokenRepository secureTokenRepository) {
-        // ShortUrl exists in our BBDD
-        if (l != null) {
-            // URL is not spam, is reachable and is enabled
-            if (!l.getSpam() && l.getReachable() && l.getEnabled()) {
-                // URL is safe, we must check token
-                logger.info("Is URL safe?: " + l.getSafe());
-                if (l.getSafe()) {
-                    logger.info("Client token " + token + " - Real token: " + l.getToken());
-                    // Token doesn't match
-                    if (!l.getToken().equals(token)) {
-                        return NOT_MATCH;
-                    }
-		    // There are a secure token and is valid
-		    logger.info("Verify Token");
-		    if(secureToken != null && verifyToken(secureToken, token, secureTokenRepository)) {
-			    //Needed permission
-			    if (!l.getUsers().equals("All")) {
-			        // Obtain jwt
-			        final Claims claims = (Claims) request.getAttribute("claims");
-			        try {
-			            // Obtain username
-			            String username = claims.getSubject();
-			            // Obtain role
-			            String role = claims.get("role", String.class);
-                                    // The user haven't got permission
-			            if ((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
-			                    (l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
-			                return NOT_AUTH;
-			            }
-				// A exception occurred
-			        } catch (NullPointerException e) {
-			            return NOT_AUTH;
-			        }
-			    }
-		  // URL is not safe or token matches
-		  logger.info("Devuelve OK");
-		  return OK;
-		  }
-		  logger.info("Secure Token bad verified");
-		  return NOT_AUTH;      
-	}
+		// ShortUrl exists in our BBDD
+		if (l != null) {
+			// URL is not spam, is reachable and is enabled
+			if (!l.getSpam() && l.getReachable() && l.getEnabled()) {
+				// URL is safe, we must check token
+				logger.info("Is URL safe?: " + l.getSafe());
+				if (l.getSafe()) {
+					logger.info("Client token " + token + " - Real token: " + l.getToken());
+					// Token doesn't match
+					if (!l.getToken().equals(token)) {
+						return NOT_MATCH;
+					}
+					// There are a secure token and is valid
+					logger.info("Verify Token");
+					if (secureToken != null && verifyToken(secureToken, token, secureTokenRepository)) {
+						//Needed permission
+						if (!l.getUsers().equals("All")) {
+							// Obtain jwt
+							final Claims claims = (Claims) request.getAttribute("claims");
+							try {
+								// Obtain username
+								String username = claims.getSubject();
+								// Obtain role
+								String role = claims.get("role", String.class);
+								// The user haven't got permission
+								if ((l.getUsers().equals("Premium") && !role.equals("ROLE_PREMIUM")) ||
+										(l.getUsers().equals("Normal") && !role.equals("ROLE_NORMAL"))) {
+									return NOT_AUTH;
+								}
+								// A exception occurred
+							} catch (NullPointerException e) {
+								return NOT_AUTH;
+							}
+						}
+						// URL is not safe or token matches
+						logger.info("Devuelve OK");
+						return OK;
+					}
+					logger.info("Secure Token bad verified");
+					return NOT_AUTH;
+				}
 				return OK;
-            }else if(!l.getReachable()){
-                //Uri is not reachable
-                return NOT_REACH;
-            }else if(!l.getEnabled()){
+			} else if (!l.getReachable()) {
+				//Uri is not reachable
+				return NOT_REACH;
+			} else if (!l.getEnabled()) {
 				//Uri is not enabled
 				return NOT_EXISTS;
+			} else {
+				// URL is spam
+				return IS_SPAM;
 			}
-            else {
-                // URL is spam
-                return IS_SPAM;
-            }
-            // ShortUrl does not exist in our BBDD
-        } else {
-            return NOT_EXISTS;
-        }
-    }
+			// ShortUrl does not exist in our BBDD
+		} else {
+			return NOT_EXISTS;
+		}
+	}
 
      /**
       * Verify the secureToken of the URI

@@ -76,28 +76,32 @@ dependencies {
     runtime 'org.hsqldb:hsqldb'
 
     // Provides java script libraries for static content
-    compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.webjars:bootstrap:3.3.5'
     compile 'org.webjars:jquery:2.1.4'
     compile "org.apache.httpcomponents:httpclient:$httpClientVersion"
+    //Dynamic content thymeleaf
+    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    //Jersey framework (REST services)
     compile 'org.glassfish.jersey.containers:jersey-container-grizzly2-http:2.13'
     compile 'org.glassfish.jersey.core:jersey-server:2.13'
     compile 'org.glassfish.jersey.containers:jersey-container-servlet:2.13'
     compile 'org.glassfish.jersey.media:jersey-media-moxy:2.13'
+    //Spring web utils
+    compile 'org.springframework.plugin:spring-plugin-core:1.1.0.RELEASE'
+    compile 'org.springframework.boot:spring-boot-starter-web'
     compile 'org.springframework.boot:spring-boot-starter-ws'
     compile 'org.springframework:spring-web:4.1.6.RELEASE'
+    //Spring security utils
     compile 'org.springframework.security:spring-security-crypto:3.1.0.RELEASE'
-    compile("org.springframework.boot:spring-boot-starter-thymeleaf")
+    //JSON web token
     compile 'io.jsonwebtoken:jjwt:0.6.0'
-    compile "wsdl4j:wsdl4j:1.6.1"
-    compile 'org.springframework.plugin:spring-plugin-core:1.1.0.RELEASE'
-//  compile files(genJaxb.classesDir).builtBy(genJaxb)
     // Websockets
     compile("org.springframework.boot:spring-boot-starter-websocket")
     compile("org.springframework:spring-messaging")
     // Mail
     compile'org.springframework.boot:spring-boot-starter-mail'
-
+    //SOAP web service
+    compile "wsdl4j:wsdl4j:1.6.1"
     jaxb 	"com.sun.xml.bind:jaxb-xjc:2.2.4-1"
 
     testCompile 'junit:junit:4.11'
