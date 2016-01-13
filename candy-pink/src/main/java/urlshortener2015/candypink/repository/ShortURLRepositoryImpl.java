@@ -116,7 +116,7 @@ public class ShortURLRepositoryImpl implements ShortURLRepository {
 					su.getServiceTime(),su.getEnabled(),su.getFailsNumber());
 		// It already exists another ShortUrl with same username
 		} catch (DuplicateKeyException e) {
-			log.info("When insert for key " + su.getHash(), e);
+			log.info("When insert for key " + su.getHash());
 			return su;
 		} catch (Exception e) {
 			log.info("When insert", e);

@@ -92,7 +92,6 @@ public class UserRepositoryImpl implements UserRepository {
 			                            +"WHERE (u.username=? OR u.email=?) AND a.username=? AND a.username=u.username",
          					    rowMapper, id, id, id);
 		} catch (Exception e) {
-			e.printStackTrace();
 			log.info("Problems searching");
 			log.debug("When select for id " + id, e);
 			return null;

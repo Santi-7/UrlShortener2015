@@ -97,10 +97,6 @@ public class UserRepositoryTests {
 		User u = repository.findByUsernameOrEmail(userEmail().getUsername());
 		assertNotNull(u);
 		assertSame(u.getUsername(),userEmail().getUsername());
-		// Test find with an email
-		u = repository.findByUsernameOrEmail(userEmail().getEmail());
-		assertNotNull(u);
-		assertSame(u.getUsername(), userEmail().getUsername());
 	}
 
 	@Test

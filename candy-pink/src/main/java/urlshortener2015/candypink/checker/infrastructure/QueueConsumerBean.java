@@ -142,8 +142,6 @@ public class QueueConsumerBean {
      * Disables the url if must so
      */
     private void evaluate(ShortURL url){
-
-	LOG.info("El pene de Nicuesa mide: " + url);
         Double doubleMaxDownTime =  Double.parseDouble(maxDownTime);
         Double doubleMinServiceTime =  Double.parseDouble(minServiceTime);
         if(url.getMediumResponseTime() > maxResponseTime || url.getShutdownTime() > doubleMaxDownTime
