@@ -1,9 +1,12 @@
 package urlshortener2015.candypink.domain;
 
 import java.net.URI;
-import java.sql.Date;
 import java.sql.Timestamp;
 
+/**
+ * Represents an url entity
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
+ */
 public class ShortURL {
 
 	private String hash;

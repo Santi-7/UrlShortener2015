@@ -9,12 +9,15 @@ import javax.ws.rs.client.ClientBuilder;
 import javax.ws.rs.client.WebTarget;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
-import java.net.UnknownHostException;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Created by david on 2/01/16.
+ * Adapter to external service. It uses the Google Safe
+ * Browsing service to check if the uri is spam|malware.
+ * In addition, checks the availability of the url and its
+ * response time.
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
  */
 @Component
 public class AdapterToExternImpl implements AdapterToExtern {
@@ -31,7 +34,11 @@ public class AdapterToExternImpl implements AdapterToExtern {
     @Value("${pver}")
     private String pver;
 
-
+    /**
+     * Checks the url is safe and available.
+     * @param url - URL that must be analyzed
+     * @return - Map containing the results from the verification
+     */
     @Override
     public Map<String, Object> checkUrl(String url) {
         Client checkerClient = ClientBuilder.newClient();

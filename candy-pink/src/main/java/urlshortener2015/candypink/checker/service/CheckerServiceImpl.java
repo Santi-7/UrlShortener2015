@@ -6,7 +6,9 @@ import javax.annotation.Resource;
 import java.util.concurrent.LinkedBlockingQueue;
 
 /**
- * Created by david on 1/01/16.
+ * This class provides a service for the endpoint to
+ * use.
+ * @author - A.Alvarez, I.Gascon, S.Gil, D.Nicuesa
  */
 
 @Service
