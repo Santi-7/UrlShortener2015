@@ -28,6 +28,8 @@
   * RESTful between machines: D. Nicuesa (5)
   * Websockets: I. Gascón (5)
   
+
+
   User name          | Points
 ---------------------|-------
 David Nicuesa Aranda | 24.33
