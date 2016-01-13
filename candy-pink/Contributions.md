@@ -19,7 +19,7 @@
   
  #Funcionality 5
   * Pass: S. Gil (5)
-  * Good: A. Alvarez (0.83) - S. Gil (0.83) - D. Nicuesa (0.83)
+  * Good: A. Alvarez (0.75) - S. Gil (1) - D. Nicuesa (0.75)
   * Excellent: A. Alvarez (2.5)
   
  #Technologies of assignments
@@ -36,7 +36,7 @@
 
   User name          | Points
 ---------------------|-------
-David Nicuesa Aranda | 24.33
+David Nicuesa Aranda | 24.25
 Iñigo Gascón Royo    | 16.25
-Albeto Álvarez Aldea | 15.995
-Santiago Gil Begué   | 14.705
+Albeto Álvarez Aldea | 15.875
+Santiago Gil Begué   | 14.875
