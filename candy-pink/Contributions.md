@@ -1,7 +1,3 @@
-#Contributions
- 
- This file shows the contribution of each member of the team in the obtained points.
- 
  #Funcionality 1
   * Pass: A.Alvarez (1.5) - D.Nicuesa (6)
   * Good: D.Nicuesa (3.75)
