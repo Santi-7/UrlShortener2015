@@ -8,7 +8,7 @@
   * Good: A. Alvarez (1.875) - S. Gil (1.875)
   
  #Funcionality 3
-  * Pass: A. Alvarez (0.5) - S. Gil (4.5)
+  * Pass: S. Gil (5)
   * Good: S. Gil (1.25) - D. Nicuesa (1.25) 
   * Excellent: D. Nicuesa (2.5)
   
@@ -19,7 +19,7 @@
   
  #Funcionality 5
   * Pass: S. Gil (5)
-  * Good: A. Alvarez (0.75) - S. Gil (1) - D. Nicuesa (0.75)
+  * Good: A. Alvarez (0.5) - S. Gil (1.5) - D. Nicuesa (0.5)
   * Excellent: A. Alvarez (2.5)
   
  #Technologies of assignments
@@ -38,5 +38,5 @@
 ---------------------|-------
 David Nicuesa Aranda | 24.25
 Iñigo Gascón Royo    | 16.25
-Albeto Álvarez Aldea | 15.875
-Santiago Gil Begué   | 14.875
+Santiago Gil Begué   | 15.625
+Albeto Álvarez Aldea | 15.125
